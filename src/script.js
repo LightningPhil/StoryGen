@@ -12,20 +12,18 @@ const DEFAULT_READING_AGE_MIN = 5;
 const DEFAULT_READING_AGE_MAX = 12; 
 const DEFAULT_TARGET_READING_AGE = 7; 
 
-// Font Size Configuration
-const STORY_FONT_SIZE_STEP = 0.1; // Amount to increase/decrease font size by in rem
+const STORY_FONT_SIZE_STEP = 0.1; 
 const MIN_STORY_FONT_SIZE_REM = 0.7;
 const MAX_STORY_FONT_SIZE_REM = 2.0;
-const DEFAULT_STORY_FONT_SIZE_REM = 1.0; // Matches #storyOutput initial CSS if defined, or browser default
+const DEFAULT_STORY_FONT_SIZE_REM = 1.0; 
 
 // --- Local Storage Keys (Constants) ---
 import { 
     LS_API_KEY, LS_CHARACTERS, LS_AUDIENCE, LS_SELECTED_FRAMEWORK, LS_SELECTED_MODEL,
     LS_USE_ENGINE_SUGGESTIONS, LS_USER_SUGGESTIONS, LS_MIN_API_INTERVAL, 
     LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, 
-    LS_READING_AGE_MIN, LS_READING_AGE_MAX, 
+    LS_READING_AGE_MIN, LS_READING_AGE_MAX, LS_ENABLE_CONSOLIDATOR, // Added LS_ENABLE_CONSOLIDATOR
     saveToLocalStorage, loadFromLocalStorage 
-    // LS_STORY_FONT_SIZE, // Add if making font size persistent
 } from './localStorage.js';
 
 // --- Imports from Modules ---
@@ -39,6 +37,7 @@ import {
     PROMPT_AGENT_4_POLISHER_TEMPLATE,
     PROMPT_AGENT_5_CLEANER_TEMPLATE,
     PROMPT_AGENT_6_TITLER_TEMPLATE,
+    PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE, // Added PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE
 } from './prompts/agent_prompts.js';
 import { callAgentAPI } from './api.js';
 import { parseCharacters, constructAgentPrompt, countWords } from './utils.js'; 
@@ -53,43 +52,76 @@ import {
     updateSuggestionsTextareaStyle,
     disableMainControls, 
     enableMainControls,
-    applyStoryFontSize // New function from ui.js
+    applyStoryFontSize 
 } from './ui.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
-let copyStoryButton, saveStoryButton, elaborateStoryButton, decreaseFontButton, increaseFontButton; // Added font buttons
+let copyStoryButton, saveStoryButton, elaborateStoryButton, decreaseFontButton, increaseFontButton; 
 let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
-let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer; 
+let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, /* targetReadingAgeValueDisplay removed */ readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
+let enableConsolidatorCheckbox; // New checkbox
 
 // --- Application State for Font Size ---
 let currentStoryFontSizeRem = DEFAULT_STORY_FONT_SIZE_REM;
-// To make it persistent:
-// let currentStoryFontSizeRem = parseFloat(loadFromLocalStorage(LS_STORY_FONT_SIZE)) || DEFAULT_STORY_FONT_SIZE_REM;
+
+// --- Agent Definitions (Base) ---
+const AGENT_1_CRAFTER_DEF = { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' };
+const AGENT_2_ELABORATOR_DEF = { name: "Agent 2: Elaborator", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' };
+const AGENT_C_CONSOLIDATOR_DEF = { name: "Agent C: Consolidator", promptTemplate: PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' };
+const AGENT_3_REVIEWER_DEF = { name: "Agent 3: Reviewer", promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'reviewText' };
+const AGENT_4_POLISHER_DEF = { name: "Agent 4: Polisher", promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE, dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' };
+const AGENT_5_CLEANER_DEF = { name: "Agent 5: Cleaner", promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE, dataKeys: ['storyText'], outputKey: 'storyText' };
+const AGENT_6_TITLER_DEF = { name: "Agent 6: Titler", promptTemplate: PROMPT_AGENT_6_TITLER_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE'], outputKey: 'titleText' };
 
 
-// --- Pipeline Configurations ---
-const STORY_GENERATION_PIPELINE = [
-    { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, step: "1/6", dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
-    { name: "Agent 2: Elaborator", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, step: "2/6", dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
-    { name: "Agent 3: Reviewer", promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE, step: "3/6", dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'reviewText' },
-    { name: "Agent 4: Polisher", promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE, step: "4/6", dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
-    { name: "Agent 5: Cleaner", promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE, step: "5/6", dataKeys: ['storyText'], outputKey: 'storyText' },
-    { name: "Agent 6: Titler", promptTemplate: PROMPT_AGENT_6_TITLER_TEMPLATE, step: "6/6", dataKeys: ['storyText', 'READING_AGE_NOTE'], outputKey: 'titleText' },
-];
+// --- Dynamic Pipeline Configuration Functions ---
+function getStoryGenerationPipelineConfig(enableConsolidator) {
+    const pipeline = [
+        AGENT_1_CRAFTER_DEF,
+        AGENT_2_ELABORATOR_DEF,
+    ];
+    if (enableConsolidator) {
+        pipeline.push(AGENT_C_CONSOLIDATOR_DEF);
+    }
+    pipeline.push(AGENT_3_REVIEWER_DEF);
+    pipeline.push(AGENT_4_POLISHER_DEF);
+    if (enableConsolidator) {
+        pipeline.push(AGENT_C_CONSOLIDATOR_DEF);
+    }
+    pipeline.push(AGENT_5_CLEANER_DEF);
+    pipeline.push(AGENT_6_TITLER_DEF);
+    
+    return pipeline.map((agent, index) => ({ ...agent, step: `${index + 1}/${pipeline.length}` }));
+}
 
-const ELABORATION_PIPELINE = [
-    { name: "Agent 2: Elaborator (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, step: "1/4", dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
-    { name: "Agent 3: Reviewer (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE, step: "2/4", dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'reviewText' },
-    { name: "Agent 4: Polisher (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE, step: "3/4", dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
-    { name: "Agent 5: Cleaner (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE, step: "4/4", dataKeys: ['storyText'], outputKey: 'storyText' },
-];
+function getElaborationPipelineConfig(enableConsolidator) {
+    // For elaboration, let's decide if consolidator makes sense. 
+    // Usually, elaboration is about adding. If we consolidate here, it might undo elaboration.
+    // For now, let's keep consolidator out of the direct elaboration pipeline,
+    // or make it a different toggle for "Refine after Elaboration".
+    // Keeping it simple: consolidator is part of the main generation flow if toggled.
+    // If user wants to consolidate an already elaborated story, they'd regenerate with consolidator on.
+    // Or, we can add a single consolidator step at the end of elaboration.
+    // Let's add one at the end for this implementation if enabled.
+    const pipeline = [
+        AGENT_2_ELABORATOR_DEF, // This is the elaborator from the original code, not a new one
+        AGENT_3_REVIEWER_DEF,
+        AGENT_4_POLISHER_DEF,
+    ];
+    if (enableConsolidator) {
+        pipeline.push(AGENT_C_CONSOLIDATOR_DEF);
+    }
+    pipeline.push(AGENT_5_CLEANER_DEF); // Cleaner always last before titling (if titling was here)
+
+    return pipeline.map((agent, index) => ({ ...agent, step: `${index + 1}/${pipeline.length}` }));
+}
 
 
 function updateTargetReadingAgeSliderDOMState() {
-    if (!targetReadingAgeSlider || !readingAgeMinInput || !readingAgeMaxInput || !targetReadingAgeValueDisplay || !enableReadingAgeAdjustmentCheckbox || !readingAgeSliderContainer) return;
+    if (!targetReadingAgeSlider || !readingAgeMinInput || !readingAgeMaxInput || /* !targetReadingAgeValueDisplay removed */ !enableReadingAgeAdjustmentCheckbox || !readingAgeSliderContainer) return;
     
     const minAge = parseInt(loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString(), 10);
     const maxAge = parseInt(loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString(), 10);
@@ -102,7 +134,7 @@ function updateTargetReadingAgeSliderDOMState() {
     if (currentValue > maxAge) currentValue = maxAge;
     targetReadingAgeSlider.value = currentValue.toString();
     
-    if (targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = currentValue.toString();
+    // targetReadingAgeValueDisplay.textContent = currentValue.toString(); // Removed
     
     const isEnabled = enableReadingAgeAdjustmentCheckbox.checked;
     targetReadingAgeSlider.disabled = !isEnabled;
@@ -122,8 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
     userSuggestionsTextarea = document.getElementById('userSuggestionsTextarea');
     enableReadingAgeAdjustmentCheckbox = document.getElementById('enableReadingAgeAdjustmentCheckbox'); 
     targetReadingAgeSlider = document.getElementById('targetReadingAgeSlider'); 
-    targetReadingAgeValueDisplay = document.getElementById('targetReadingAgeValue'); 
+    // targetReadingAgeValueDisplay = document.getElementById('targetReadingAgeValue'); // Removed
     readingAgeSliderContainer = document.getElementById('readingAgeSliderContainer'); 
+    enableConsolidatorCheckbox = document.getElementById('enableConsolidatorCheckbox'); // New
     craftingFrameworkSelect = document.getElementById('craftingFrameworkSelect');
     frameworkSummaryDiv = document.getElementById('frameworkSummary');
     generateButton = document.getElementById('generateButton');
@@ -132,14 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
     copyStoryButton = document.getElementById('copyStoryButton');
     saveStoryButton = document.getElementById('saveStoryButton');
     elaborateStoryButton = document.getElementById('elaborateStoryButton');
-    decreaseFontButton = document.getElementById('decreaseFontButton'); // New
-    increaseFontButton = document.getElementById('increaseFontButton'); // New
+    decreaseFontButton = document.getElementById('decreaseFontButton'); 
+    increaseFontButton = document.getElementById('increaseFontButton'); 
     settingsModal = document.getElementById('settingsModal');
     settingsButton = document.getElementById('settingsButton');
     cancelSettingsButton = document.getElementById('cancelSettingsButton');
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
-    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton) {
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox) {
         console.error("Critical UI elements are missing. Application may not function correctly.");
         if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
         return;
@@ -147,11 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initUIElements({ 
         storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton,
-        decreaseFontButton, increaseFontButton, // Pass new buttons
+        decreaseFontButton, increaseFontButton, 
         craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea
     });
 
-    // Apply initial font size (could be loaded from LS if persistent)
     applyStoryFontSize(currentStoryFontSizeRem);
 
     if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome! Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
@@ -197,6 +229,12 @@ document.addEventListener('DOMContentLoaded', () => {
     targetReadingAgeSlider.value = loadFromLocalStorage(LS_TARGET_READING_AGE) || DEFAULT_TARGET_READING_AGE.toString();
     updateTargetReadingAgeSliderDOMState(); 
 
+    enableConsolidatorCheckbox.checked = (loadFromLocalStorage(LS_ENABLE_CONSOLIDATOR) === 'true'); // Load consolidator state
+    enableConsolidatorCheckbox.addEventListener('change', () => { // Save consolidator state
+        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, enableConsolidatorCheckbox.checked.toString());
+    });
+
+
     useEngineSuggestionsCheckbox.addEventListener('change', () => {
         updateSuggestionsTextareaStyle();
         saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, useEngineSuggestionsCheckbox.checked.toString());
@@ -208,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, enableReadingAgeAdjustmentCheckbox.checked.toString());
     });
     targetReadingAgeSlider.addEventListener('input', () => {
-        if (targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value;
+        // if (targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value; // Removed
     });
     targetReadingAgeSlider.addEventListener('change', () => saveToLocalStorage(LS_TARGET_READING_AGE, targetReadingAgeSlider.value));
 
@@ -283,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Font Size Control Event Listeners
     increaseFontButton.addEventListener('click', () => {
         let newSize = currentStoryFontSizeRem + STORY_FONT_SIZE_STEP;
         if (newSize > MAX_STORY_FONT_SIZE_REM) {
@@ -291,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentStoryFontSizeRem = newSize;
         applyStoryFontSize(currentStoryFontSizeRem);
-        // if (LS_STORY_FONT_SIZE) saveToLocalStorage(LS_STORY_FONT_SIZE, currentStoryFontSizeRem.toString());
     });
 
     decreaseFontButton.addEventListener('click', () => {
@@ -301,7 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentStoryFontSizeRem = newSize;
         applyStoryFontSize(currentStoryFontSizeRem);
-        // if (LS_STORY_FONT_SIZE) saveToLocalStorage(LS_STORY_FONT_SIZE, currentStoryFontSizeRem.toString());
     });
 
 
@@ -336,6 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
             readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
         }
 
+        const enableConsolidator = enableConsolidatorCheckbox.checked; // Get consolidator state
+
         return { 
             apiKey, 
             modelId, 
@@ -343,7 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
             audience, 
             CRAFT_GUIDE_TEXT: craftGuideText, 
             READING_AGE_NOTE: readingAgeNote, 
-            USER_SUGGESTIONS_TEXT: userSuggestionsText 
+            USER_SUGGESTIONS_TEXT: userSuggestionsText,
+            enableConsolidator // Pass consolidator state
         };
     }
 
@@ -351,6 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentPipelineData = { ...pipelineData }; 
 
         for (const agentDef of pipelineConfig) {
+            // Use agentDef.step which is now pre-calculated as "X/Y"
             updateStatusInStoryOutput(`Step ${agentDef.step}: ${agentDef.name.substring(agentDef.name.indexOf(':') + 2).replace('(Elaboration Cycle)', '').trim().replace('Story ', '')}...\n`);
             
             const agentDataObject = {};
@@ -411,6 +450,8 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_CHARACTERS, charactersInput.value);
         saveToLocalStorage(LS_AUDIENCE, audienceInput.value);
         saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
+        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, commonInputs.enableConsolidator.toString());
+
 
         updateStatusInStoryOutput(`Initialising story generation...\n`);
         
@@ -421,8 +462,10 @@ document.addEventListener('DOMContentLoaded', () => {
             titleText: ""
         };
 
+        const currentPipelineConfig = getStoryGenerationPipelineConfig(commonInputs.enableConsolidator);
+
         try {
-            const finalData = await runPipeline(STORY_GENERATION_PIPELINE, initialPipelineData, commonInputs);
+            const finalData = await runPipeline(currentPipelineConfig, initialPipelineData, commonInputs);
             
             appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
             appState.latestGeneratedStoryTitle = (finalData.titleText || "Untitled Story").trim();
@@ -455,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
         disableMainControls();
         updateStatusInStoryOutput(`Starting elaboration...\n`);
 
-        const commonInputs = gatherPipelineInputs();
+        const commonInputs = gatherPipelineInputs(); // Will pick up current consolidator state
 
         if (!commonInputs.apiKey) {
             displayErrorInStoryOutput("API Key is missing. Please configure it in Settings.");
@@ -468,8 +511,10 @@ document.addEventListener('DOMContentLoaded', () => {
             reviewText: "" 
         };
 
+        const currentPipelineConfig = getElaborationPipelineConfig(commonInputs.enableConsolidator);
+
         try {
-            const finalData = await runPipeline(ELABORATION_PIPELINE, initialPipelineData, commonInputs);
+            const finalData = await runPipeline(currentPipelineConfig, initialPipelineData, commonInputs);
             
             appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
             

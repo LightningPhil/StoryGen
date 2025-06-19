@@ -21,7 +21,7 @@
     --color-text-primary: #24292e; 
     --color-text-secondary: #57606a; 
     --color-text-light: #6a737d;   
-    --color-text-placeholder: #adb5bd; /* For "Waiting for Title..." and other placeholders */
+    --color-text-placeholder: #adb5bd; 
 
     --color-button-primary-bg: #343a40; 
     --color-button-primary-text: #ffffff;
@@ -62,7 +62,7 @@
     
     --controls-panel-width: 380px; 
     --panel-padding: 20px;
-    --header-height-approx: 55px; /* Approximate height for header content area */
+    --header-height-approx: 55px; 
 }
 
 html, body {
@@ -153,10 +153,10 @@ body {
 .form-section::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
 
 
-.controls-panel label {
+.controls-panel label { /* General labels for inputs */
     display: block;
-    margin-top: 16px; 
-    margin-bottom: 6px;
+    margin-top: 12px; /* Reduced */
+    margin-bottom: 4px; /* Reduced */
     font-family: var(--font-headings);
     font-weight: 500; 
     font-size: 0.8rem; 
@@ -175,7 +175,7 @@ body {
 .controls-panel input[type="number"] { 
     width: 100%;
     padding: 10px 12px;
-    margin-bottom: 10px; 
+    margin-bottom: 8px; /* Slightly reduced */
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-md); 
     background-color: #fff;
@@ -203,15 +203,15 @@ body {
     background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 12px; padding-right: 35px;
 }
 
-.control-group {
-    margin-top: 18px; 
-    margin-bottom: 8px; 
-    padding: 14px; 
+.control-group { /* The bordered boxes */
+    margin-top: 12px; /* Reduced */
+    margin-bottom: 10px; /* Adjusted */
+    padding: 12px; /* Reduced */
     border: 1px solid var(--color-border-light);
     border-radius: var(--border-radius-md); 
     background-color: #fff; 
 }
-.control-group label.group-title { 
+.control-group label.group-title { /* Though removed from HTML, keeping selector for now */
     margin-top: 0;
     margin-bottom: 8px; 
     font-size: 0.85rem; 
@@ -224,7 +224,7 @@ body {
 .checkbox-wrapper {
     display: flex;
     align-items: center;
-    margin-bottom: 6px; 
+    margin-bottom: 4px; /* Reduced */
     margin-top: 3px;
 }
 .controls-panel input[type="checkbox"] {
@@ -268,7 +268,7 @@ body {
 .controls-panel #userSuggestionsTextarea {
     min-height: 70px; 
     margin-bottom: 0; 
-    margin-top: 5px; 
+    margin-top: 4px; /* Reduced */
     font-size: 0.875rem;
 }
 #userSuggestionsTextarea.suggestions-used { background-color: var(--color-suggestions-bg-used); }
@@ -276,7 +276,7 @@ body {
 #userSuggestionsTextarea:disabled { background-color: var(--color-suggestions-bg-not-used); color: #adb5bd; cursor: not-allowed; opacity: 0.7; }
 
 .slider-container {
-    margin-top: 8px;
+    margin-top: 6px; /* Reduced */
     padding-left: 0; 
     opacity: 1;
     transition: opacity 0.3s ease;
@@ -363,7 +363,7 @@ button:focus-visible {
     opacity: 0.65;
 }
 .controls-panel #generateButton.button-primary { 
-    width: 100%; padding: 12px 15px; font-size: 0.95rem; margin-top: 20px; 
+    width: 100%; padding: 12px 15px; font-size: 0.95rem; margin-top: 15px; /* Reduced */
     font-weight: 600; 
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -394,7 +394,8 @@ button:focus-visible {
 .controls-panel .framework-summary { 
     padding: 10px 12px; 
     margin-top: 5px; 
-    margin-bottom: 15px; font-size: 0.8rem;
+    margin-bottom: 12px; /* Reduced */
+    font-size: 0.8rem;
     background-color: var(--color-suggestions-bg-not-used); 
     border-radius: var(--border-radius-sm);
     line-height: 1.5; 
@@ -402,7 +403,7 @@ button:focus-visible {
 }
 
 
-/* Story Display Panel (Right Side) */
+/* Story Display Panel (Right Side) - Styles from previous iteration for title spacing are retained */
 .story-display-panel { 
     flex-grow: 1; 
     padding: var(--panel-padding);
@@ -413,14 +414,14 @@ button:focus-visible {
 }
 
 .story-display-panel .story-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px; 
-    padding-bottom: 15px; 
-    border-bottom: 1px solid var(--color-border-light); /* This is the line underneath it */
+    display: flex;                 /* For aligning items inside (h1 and settings icon) */
+    justify-content: space-between;/* Puts h1 left, icon right */
+    align-items: center;           /* Vertically aligns h1 and icon */
+    margin-bottom: 15px;           /* Space below the entire header block (and its line) */
+    padding-bottom: 15px;          /* Space between h1/icon and the bottom border line */
+    border-bottom: 1px solid var(--color-border-light); /* The line itself */
     flex-shrink: 0; 
-    min-height: var(--header-height-approx); 
+    min-height: var(--header-height-approx); /* Ensures consistent height */
     box-sizing: content-box; 
 }
 
@@ -429,7 +430,7 @@ button:focus-visible {
     text-align: left;
     flex-grow: 1;
     margin: 0; 
-    font-size: 1.8rem;
+    font-size: 1.8rem; /* Matched to static title */
     font-weight: 600; 
     color: var(--color-text-primary); 
     letter-spacing: -0.015em; 
@@ -442,7 +443,7 @@ button:focus-visible {
     color: var(--color-text-placeholder); 
     font-style: italic; 
     font-weight: 500; 
-    font-size: 1.4rem; 
+    font-size: 1.4rem; /* Matched */
 }
 
 
@@ -478,9 +479,9 @@ button:focus-visible {
     border: 1px solid var(--color-border-light);
     padding: 20px 25px; 
     border-radius: var(--border-radius-md); 
-    margin-top: 0; /* Ensures it sits right under .story-header */
+    margin-top: 0; 
     line-height: 1.75; 
-    font-size: 1rem; 
+    font-size: 1rem; /* Base font size, will be overridden by JS if controls used */
     color: var(--color-text-primary);
     white-space: pre-wrap; 
     box-shadow: var(--shadow-xs); 

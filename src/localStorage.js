@@ -12,6 +12,7 @@ export const LS_ADJUST_READING_AGE_ENABLED = 'adjustReadingAgeEnabled_storyCircl
 export const LS_TARGET_READING_AGE = 'targetReadingAge_storyCircle';       // For the slider value
 export const LS_READING_AGE_MIN = 'readingAgeMin_storyCircle'; 
 export const LS_READING_AGE_MAX = 'readingAgeMax_storyCircle'; 
+export const LS_ENABLE_CONSOLIDATOR = 'enableConsolidator_storyCircle'; // New key for consolidator
 
 
 export function saveToLocalStorage(key, value) {
