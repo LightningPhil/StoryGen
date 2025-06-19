@@ -11,7 +11,9 @@ export const PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE = `You are an award-winning a
 
 The story should be based on the following characters: **\${charactersList}**.
 The target audience is: **\${audience}**.
+
 \${USER_SUGGESTIONS_TEXT}
+
 \${READING_AGE_NOTE}
 
 When you name a character, be inventive and whimsical, using names that are fun to say and easy for children to remember. For example, instead of 'Panda', you might use 'Pip the Panda' or 'Pip the Pondering Panda'. Do not use Barnaby, Buster, or any other names that are too common or not whimsical enough.
@@ -41,7 +43,9 @@ You have been given the following story (which might be a first draft or an alre
 """
 
 The story is aimed at: **\${audience}**.
+
 \${READING_AGE_NOTE}
+
 The original story was crafted using (or inspired by) the following framework/guide. Keep its principles in mind for your additions, but your primary goal is to elaborate creatively:
 \${CRAFT_GUIDE_TEXT}
 
@@ -82,6 +86,7 @@ Review the story draft with a critical but constructive eye. Focus on the follow
     *   **Weaknesses:** Are there any steps that feel rushed, underdeveloped, unclear, or unconvincing according to the chosen framework?
 7.  **Integration of Elaborations (if applicable):** If the story appears to have been elaborated (i.e., is longer or richer than a typical first draft), are any new additions (details, scenes) well-integrated? Do they enhance the story or feel tacked on? Does the story maintain consistency? **Ensure the story is demonstrably longer and richer if it was intended to be elaborated, and that this added length contributes positively.**
 8.  **Output format:** Use plain text, do not use markup, JSON or a serial format.
+9.  **Repeated Elements:** If the story has been elaborated, ensure that any repeated elements (like character names or key phrases) are consistent and do not create confusion. However, also ensure that the story does not feel repetitive or redundant in its elaborations.
 
 Output your feedback as a list of clear, actionable comments or bullet points that the writer can use to revise the story. Be specific in your suggestions, especially regarding how well the story adheres to the provided **CRAFT_GUIDE_TEXT**.
 

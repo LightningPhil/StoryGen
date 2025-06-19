@@ -1,10 +1,10 @@
 // src/script.js
 
 // --- Configuration (Constants) ---
-const DEFAULT_GEMINI_MODEL_ID = "gemini-2.0-flash"; 
-const AVAILABLE_MODELS = {
+const DEFAULT_GEMINI_MODEL_ID = "gemini-2.5-flash"; 
+const AVAILABLE_MODELS = { 
     "gemini-2.5-flash": "Gemini-2.5-Flash",
-    "gemini-2.0-flash": "Gemini-2.0-flash",
+    "gemini-2.0-flash": "Gemini-2.0-Flash",
     "gemini-1.5-flash": "Gemini-1.5-Flash"
 };
 const DEFAULT_MIN_API_INTERVAL_S = 5; 
@@ -22,6 +22,7 @@ import {
 } from './localStorage.js';
 
 // --- Imports from Modules ---
+import appState from './appState.js'; 
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
 import {
     READING_AGE_ADJUSTMENT_TEXT_TEMPLATE, 
@@ -44,41 +45,59 @@ import {
     updateFrameworkSummaryDisplay, 
     updateSuggestionsTextareaStyle,
     disableMainControls, 
-    enableMainControls,
-    setLatestStoryTextForUI // For ui.js to access latestGeneratedStoryText if needed by enableMainControls
+    enableMainControls
 } from './ui.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
-let copyStoryButton, saveStoryButton, elaborateStoryButton;
+let copyStoryButton, saveStoryButton, elaborateStoryButton; 
 let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
 let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
 
-// --- Global State ---
-let lastRunChatLog = []; 
-let latestGeneratedStoryText = ""; 
-let latestGeneratedStoryTitle = ""; 
+// --- Pipeline Configurations ---
+// Ensure dataKeys here match the keys returned by gatherPipelineInputs for shared data
+// and keys in initialPipelineData for pipeline-specific data.
+const STORY_GENERATION_PIPELINE = [
+    { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, step: "1/6", dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
+    { name: "Agent 2: Elaborator", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, step: "2/6", dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
+    { name: "Agent 3: Reviewer", promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE, step: "3/6", dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'reviewText' },
+    { name: "Agent 4: Polisher", promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE, step: "4/6", dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
+    { name: "Agent 5: Cleaner", promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE, step: "5/6", dataKeys: ['storyText'], outputKey: 'storyText' },
+    { name: "Agent 6: Titler", promptTemplate: PROMPT_AGENT_6_TITLER_TEMPLATE, step: "6/6", dataKeys: ['storyText', 'READING_AGE_NOTE'], outputKey: 'titleText' },
+];
+
+const ELABORATION_PIPELINE = [
+    { name: "Agent 2: Elaborator (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, step: "1/4", dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
+    { name: "Agent 3: Reviewer (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE, step: "2/4", dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'reviewText' },
+    { name: "Agent 4: Polisher (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE, step: "3/4", dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
+    { name: "Agent 5: Cleaner (Elaboration Cycle)", promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE, step: "4/4", dataKeys: ['storyText'], outputKey: 'storyText' },
+];
+
 
 function updateTargetReadingAgeSliderDOMState() {
     if (!targetReadingAgeSlider || !readingAgeMinInput || !readingAgeMaxInput || !targetReadingAgeValueDisplay || !enableReadingAgeAdjustmentCheckbox || !readingAgeSliderContainer) return;
+    
     const minAge = parseInt(loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString(), 10);
     const maxAge = parseInt(loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString(), 10);
+    
     targetReadingAgeSlider.min = minAge.toString();
     targetReadingAgeSlider.max = maxAge.toString();
+    
     let currentValue = parseInt(targetReadingAgeSlider.value, 10);
     if (isNaN(currentValue) || currentValue < minAge) currentValue = minAge;
     if (currentValue > maxAge) currentValue = maxAge;
     targetReadingAgeSlider.value = currentValue.toString();
+    
     if (targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = currentValue.toString();
+    
     const isEnabled = enableReadingAgeAdjustmentCheckbox.checked;
     targetReadingAgeSlider.disabled = !isEnabled;
     readingAgeSliderContainer.classList.toggle('disabled', !isEnabled);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Assign DOM Element Variables
     modalApiKeyInput = document.getElementById('modalApiKeyInput');
     modalModelSelect = document.getElementById('modalModelSelect');
     minApiIntervalInput = document.getElementById('minApiIntervalInput'); 
@@ -106,173 +125,331 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelSettingsButton = document.getElementById('cancelSettingsButton');
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
-    initUIElements({
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer) {
+        console.error("Critical UI elements are missing. Application may not function correctly.");
+        if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
+        return;
+    }
+    
+    initUIElements({ 
         storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton,
         craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea
     });
 
-    // Critical Element Check... (as before)
-    
-    // Initial UI State
-    if (copyStoryButton) copyStoryButton.style.display = 'none';
-    if (saveStoryButton) saveStoryButton.style.display = 'none';
-    if (elaborateStoryButton) elaborateStoryButton.style.display = 'none';
     if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome! Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
+    enableMainControls();
 
-    // Event Listeners & UI Setup
-    if (useEngineSuggestionsCheckbox && userSuggestionsTextarea) { /* ... as before ... */ }
-    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider && targetReadingAgeValueDisplay && readingAgeSliderContainer) { /* ... as before ... */ }
-    if (modalModelSelect) { /* ... as before ... */ }
-    if (modalApiKeyInput) { /* ... as before ... */ }
-    if (minApiIntervalInput) { /* ... as before ... */ }
-    if (readingAgeMinInput) { /* ... as before ... */ }
-    if (readingAgeMaxInput) { /* ... as before ... */ }
-    if (settingsButton && settingsModal && saveSettingsButton && cancelSettingsButton /* ... */) { /* ... settings modal logic as before ... */ }
-    if (copyStoryButton && storyOutputDiv) { /* ... as before ... */ }
-    if (saveStoryButton && storyOutputDiv && storyTitleDiv) { /* ... as before ... */ }
-    if (craftingFrameworkSelect) { /* ... as before, ensure updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES) is called ... */ }
-    if (charactersInput) { /* ... as before ... */ }
-    if (audienceInput) { /* ... as before ... */ }
+    Object.keys(STORY_CRAFTING_GUIDES).forEach(key => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        craftingFrameworkSelect.appendChild(option);
+    });
+    const storedFramework = loadFromLocalStorage(LS_SELECTED_FRAMEWORK);
+    if (storedFramework && STORY_CRAFTING_GUIDES[storedFramework]) {
+        craftingFrameworkSelect.value = storedFramework;
+    }
+    updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES); 
+    craftingFrameworkSelect.addEventListener('change', () => {
+        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
+        saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
+    });
+    
+    modalModelSelect.innerHTML = ''; 
+    Object.entries(AVAILABLE_MODELS).forEach(([id, name]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = name;
+        modalModelSelect.appendChild(option);
+    });
+    modalModelSelect.value = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
 
+    modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || '';
+    charactersInput.value = loadFromLocalStorage(LS_CHARACTERS) || '';
+    audienceInput.value = loadFromLocalStorage(LS_AUDIENCE) || 'children aged 5-7';
+    minApiIntervalInput.value = loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString();
+    
+    useEngineSuggestionsCheckbox.checked = (loadFromLocalStorage(LS_USE_ENGINE_SUGGESTIONS) === 'true');
+    userSuggestionsTextarea.value = loadFromLocalStorage(LS_USER_SUGGESTIONS) || '';
+    updateSuggestionsTextareaStyle();
 
-    // --- Story Generation Pipelines ---
-    async function handleGenerateStory() {
-        lastRunChatLog = []; 
-        clearStoryOutput(); // Clear output area for new log
-        disableMainControls(); // Pass generateButton, elaborateStoryButton if not global
-        setLatestStoryTextForUI(""); // Update UI module's internal state
+    enableReadingAgeAdjustmentCheckbox.checked = (loadFromLocalStorage(LS_ADJUST_READING_AGE_ENABLED) === 'true');
+    readingAgeMinInput.value = loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString();
+    readingAgeMaxInput.value = loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString();
+    targetReadingAgeSlider.value = loadFromLocalStorage(LS_TARGET_READING_AGE) || DEFAULT_TARGET_READING_AGE.toString();
+    updateTargetReadingAgeSliderDOMState(); 
 
-        // ... (declarations: storedApiKey, storedModelId, minApiIntervalMs, etc. as before) ...
-        const storedApiKey = loadFromLocalStorage(LS_API_KEY) || '';
-        const storedModelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
+    useEngineSuggestionsCheckbox.addEventListener('change', () => {
+        updateSuggestionsTextareaStyle();
+        saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, useEngineSuggestionsCheckbox.checked.toString());
+    });
+    userSuggestionsTextarea.addEventListener('input', () => saveToLocalStorage(LS_USER_SUGGESTIONS, userSuggestionsTextarea.value));
+    
+    enableReadingAgeAdjustmentCheckbox.addEventListener('change', () => {
+        updateTargetReadingAgeSliderDOMState();
+        saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, enableReadingAgeAdjustmentCheckbox.checked.toString());
+    });
+    targetReadingAgeSlider.addEventListener('input', () => {
+        if (targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value;
+    });
+    targetReadingAgeSlider.addEventListener('change', () => saveToLocalStorage(LS_TARGET_READING_AGE, targetReadingAgeSlider.value));
+
+    readingAgeMinInput.addEventListener('change', () => {
+        saveToLocalStorage(LS_READING_AGE_MIN, readingAgeMinInput.value);
+        updateTargetReadingAgeSliderDOMState();
+    });
+    readingAgeMaxInput.addEventListener('change', () => {
+        saveToLocalStorage(LS_READING_AGE_MAX, readingAgeMaxInput.value);
+        updateTargetReadingAgeSliderDOMState();
+    });
+
+    settingsButton.addEventListener('click', () => {
+        modalModelSelect.value = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
+        modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || ''; 
+        minApiIntervalInput.value = loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString();
+        readingAgeMinInput.value = loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString();
+        readingAgeMaxInput.value = loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString();
+        settingsModal.classList.add('active');
+    });
+    cancelSettingsButton.addEventListener('click', () => settingsModal.classList.remove('active'));
+    saveSettingsButton.addEventListener('click', () => {
+        saveToLocalStorage(LS_API_KEY, modalApiKeyInput.value);
+        saveToLocalStorage(LS_SELECTED_MODEL, modalModelSelect.value);
+        saveToLocalStorage(LS_MIN_API_INTERVAL, minApiIntervalInput.value);
+        saveToLocalStorage(LS_READING_AGE_MIN, readingAgeMinInput.value); 
+        saveToLocalStorage(LS_READING_AGE_MAX, readingAgeMaxInput.value);
+        updateTargetReadingAgeSliderDOMState(); 
+        settingsModal.classList.remove('active');
+        showTemporaryToast("Settings saved!", "success");
+    });
+    
+    downloadChatLogButton.addEventListener('click', () => {
+        const logData = JSON.stringify(appState.lastRunChatLog, null, 2);
+        const blob = new Blob([logData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `story_generator_chat_log_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showTemporaryToast("Chat log downloaded.", "info");
+    });
+
+    copyStoryButton.addEventListener('click', () => {
+        if (appState.latestGeneratedStoryText) {
+            navigator.clipboard.writeText(appState.latestGeneratedStoryText)
+                .then(() => showTemporaryToast("Story copied to clipboard!", "success"))
+                .catch(err => {
+                    console.error("Failed to copy story: ", err);
+                    showTemporaryToast("Failed to copy story. See console.", "error");
+                });
+        }
+    });
+
+    saveStoryButton.addEventListener('click', () => {
+        if (appState.latestGeneratedStoryText) {
+            const title = appState.latestGeneratedStoryTitle || "Untitled Story";
+            const textToSave = `Title: ${title}\n\n${appState.latestGeneratedStoryText}`;
+            const blob = new Blob([textToSave], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showTemporaryToast("Story saved as .txt file!", "success");
+        }
+    });
+
+    charactersInput.addEventListener('input', () => saveToLocalStorage(LS_CHARACTERS, charactersInput.value));
+    audienceInput.addEventListener('input', () => saveToLocalStorage(LS_AUDIENCE, audienceInput.value));
+
+    // --- Core Logic Functions ---
+    function gatherPipelineInputs() {
+        const apiKey = loadFromLocalStorage(LS_API_KEY) || '';
+        const modelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
         const minApiIntervalSeconds = parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString(), 10);
         const minApiIntervalMs = (isNaN(minApiIntervalSeconds) || minApiIntervalSeconds < 0 ? DEFAULT_MIN_API_INTERVAL_S : minApiIntervalSeconds) * 1000;
-
-
-        // ... (validations: apiKey, model, form inputs as before) ...
-
-        let userProvidedSuggestionsText = "";
-        // ... (get suggestions logic as before) ...
         
-        let readingAgeNote = "";
+        const audience = audienceInput.value.trim() || "children";
+        const frameworkKey = craftingFrameworkSelect.value;
+        const craftGuideText = STORY_CRAFTING_GUIDES[frameworkKey] || ""; // Ensure CRAFT_GUIDE_TEXT is always defined
+
+        let userSuggestionsText = ""; // Key name matches pipeline config
+        if (useEngineSuggestionsCheckbox.checked) {
+            userSuggestionsText = "User has opted for the story engine to decide on specific suggestions if any are needed. Focus on the core request and framework.";
+        } else {
+            const suggestions = userSuggestionsTextarea.value.trim();
+            if (suggestions) {
+                userSuggestionsText = `User Suggestions (please incorporate these if they align with the story framework and goal):\n${suggestions}`;
+            } else {
+                userSuggestionsText = ""; // Explicitly empty if no suggestions and not engine-decided
+            }
+        }
+        
+        let readingAgeNote = ""; // Key name matches pipeline config
         if (enableReadingAgeAdjustmentCheckbox.checked) { 
             const targetAge = targetReadingAgeSlider.value || DEFAULT_TARGET_READING_AGE;
             readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
         }
+        // Ensure readingAgeNote is always a string, even if empty. It's initialized as "" above.
+
+        return { 
+            apiKey, 
+            modelId, 
+            minApiIntervalMs, 
+            audience, 
+            // frameworkKey, // Not directly used by agents, craftGuideText is
+            CRAFT_GUIDE_TEXT: craftGuideText, // Use the exact key name expected by pipeline
+            READING_AGE_NOTE: readingAgeNote, // Use the exact key name
+            USER_SUGGESTIONS_TEXT: userSuggestionsText // Use the exact key name
+        };
+    }
+
+    async function runPipeline(pipelineConfig, pipelineData, commonInputs) {
+        let currentPipelineData = { ...pipelineData }; 
+
+        for (const agentDef of pipelineConfig) {
+            updateStatusInStoryOutput(`Step ${agentDef.step}: ${agentDef.name.substring(agentDef.name.indexOf(':') + 2).replace('(Elaboration Cycle)', '').trim().replace('Story ', '')}...\n`);
+            
+            const agentDataObject = {};
+
+            // Populate agentDataObject from commonInputs and currentPipelineData based on agentDef.dataKeys
+            agentDef.dataKeys.forEach(key => {
+                if (commonInputs.hasOwnProperty(key)) {
+                    agentDataObject[key] = commonInputs[key];
+                } else if (currentPipelineData.hasOwnProperty(key)) {
+                    agentDataObject[key] = currentPipelineData[key];
+                } else {
+                    // This case should now be rarer because gatherPipelineInputs ensures common keys are present
+                    // Potentially, a key might be missing if it's purely from pipelineData and wasn't initialized
+                    console.warn(`Data key "${key}" for agent "${agentDef.name}" not found in commonInputs or pipelineData. Using empty string.`);
+                    agentDataObject[key] = ''; 
+                }
+            });
+            
+            const currentPrompt = constructAgentPrompt(agentDef.promptTemplate, agentDataObject);
+            
+            const agentOutput = await callAgentAPI(
+                currentPrompt, 
+                commonInputs.apiKey, 
+                commonInputs.modelId, 
+                agentDef.name, 
+                0, 
+                appState.lastRunChatLog, 
+                storyOutputDiv, 
+                commonInputs.minApiIntervalMs
+            );
+
+            if (agentDef.outputKey) {
+                currentPipelineData[agentDef.outputKey] = agentOutput;
+            } else {
+                // Default to updating 'storyText' if no specific outputKey,
+                // but this should be explicit in the config for clarity.
+                // Assuming 'storyText' is the primary output if outputKey is missing.
+                currentPipelineData.storyText = agentOutput; 
+            }
+        }
+        return currentPipelineData;
+    }
+
+    async function handleGenerateStory() {
+        appState.clearChatLog(); 
+        clearStoryOutput(); 
+        disableMainControls();
+        appState.latestGeneratedStoryText = ""; 
+        appState.latestGeneratedStoryTitle = "";
+
+        const commonInputs = gatherPipelineInputs(); // This now returns keys like CRAFT_GUIDE_TEXT
+
+        if (!commonInputs.apiKey) {
+            displayErrorInStoryOutput("API Key is missing. Please configure it in Settings.");
+            enableMainControls();
+            return;
+        }
+        if (!charactersInput.value.trim()) {
+            displayErrorInStoryOutput("Please provide characters for the story.");
+            enableMainControls();
+            return;
+        }
         
-        // ... (save inputs to LS, more validations as before) ...
+        saveToLocalStorage(LS_CHARACTERS, charactersInput.value);
+        saveToLocalStorage(LS_AUDIENCE, audienceInput.value);
+        saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
 
         updateStatusInStoryOutput(`Initialising story generation...\n`);
         
-        latestGeneratedStoryText = ""; // Reset global state
-        latestGeneratedStoryTitle = "";
-        let currentWorkingStoryText = "";
+        // initialPipelineData should contain data specific to the start of this pipeline
+        const initialPipelineData = {
+            charactersList: parseCharacters(charactersInput.value).join(', ') || "a brave little mouse",
+            // USER_SUGGESTIONS_TEXT is now part of commonInputs
+            // READING_AGE_NOTE is now part of commonInputs
+            // CRAFT_GUIDE_TEXT is now part of commonInputs
+            storyText: "", 
+            reviewText: "",
+            titleText: ""
+        };
 
         try {
-            const agent1DataObject = { charactersList: parseCharacters(charactersInput.value).join(', '), audience: audienceInput.value, USER_SUGGESTIONS_TEXT: userProvidedSuggestionsText, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: STORY_CRAFTING_GUIDES[craftingFrameworkSelect.value] };
-            const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, agent1DataObject);
-            updateStatusInStoryOutput(`Step 1/6: Crafting initial draft...\n`);
-            currentWorkingStoryText = await callAgentAPI(agent1Prompt, storedApiKey, storedModelId, "Agent 1: Story Crafter", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput(`Step 2/6: Elaborating draft...\n`);
-            const agent2DataObject = { storyText: currentWorkingStoryText, audience: audienceInput.value, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: STORY_CRAFTING_GUIDES[craftingFrameworkSelect.value] };
-            const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_ELABORATOR_TEMPLATE, agent2DataObject);
-            currentWorkingStoryText = await callAgentAPI(agent2Prompt, storedApiKey, storedModelId, "Agent 2: Elaborator", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput(`Step 3/6: Reviewing elaborated draft...\n`);
-            const agent3DataObject = { storyText: currentWorkingStoryText, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: STORY_CRAFTING_GUIDES[craftingFrameworkSelect.value] };
-            const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_REVIEWER_TEMPLATE, agent3DataObject);
-            const agent3Output_ReviewText = await callAgentAPI(agent3Prompt, storedApiKey, storedModelId, "Agent 3: Reviewer", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput(`Step 4/6: Polishing story...\n`);
-            const agent4DataObject = { storyText: currentWorkingStoryText, reviewText: agent3Output_ReviewText, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: STORY_CRAFTING_GUIDES[craftingFrameworkSelect.value] };
-            const agent4Prompt = constructAgentPrompt(PROMPT_AGENT_4_POLISHER_TEMPLATE, agent4DataObject);
-            currentWorkingStoryText = await callAgentAPI(agent4Prompt, storedApiKey, storedModelId, "Agent 4: Polisher", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput("Step 5/6: Cleaning story...\n");
-            const agent5DataObject = { storyText: currentWorkingStoryText };
-            const agent5Prompt = constructAgentPrompt(PROMPT_AGENT_5_CLEANER_TEMPLATE, agent5DataObject);
-            currentWorkingStoryText = await callAgentAPI(agent5Prompt, storedApiKey, storedModelId, "Agent 5: Cleaner", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
+            const finalData = await runPipeline(STORY_GENERATION_PIPELINE, initialPipelineData, commonInputs);
             
-            latestGeneratedStoryText = currentWorkingStoryText.trim();
-            setLatestStoryTextForUI(latestGeneratedStoryText); // Update ui.js internal state
-
-            updateStatusInStoryOutput("Step 6/6: Generating title...\n");
-            const agent6DataObject = { storyText: latestGeneratedStoryText, READING_AGE_NOTE: readingAgeNote };
-            const agent6Prompt = constructAgentPrompt(PROMPT_AGENT_6_TITLER_TEMPLATE, agent6DataObject);
-            const agent6Output_Title = await callAgentAPI(agent6Prompt, storedApiKey, storedModelId, "Agent 6: Titler", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            latestGeneratedStoryTitle = agent6Output_Title.trim();
+            appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
+            appState.latestGeneratedStoryTitle = (finalData.titleText || "Untitled Story").trim();
             
-            updateStatusInStoryOutput("Story generation complete!\n", true);
-            displayFinalStoryOutput(latestGeneratedStoryTitle, latestGeneratedStoryText); 
+            updateStatusInStoryOutput("Story generation complete!\n"); 
+            displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText); 
 
         } catch (error) {
-            displayErrorInStoryOutput(`Error during story generation: ${error.message}`);
+            console.error("Error in handleGenerateStory:", error);
+            displayErrorInStoryOutput(error.message || "An unknown error occurred during story generation.");
         } finally {
-            enableMainControls(); // Pass generateButton, elaborateStoryButton if not global
+            enableMainControls(); 
         }
     }
 
     async function handleElaborateStory() {
-        if (!latestGeneratedStoryText) { 
+        if (!appState.latestGeneratedStoryText) { 
             showTemporaryToast("No story available to elaborate. Please generate a story first.", "info");
             return;
         }
-        // ... (ensure UI elements exist for reading age if needed) ...
+        
+        appState.addLogEntry({ agentName: "User Action", type: 'elaboration-start', content: `Elaborating existing story. Initial length: ${appState.latestGeneratedStoryText.length}`, timestamp: new Date().toISOString() });
+        
+        clearStoryOutput(); 
+        if (storyOutputDiv) storyOutputDiv.textContent = `Previous story version (will be elaborated):\n"${appState.latestGeneratedStoryText.substring(0,150)}..."\n\n`;
+
         disableMainControls();
-        setLatestStoryTextForUI(latestGeneratedStoryText); 
         updateStatusInStoryOutput(`Starting elaboration...\n`);
 
-        // ... (get API key, model, audience, framework, interval, readingAgeNote - as before) ...
-        const storedApiKey = loadFromLocalStorage(LS_API_KEY) || '';
-        const storedModelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
-        const audienceStr = loadFromLocalStorage(LS_AUDIENCE) || "children";
-        const selectedFrameworkKey = loadFromLocalStorage(LS_SELECTED_FRAMEWORK) || Object.keys(STORY_CRAFTING_GUIDES)[0];
-        const selectedCraftGuideText = STORY_CRAFTING_GUIDES[selectedFrameworkKey];
-        const minApiIntervalSeconds = parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString(), 10);
-        const minApiIntervalMs = (isNaN(minApiIntervalSeconds) || minApiIntervalSeconds < 0 ? DEFAULT_MIN_API_INTERVAL_S : minApiIntervalSeconds) * 1000;
-        
-        let readingAgeNote = "";
-        if (enableReadingAgeAdjustmentCheckbox.checked) { 
-            const targetAge = targetReadingAgeSlider.value || DEFAULT_TARGET_READING_AGE;
-            readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
+        const commonInputs = gatherPipelineInputs();
+
+        if (!commonInputs.apiKey) {
+            displayErrorInStoryOutput("API Key is missing. Please configure it in Settings.");
+            enableMainControls();
+            return;
         }
 
-        // ... (API key validation as before) ...
-
-        lastRunChatLog.push({ agentName: "User Action", type: 'elaboration-start', /* ... */ });
-        let currentWorkingStoryText = latestGeneratedStoryText;
+        const initialPipelineData = {
+            storyText: appState.latestGeneratedStoryText, 
+            reviewText: "" 
+            // Audience, CRAFT_GUIDE_TEXT, READING_AGE_NOTE, USER_SUGGESTIONS_TEXT come from commonInputs
+        };
 
         try {
-            updateStatusInStoryOutput(`Step 1/4 (Elaboration): Elaborating content...\n`);
-            const agent2DataObject = { storyText: currentWorkingStoryText, audience: audienceStr, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: selectedCraftGuideText };
-            const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_ELABORATOR_TEMPLATE, agent2DataObject);
-            currentWorkingStoryText = await callAgentAPI(agent2Prompt, storedApiKey, storedModelId, "Agent 2: Elaborator (Elaboration Cycle)", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput(`Step 2/4 (Elaboration): Reviewing elaborated story...\n`);
-            const agent3DataObject = { storyText: currentWorkingStoryText, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: selectedCraftGuideText };
-            const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_REVIEWER_TEMPLATE, agent3DataObject);
-            const agent3Output_ReviewText = await callAgentAPI(agent3Prompt, storedApiKey, storedModelId, "Agent 3: Reviewer (Elaboration Cycle)", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput(`Step 3/4 (Elaboration): Polishing elaborated story...\n`);
-            const agent4DataObject = { storyText: currentWorkingStoryText, reviewText: agent3Output_ReviewText, READING_AGE_NOTE: readingAgeNote, CRAFT_GUIDE_TEXT: selectedCraftGuideText };
-            const agent4Prompt = constructAgentPrompt(PROMPT_AGENT_4_POLISHER_TEMPLATE, agent4DataObject);
-            currentWorkingStoryText = await callAgentAPI(agent4Prompt, storedApiKey, storedModelId, "Agent 4: Polisher (Elaboration Cycle)", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
-
-            updateStatusInStoryOutput(`Step 4/4 (Elaboration): Cleaning elaborated story...\n`);
-            const agent5DataObject = { storyText: currentWorkingStoryText };
-            const agent5Prompt = constructAgentPrompt(PROMPT_AGENT_5_CLEANER_TEMPLATE, agent5DataObject);
-            currentWorkingStoryText = await callAgentAPI(agent5Prompt, storedApiKey, storedModelId, "Agent 5: Cleaner (Elaboration Cycle)", 0, lastRunChatLog, storyOutputDiv, minApiIntervalMs);
+            const finalData = await runPipeline(ELABORATION_PIPELINE, initialPipelineData, commonInputs);
             
-            latestGeneratedStoryText = currentWorkingStoryText.trim();
-            setLatestStoryTextForUI(latestGeneratedStoryText);
+            appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
             
-            updateStatusInStoryOutput("Story elaboration complete!\n", true);
-            displayFinalStoryOutput(latestGeneratedStoryTitle, latestGeneratedStoryText, true);
+            updateStatusInStoryOutput("Story elaboration complete!\n");
+            displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText, true);
 
         } catch (error) {
-            displayErrorInStoryOutput(`Error during story elaboration: ${error.message}`);
+            console.error("Error in handleElaborateStory:", error);
+            displayErrorInStoryOutput(error.message || "An unknown error occurred during story elaboration.");
         } finally {
             enableMainControls();
         }
