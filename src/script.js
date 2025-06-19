@@ -6,6 +6,7 @@ const AVAILABLE_MODELS = {
     "gemini-1.5-flash": "Gemini-1.5-Flash"
 };
 const DEFAULT_MIN_API_INTERVAL_S = 5; 
+const DEFAULT_TARGET_READING_AGE = 7; // Default age if not set
 
 // --- Local Storage Keys (Constants) ---
 const LS_API_KEY = 'geminiApiKey_storyCircle';
@@ -15,13 +16,13 @@ const LS_SELECTED_FRAMEWORK = 'storySelectedFramework_storyCircle';
 const LS_SELECTED_MODEL = 'geminiSelectedModel_storyCircle';
 const LS_USE_ENGINE_SUGGESTIONS = 'useEngineSuggestions_storyCircle';
 const LS_USER_SUGGESTIONS = 'userSuggestions_storyCircle';
-// Import LS_MIN_API_INTERVAL from localStorage.js where it's defined
-import { LS_MIN_API_INTERVAL, saveToLocalStorage, loadFromLocalStorage } from './localStorage.js';
+import { LS_MIN_API_INTERVAL, LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, saveToLocalStorage, loadFromLocalStorage } from './localStorage.js';
 
 
 // --- Imports ---
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
 import {
+    READING_AGE_ADJUSTMENT_TEXT_TEMPLATE, 
     PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
     PROMPT_AGENT_2_ELABORATOR_TEMPLATE,
     PROMPT_AGENT_3_REVIEWER_TEMPLATE,
@@ -30,10 +31,9 @@ import {
     PROMPT_AGENT_6_TITLER_TEMPLATE,
 } from './prompts/agent_prompts.js';
 import { callAgentAPI } from './api.js';
-// saveToLocalStorage, loadFromLocalStorage are now imported from localStorage.js
 import { parseCharacters, constructAgentPrompt } from './utils.js';
 import { 
-    initUIElements, // This function in ui.js can still be used if ui.js needs its own internal refs
+    initUIElements,
     displayLoading, 
     displayOutput, 
     displayError, 
@@ -42,20 +42,37 @@ import {
     updateSuggestionsTextareaStyle 
 } from './ui.js';
 
-// --- Global DOM Element Variables (declared here, assigned in DOMContentLoaded) ---
+// --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
 let copyStoryButton, saveStoryButton, elaborateStoryButton;
-let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
+let useEngineSuggestionsCheckbox, userSuggestionsTextarea, adjustReadingAgeCheckbox, targetReadingAgeInput; // New targetReadingAgeInput
 
 // --- Global State ---
 let lastRunChatLog = []; 
 let latestGeneratedStoryText = ""; 
 let latestGeneratedStoryTitle = ""; 
 
+// --- UI Update Functions ---
+// ... (displayLoading, displayOutput, displayError, showTemporaryStatus, updateFrameworkSummaryDisplay, updateSuggestionsTextareaStyle - NO CHANGES from previous full script) ...
+// Add this new UI update function
+function updateTargetReadingAgeInputState() {
+    if (!adjustReadingAgeCheckbox || !targetReadingAgeInput) return;
+    targetReadingAgeInput.disabled = !adjustReadingAgeCheckbox.checked;
+    if (adjustReadingAgeCheckbox.checked) {
+        targetReadingAgeInput.classList.remove('suggestions-not-used'); // Or a generic 'disabled-look' class
+        targetReadingAgeInput.classList.add('suggestions-used'); // Or an 'enabled-look' class
+    } else {
+        targetReadingAgeInput.classList.remove('suggestions-used');
+        targetReadingAgeInput.classList.add('suggestions-not-used');
+    }
+}
+
+
+// --- LocalStorage, Utils, API calls are now imported ---
+
 // --- Main Application Logic ---
 document.addEventListener('DOMContentLoaded', () => {
-    // === Assign DOM Element Variables ===
     modalApiKeyInput = document.getElementById('modalApiKeyInput');
     modalModelSelect = document.getElementById('modalModelSelect');
     minApiIntervalInput = document.getElementById('minApiIntervalInput'); 
@@ -64,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     audienceInput = document.getElementById('audienceInput');
     useEngineSuggestionsCheckbox = document.getElementById('useEngineSuggestionsCheckbox');
     userSuggestionsTextarea = document.getElementById('userSuggestionsTextarea');
+    adjustReadingAgeCheckbox = document.getElementById('adjustReadingAgeCheckbox'); 
+    targetReadingAgeInput = document.getElementById('targetReadingAgeInput'); 
     craftingFrameworkSelect = document.getElementById('craftingFrameworkSelect');
     frameworkSummaryDiv = document.getElementById('frameworkSummary');
     generateButton = document.getElementById('generateButton');
@@ -78,42 +97,34 @@ document.addEventListener('DOMContentLoaded', () => {
     closeSettingsModalButton = document.getElementById('closeSettingsModal');
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
-    // Pass DOM elements to the UI module if it needs to manage them internally
-    // This allows ui.js functions to access these without parameters if preferred.
     initUIElements({
         statusMessageDiv, storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton,
         craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea
     });
 
-    // === Critical Element Check ===
-    const criticalElements = { modalApiKeyInput, modalModelSelect, minApiIntervalInput, downloadChatLogButton, charactersInput, audienceInput, useEngineSuggestionsCheckbox, userSuggestionsTextarea, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, copyStoryButton, saveStoryButton, elaborateStoryButton };
+    const criticalElements = { modalApiKeyInput, modalModelSelect, minApiIntervalInput, downloadChatLogButton, charactersInput, audienceInput, useEngineSuggestionsCheckbox, userSuggestionsTextarea, adjustReadingAgeCheckbox, targetReadingAgeInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, copyStoryButton, saveStoryButton, elaborateStoryButton };
     for (const elName in criticalElements) {
         if (!criticalElements[elName]) {
-            // Log a more specific error if a critical element is missing
             const errorMsg = `FATAL ERROR: DOM Element "${elName}" not found. UI will not function correctly. Check HTML IDs.`;
             console.error(errorMsg);
-            if (statusMessageDiv) { // Attempt to show error in UI if statusMessageDiv itself exists
+            if (statusMessageDiv) { 
                 statusMessageDiv.textContent = errorMsg;
                 statusMessageDiv.className = 'error';
-            } else { // Fallback if even statusMessageDiv is missing
+            } else { 
                 alert(errorMsg);
             }
-            return; // Halt further script execution if critical elements are missing
+            return; 
         }
     }
     
-    // === Initial UI State ===
     if (copyStoryButton) copyStoryButton.style.display = 'none';
     if (saveStoryButton) saveStoryButton.style.display = 'none';
     if (elaborateStoryButton) elaborateStoryButton.style.display = 'none';
 
-    // === Event Listeners & UI Setup ===
     if (useEngineSuggestionsCheckbox && userSuggestionsTextarea) {
         const savedUseEngine = loadFromLocalStorage(LS_USE_ENGINE_SUGGESTIONS);
         useEngineSuggestionsCheckbox.checked = savedUseEngine === null ? true : (savedUseEngine === 'true');
         userSuggestionsTextarea.value = loadFromLocalStorage(LS_USER_SUGGESTIONS) || '';
-        // Call updateSuggestionsTextareaStyle from ui.js, but it needs access to the elements.
-        // Since initUIElements was called, ui.js *should* have its references.
         updateSuggestionsTextareaStyle(); 
 
         useEngineSuggestionsCheckbox.addEventListener('change', () => {
@@ -124,6 +135,31 @@ document.addEventListener('DOMContentLoaded', () => {
             saveToLocalStorage(LS_USER_SUGGESTIONS, userSuggestionsTextarea.value);
         });
     }
+
+    // Reading Age Adjustment UI & Logic
+    if (adjustReadingAgeCheckbox && targetReadingAgeInput) {
+        const savedAdjustEnabled = loadFromLocalStorage(LS_ADJUST_READING_AGE_ENABLED);
+        adjustReadingAgeCheckbox.checked = savedAdjustEnabled === 'true'; // Default false if null
+        
+        const savedTargetAge = loadFromLocalStorage(LS_TARGET_READING_AGE);
+        targetReadingAgeInput.value = savedTargetAge || DEFAULT_TARGET_READING_AGE.toString();
+        
+        updateTargetReadingAgeInputState(); // Set initial disabled/enabled state
+
+        adjustReadingAgeCheckbox.addEventListener('change', () => {
+            updateTargetReadingAgeInputState();
+            saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, adjustReadingAgeCheckbox.checked.toString());
+        });
+        targetReadingAgeInput.addEventListener('input', () => {
+            // Ensure value is within bounds (HTML min/max should handle this, but good to be safe)
+            let age = parseInt(targetReadingAgeInput.value, 10);
+            if (isNaN(age) || age < 3) age = 3;
+            if (age > 18) age = 18;
+            targetReadingAgeInput.value = age.toString(); // Correct input if out of bounds
+            saveToLocalStorage(LS_TARGET_READING_AGE, targetReadingAgeInput.value);
+        });
+    }
+
 
     if (modalModelSelect) {
         for (const modelId in AVAILABLE_MODELS) {
@@ -207,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ... (copyStoryButton, saveStoryButton, frameworkSelect listeners - NO CHANGES from previous full script) ...
     if (copyStoryButton && storyOutputDiv) {
         copyStoryButton.addEventListener('click', () => {
             const storyTextToCopy = storyOutputDiv.textContent; 
@@ -244,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
     if (craftingFrameworkSelect) {
         Object.keys(STORY_CRAFTING_GUIDES).forEach(frameworkName => {
             const option = document.createElement('option');
@@ -266,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         frameworkSummaryDiv.textContent = "Framework selection dropdown is missing.";
     }
 
+
     if (charactersInput) {
         charactersInput.value = loadFromLocalStorage(LS_CHARACTERS) || '';
         charactersInput.addEventListener('input', () => saveToLocalStorage(LS_CHARACTERS, charactersInput.value));
@@ -285,8 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleGenerateStory() {
         lastRunChatLog = []; 
 
-        // Check for critical elements again within the handler, though they should be caught by DOMContentLoaded check
-        if (!modalApiKeyInput || !modalModelSelect || !charactersInput || !audienceInput || !craftingFrameworkSelect || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !minApiIntervalInput) {
+        if (!modalApiKeyInput || !modalModelSelect || !minApiIntervalInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !adjustReadingAgeCheckbox || !targetReadingAgeInput ) {
              displayError(`Cannot generate story: Critical form elements missing. Please check HTML or report issue.`);
             return;
         }
@@ -295,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const storedModelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
         const minApiIntervalSeconds = parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString(), 10);
         const minApiIntervalMs = (isNaN(minApiIntervalSeconds) || minApiIntervalSeconds < 0 ? DEFAULT_MIN_API_INTERVAL_S : minApiIntervalSeconds) * 1000;
-
 
         if (!storedApiKey) {
             displayError('Please enter your Gemini API Key in Settings (⚙️).');
@@ -321,6 +358,12 @@ document.addEventListener('DOMContentLoaded', () => {
             userProvidedSuggestionsText = `\n**User Story/Scene Suggestions:**\nThe user has provided the following suggestions. Please use these for guidance and inspiration when crafting the story, if they align well with the characters, audience, and chosen story framework. Be flexible with the user's wording and formatting. The suggestions are:\n"""\n${suggestionsText}\n"""\n`;
         }
 
+        let readingAgeNote = "";
+        if (adjustReadingAgeCheckbox.checked) {
+            const targetAge = targetReadingAgeInput.value || DEFAULT_TARGET_READING_AGE;
+            readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
+        }
+
         saveToLocalStorage(LS_CHARACTERS, charactersStr);
         saveToLocalStorage(LS_AUDIENCE, audienceStr);
 
@@ -342,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 charactersList: parsedCharsArray.join(', '),
                 audience: audienceStr,
                 USER_SUGGESTIONS_TEXT: userProvidedSuggestionsText,
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, agent1DataObject);
@@ -351,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const agent2DataObject = {
                 storyText: currentWorkingStoryText, 
                 audience: audienceStr,
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_ELABORATOR_TEMPLATE, agent2DataObject);
@@ -359,6 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const agent3DataObject = { 
                 storyText: currentWorkingStoryText, 
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_REVIEWER_TEMPLATE, agent3DataObject);
@@ -368,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const agent4DataObject = { 
                 storyText: currentWorkingStoryText, 
                 reviewText: agent3Output_ReviewText, 
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent4Prompt = constructAgentPrompt(PROMPT_AGENT_4_POLISHER_TEMPLATE, agent4DataObject);
@@ -383,7 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             latestGeneratedStoryText = currentWorkingStoryText.trim();
 
-            const agent6DataObject = { storyText: latestGeneratedStoryText };
+            const agent6DataObject = { 
+                storyText: latestGeneratedStoryText,
+                READING_AGE_NOTE: readingAgeNote
+            };
             const agent6Prompt = constructAgentPrompt(PROMPT_AGENT_6_TITLER_TEMPLATE, agent6DataObject);
             displayLoading(true, "Step 6/6: Generating title...");
             const agent6Output_Title = await callAgentAPI(agent6Prompt, storedApiKey, storedModelId, "Agent 6: Titler", 0, lastRunChatLog, statusMessageDiv, minApiIntervalMs);
@@ -422,7 +472,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedCraftGuideText = STORY_CRAFTING_GUIDES[selectedFrameworkKey];
         const minApiIntervalSeconds = parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString(), 10);
         const minApiIntervalMs = (isNaN(minApiIntervalSeconds) || minApiIntervalSeconds < 0 ? DEFAULT_MIN_API_INTERVAL_S : minApiIntervalSeconds) * 1000;
-
+        
+        let readingAgeNote = "";
+        if (adjustReadingAgeCheckbox && adjustReadingAgeCheckbox.checked) {
+            const targetAge = targetReadingAgeInput.value || DEFAULT_TARGET_READING_AGE;
+            readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
+        }
 
         if (!storedApiKey) {
             displayError('Please enter your Gemini API Key in Settings (⚙️).');
@@ -440,6 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const agent2DataObject = {
                 storyText: currentWorkingStoryText, 
                 audience: audienceStr,
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_ELABORATOR_TEMPLATE, agent2DataObject);
@@ -448,6 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const agent3DataObject = {
                 storyText: currentWorkingStoryText,
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_REVIEWER_TEMPLATE, agent3DataObject);
@@ -457,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const agent4DataObject = {
                 storyText: currentWorkingStoryText, 
                 reviewText: agent3Output_ReviewText,
+                READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
             const agent4Prompt = constructAgentPrompt(PROMPT_AGENT_4_POLISHER_TEMPLATE, agent4DataObject);

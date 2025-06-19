@@ -11,13 +11,13 @@
     --font-primary: 'Inter', sans-serif;
     --font-headings: 'Montserrat', sans-serif;
 
-    --color-bg-page: #f4f6f8; /* Light cool gray */
+    --color-bg-page: #f4f6f8;
     --color-bg-container: #ffffff;
-    --color-text-primary: #2d3748; /* Darker slate gray */
-    --color-text-secondary: #4a5568; /* Slate gray */
-    --color-accent: #3182ce; /* A nice, friendly blue */
-    --color-accent-hover: #2b6cb0; /* Darker blue for hover */
-    --color-border: #e2e8f0; /* Light gray border */
+    --color-text-primary: #2d3748;
+    --color-text-secondary: #4a5568;
+    --color-accent: #3182ce;
+    --color-accent-hover: #2b6cb0;
+    --color-border: #e2e8f0;
     --color-error-bg: #fef2f2;
     --color-error-text: #991b1b;
     --color-error-border: #fecaca;
@@ -27,14 +27,14 @@
     --color-info-bg: #ebf8ff; 
     --color-info-text: #2c5282; 
     --color-info-border: #bee3f8;
-    --color-suggestions-bg-used: #e6fffa; /* Pastel Green */
-    --color-suggestions-bg-not-used: #e0e8f0; /* Pastel Blue/Gray - can adjust to be more distinct from disabled */
+    --color-suggestions-bg-used: #e6fffa; 
+    --color-suggestions-bg-not-used: #edf2f7; 
 
 
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --border-radius-sm: 0.25rem; /* 4px */
-    --border-radius-md: 0.375rem; /* 6px */
+    --border-radius-sm: 0.25rem;
+    --border-radius-md: 0.375rem;
 }
 
 body {
@@ -97,7 +97,7 @@ h1 {
     color: var(--color-accent);
 }
 
-/* Form Elements */
+/* Form Elements & Control Groups */
 label {
     display: block;
     margin-top: 20px;
@@ -119,11 +119,35 @@ label {
     border-width: 0;
 }
 
+.control-group {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    background-color: #fdfdff;
+}
+
+.control-group .group-title {
+    margin-top: 0; 
+    margin-bottom: 12px;
+    font-size: 1rem; 
+    color: var(--color-text-primary);
+}
+
+.control-group-description { /* This class is removed from HTML for reading age */
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-top: 5px;
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
 
 input[type="text"],
 textarea,
 select,
-input[type="number"] { /* Added input[type="number"] here for main form consistency if ever used */
+input[type="number"] { 
     width: 100%;
     padding: 12px 15px;
     margin-bottom: 15px;
@@ -139,7 +163,7 @@ input[type="number"] { /* Added input[type="number"] here for main form consiste
 input[type="text"]:focus,
 textarea:focus,
 select:focus,
-input[type="number"]:focus { /* Added input[type="number"] here for main form consistency */
+input[type="number"]:focus { 
     outline: none;
     border-color: var(--color-accent);
     box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25);
@@ -159,38 +183,57 @@ select {
     padding-right: 40px;
 }
 
-/* Suggestions Group */
-.suggestions-group {
-    margin-top: 20px; 
-    margin-bottom: 15px; 
-}
-
 .checkbox-wrapper {
     display: flex;
     align-items: center;
     margin-bottom: 8px; 
 }
+.control-group .checkbox-wrapper { 
+    margin-top: 5px;
+}
+
 
 input[type="checkbox"] {
     width: auto; 
-    height: 1em; 
-    margin-right: 8px;
+    height: 1.1em; 
+    margin-right: 10px; 
     accent-color: var(--color-accent); 
     cursor: pointer;
+    flex-shrink: 0; 
 }
 
-.checkbox-label {
+.checkbox-label { /* Label next to a checkbox */
     margin: 0; 
     font-family: var(--font-primary); 
     font-weight: 500;
     font-size: 0.95rem;
     color: var(--color-text-secondary);
     cursor: pointer;
+    line-height: 1.2; 
+    margin-right: 10px; /* Space between checkbox label and next element */
 }
+
+.inline-number-input {
+    width: 70px !important; /* Override general width */
+    padding: 8px 10px !important; /* Smaller padding */
+    margin-bottom: 0 !important; /* Remove bottom margin for inline */
+    margin-right: 5px;
+    text-align: center;
+}
+.inline-number-label { /* Label next to the number input like "years old" */
+    margin: 0 0 0 5px !important; /* Reset margin for this specific use */
+    font-family: var(--font-primary);
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    align-self: center; /* Align with the number input */
+}
+
 
 #userSuggestionsTextarea {
     min-height: 100px;
     margin-bottom: 0; 
+    margin-top: 5px; 
     transition: background-color 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -271,7 +314,7 @@ input[type="checkbox"] {
     justify-content: center;
     line-height: 1.4;
     box-sizing: border-box;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; 
 }
 
 #statusMessage:empty { 
@@ -298,7 +341,7 @@ input[type="checkbox"] {
     color: var(--color-success-text);
     border-color: var(--color-success-border);
 }
-#statusMessage.info { /* For retry messages etc. */
+#statusMessage.info { 
     background-color: var(--color-info-bg);
     color: var(--color-info-text);
     border-color: var(--color-info-border);
@@ -322,13 +365,13 @@ input[type="checkbox"] {
     font-size: 1.7em;
     font-weight: 700;
     color: var(--color-accent);
-    padding-right: 10px; /* Space before action buttons */
+    padding-right: 10px; 
 }
 
 .story-actions-bar {
     display: flex;
     gap: 10px; 
-    flex-shrink: 0; /* Prevent actions bar from shrinking */
+    flex-shrink: 0; 
 }
 
 .story-action-button {

@@ -15,5 +15,6 @@ export function loadFromLocalStorage(key) {
     }
 }
 
-// Add this new key
 export const LS_MIN_API_INTERVAL = 'minApiInterval_storyCircle';
+export const LS_ADJUST_READING_AGE_ENABLED = 'adjustReadingAgeEnabled_storyCircle'; // For the checkbox
+export const LS_TARGET_READING_AGE = 'targetReadingAge_storyCircle';       // For the number input
