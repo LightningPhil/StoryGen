@@ -17,7 +17,7 @@
                 <h1>Story Generator</h1>
                 <button id="settingsButton" class="settings-icon-button" aria-label="Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73 2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
                         <circle cx="12" cy="12" r="3"/>
                     </svg>
                 </button>
@@ -31,20 +31,20 @@
                 <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7">
 
                 <div class="control-group">
-                    <label class="group-title">Optional Story Suggestions</label>
+                    <!-- Removed group title -->
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="useEngineSuggestionsCheckbox">
-                        <label for="useEngineSuggestionsCheckbox" class="checkbox-label">Let Story Engine Decide</label>
+                        <label for="useEngineSuggestionsCheckbox" class="checkbox-label">Delegate suggestions to Story Engine</label>
                     </div>
-                    <label for="userSuggestionsTextarea" class="sr-only">Enter your suggestions here</label>
-                    <textarea id="userSuggestionsTextarea" rows="3" placeholder="Plot points, scene ideas..."></textarea>
+                    <label for="userSuggestionsTextarea" class="sr-only">Enter your suggestions here if not delegating</label>
+                    <textarea id="userSuggestionsTextarea" rows="3" placeholder="Or, enter your plot points, scene ideas..."></textarea>
                 </div>
 
                 <div class="control-group">
-                    <label class="group-title">Reading Level Adjustment</label>
+                    <!-- Removed group title -->
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="enableReadingAgeAdjustmentCheckbox">
-                        <label for="enableReadingAgeAdjustmentCheckbox" class="checkbox-label">Adjust Reading Level</label>
+                        <label for="enableReadingAgeAdjustmentCheckbox" class="checkbox-label">Adjust reading age</label>
                     </div>
                     <div id="readingAgeSliderContainer" class="slider-container"> 
                         <div class="slider-wrapper">
@@ -52,7 +52,14 @@
                             <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7">
                             <span class="slider-label-max">Advanced</span>
                         </div>
-                        <div class="slider-value-display">Target Age: <span id="targetReadingAgeValue">7</span> years old</div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <!-- Removed group title -->
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="enableConsolidatorCheckbox">
+                        <label for="enableConsolidatorCheckbox" class="checkbox-label">Consolidate story for conciseness</label>
                     </div>
                 </div>
 
@@ -105,12 +112,6 @@
                             <line x1="16" y1="13" x2="8" y2="13"></line>
                             <line x1="16" y1="17" x2="8" y2="17"></line>
                             <polyline points="10 9 9 9 8 9"></polyline>
-                            {/* Corrected SVG for elaborate - simplified to something more distinct if needed */}
-                            {/* Or use the original one if it's fine */}
-                            {/* Example of a different icon for "elaborate/add detail" */}
-                            {/* <path d="M12 20h.01"></path><path d="M12 14h.01"></path><path d="M12 8h.01"></path>
-                               <path d="M16 20h.01"></path><path d="M16 14h.01"></path><path d="M16 8h.01"></path>
-                               <path d="M8 20h.01"></path><path d="M8 14h.01"></path><path d="M8 8h.01"></path> */}
                         </svg>
                     </button>
                 </div>
