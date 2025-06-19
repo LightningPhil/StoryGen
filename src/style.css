@@ -107,7 +107,6 @@ label {
     font-size: 0.9rem;
     color: var(--color-text-secondary);
 }
-/* Screen-reader only label */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -160,27 +159,27 @@ select {
 
 /* Suggestions Group */
 .suggestions-group {
-    margin-top: 20px; /* Space above the group */
-    margin-bottom: 15px; /* Consistent bottom margin as other inputs */
+    margin-top: 20px;
+    margin-bottom: 15px;
 }
 
 .checkbox-wrapper {
     display: flex;
     align-items: center;
-    margin-bottom: 8px; /* Space between checkbox and textarea */
+    margin-bottom: 8px;
 }
 
 input[type="checkbox"] {
-    width: auto; /* Override general input width */
-    height: 1em; /* Consistent checkbox size */
+    width: auto;
+    height: 1em;
     margin-right: 8px;
-    accent-color: var(--color-accent); /* Modern checkbox color */
+    accent-color: var(--color-accent);
     cursor: pointer;
 }
 
 .checkbox-label {
-    margin: 0; /* Reset label margin for this specific use */
-    font-family: var(--font-primary); /* Use primary font for this label */
+    margin: 0;
+    font-family: var(--font-primary);
     font-weight: 500;
     font-size: 0.95rem;
     color: var(--color-text-secondary);
@@ -189,7 +188,7 @@ input[type="checkbox"] {
 
 #userSuggestionsTextarea {
     min-height: 100px;
-    margin-bottom: 0; /* Remove default margin as group handles it */
+    margin-bottom: 0;
     transition: background-color 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -200,8 +199,8 @@ input[type="checkbox"] {
     background-color: var(--color-suggestions-bg-not-used);
 }
 #userSuggestionsTextarea:disabled {
-    background-color: var(--color-suggestions-bg-not-used); /* Ensure disabled state has the 'not-used' color */
-    color: #a0aec0; /* Lighter text color for disabled state */
+    background-color: var(--color-suggestions-bg-not-used);
+    color: #a0aec0;
     cursor: not-allowed;
 }
 
@@ -291,7 +290,7 @@ input[type="checkbox"] {
     border-color: var(--color-error-border);
 }
 
-#statusMessage.success { /* General success, not just story generation */
+#statusMessage.success {
     background-color: var(--color-success-bg);
     color: var(--color-success-text);
     border-color: var(--color-success-border);
@@ -319,14 +318,14 @@ input[type="checkbox"] {
 
 .story-actions-bar {
     display: flex;
-    gap: 8px;
+    gap: 10px; /* Increased gap slightly */
 }
 
 .story-action-button {
     background: transparent;
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-md);
-    padding: 6px;
+    padding: 7px; /* Slightly more padding */
     cursor: pointer;
     color: var(--color-text-secondary);
     line-height: 0;

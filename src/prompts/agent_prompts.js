@@ -2,11 +2,9 @@ export const PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE = `You are an award-winning a
 
 The story should be based on the following characters: **\${charactersList}**.
 The target audience is: **\${audience}**.
-
-The user may have provided additional suggestions to enhance the story. These suggestions should be incorporated into the narrative where appropriate, but do not let them dictate the entire story. Instead, use them to add depth or whimsy to the characters or plot. If the user has not provided any suggestions, you can create your own whimsical elements to enhance the story. Here are the user suggestions, if any:
 \${USER_SUGGESTIONS_TEXT}
 
-When you name a character, give them a bright, catchy name that’s easy for kids to say and remember; keep it short—one or two words only (e.g. "Milo Mole", "Tilly Turtle"); use light alliteration or rhyme to add bounce but avoid tongue-twisters; stay whimsical, not ordinary—skip everyday names like Barnaby, Buster, or similar; avoid long titles or multi-phrase nicknames: "Pip Panda" works, but "Pip the Pondering, Puzzle-Loving Panda" is too much; think “fun to shout across a playground”—simple, musical, and memorable. People should have people type names. Humanoid animals are fine, but avoid giving them human names like "Bob" or "Sarah"—keep it playful and animalistic.
+When you name a character, be inventive and whimsical, using names that are fun to say and easy for children to remember. For example, instead of 'Panda', you might use 'Pip the Panda' or 'Pip the Pondering Panda'. Do not use Barnaby, Buster, or any other names that are too common or not whimsical enough.
 
 Below is the Craft Guide you MUST follow for structuring the story and applying specific writing techniques. Adhere to both the structural steps AND the MUST-FOLLOW craft checklist within the guide.
 \${CRAFT_GUIDE_TEXT}
@@ -26,8 +24,30 @@ Below is the Craft Guide you MUST follow for structuring the story and applying 
 
 Maintain a tone that is amusing, sweet, and suitable for the target audience throughout the draft.`;
 
-export const PROMPT_AGENT_2_REVIEWER_TEMPLATE = `You are an expert in evaluating and enhancing children's stories, with deep experience in what engages children while resonating with adults.
-The following text includes a structured outline, character descriptions, and a story draft.
+export const PROMPT_AGENT_2_ELABORATOR_TEMPLATE = `You are a creative writer skilled at expanding and enriching existing stories.
+You have been given the following story (which might be a first draft or an already elaborated version):
+"""
+\${storyText} 
+"""
+
+The story is aimed at: **\${audience}**.
+The original story was crafted using (or inspired by) the following framework/guide. Keep its principles in mind for your additions, but your primary goal is to elaborate creatively:
+\${CRAFT_GUIDE_TEXT}
+
+Your task is to **elaborate on this story, making it demonstrably longer and richer**. This means:
+1.  **Add Richer Detail:** Flesh out existing scenes with more sensory details, character thoughts/emotions, and descriptive language. Look for opportunities to 'show, don't tell' even more.
+2.  **Expand Dialogue:** If appropriate, add or extend conversations between characters to reveal more about them or advance the plot subtly.
+3.  **Introduce 1-2 New Scenes/Plot Points:** Carefully weave in one or two new, short scenes or plot developments that logically extend the current narrative and deepen the story's themes or character arcs. These additions should feel like natural extensions, not abrupt changes. They should ideally build upon existing threads or foreshadowed elements if possible. **The goal is a net addition to the story's length and depth.**
+4.  **Maintain Flow and Consistency:** Ensure your additions integrate smoothly with the existing story, maintaining its tone, style, target audience, and the established narrative structure (if one was previously evident). The story should still feel cohesive and well-paced.
+5.  **Do NOT drastically alter the core plot or ending already established.** Your goal is to enrich and expand, not to rewrite the fundamental story. **Preserve existing content unless modification is absolutely essential for integrating new elaborations.**
+6.  **Word Count Expectation**: Aim to significantly increase the story length, perhaps by 25-50% or more with your elaborations. The key is meaningful expansion.
+
+**Output Requirements:**
+Return ONLY the full, elaborated story text. Do not include any preambles, summaries, notes about your changes, or any structural outlines. Just the complete story, with your elaborations seamlessly integrated.
+Output format: Use plain text, do not use markup, JSON or a serial format.`;
+
+export const PROMPT_AGENT_3_REVIEWER_TEMPLATE = `You are an expert in evaluating and enhancing children's stories, with deep experience in what engages children while resonating with adults.
+The following text is a story draft. It may have been recently elaborated upon.
 
 The story was intended to follow this crafting guide:
 \${CRAFT_GUIDE_TEXT}
@@ -47,39 +67,42 @@ Review the story draft with a critical but constructive eye. Focus on the follow
     *   **Obstacles (if applicable):** Do they challenge the stated flaw, or feel random?
     *   **Clarity of Change (if applicable):** Is the final transformation a clear and meaningful result of the journey?
     *   **Weaknesses:** Are there any steps that feel rushed, underdeveloped, unclear, or unconvincing according to the chosen framework?
-7.  **Output format:** Use plain text, do not use markup, JSON or a serial format.
+7.  **Integration of Elaborations (if applicable):** If the story appears to have been elaborated (i.e., is longer or richer than a typical first draft), are any new additions (details, scenes) well-integrated? Do they enhance the story or feel tacked on? Does the story maintain consistency? **Ensure the story is demonstrably longer and richer if it was intended to be elaborated, and that this added length contributes positively.**
+8.  **Output format:** Use plain text, do not use markup, JSON or a serial format.
 
 Output your feedback as a list of clear, actionable comments or bullet points that the writer can use to revise the story. Be specific in your suggestions, especially regarding how well the story adheres to the provided **CRAFT_GUIDE_TEXT**.
 
-Here is the text to review (containing outline, character descriptions, and draft):
+Here is the text to review:
 \${storyText}`;
 
-export const PROMPT_AGENT_3_POLISHER_TEMPLATE = `You are a talented story editor and children's author.
+export const PROMPT_AGENT_4_POLISHER_TEMPLATE = `You are a talented story editor and children's author.
 You have received:
-1.  An initial text from a writer which includes a story structure outline, character descriptions, and a first story draft (collectively referred to as 'the draft material').
-2.  A list of expert review comments on the draft material, which includes specific feedback on the story's structure and emotional impact.
+1.  A story draft (this could be a first draft after initial crafting and elaboration, or a further elaborated story).
+2.  A list of expert review comments on this story draft.
 
 The story should ultimately adhere to the following crafting guide:
 \${CRAFT_GUIDE_TEXT}
 
-Here is the initial text (draft material):
-\${draftText}
+Here is the story draft to be polished:
+\${storyText}
 
 Here is the reviewer's text:
 \${reviewText}
 
 Your primary task is to **rewrite the story**, incorporating all the reviewer's feedback to make the final version more polished, engaging, and delightful for both children and the adults who read to them.
 **Crucially, pay close attention to strengthening the narrative structure based on the review comments AND the provided CRAFT_GUIDE_TEXT.** Ensure all steps outlined in the guide are well-defined, flow logically, and contribute to a satisfying and emotionally resonant narrative arc suitable for children.
+If the story has been elaborated upon (as may be indicated by the review or its length/detail), ensure the new additions are seamlessly integrated, enhance the original flow, and maintain consistency. **Do not remove or significantly shorten recently elaborated parts if they are well-reviewed; focus on polishing their integration and ensuring the story remains demonstrably longer and richer as intended by any elaboration.**
 
-Keep the core characters and plot elements from 'the draft material' intact, but improve pacing, humor, emotional depth, clarity, and overall narrative impact, guided by the review and the principles in the CRAFT_GUIDE_TEXT.
+Keep the core characters and plot elements from the draft intact, but improve pacing, humor, emotional depth, clarity, and overall narrative impact, guided by the review and the principles in the CRAFT_GUIDE_TEXT.
 
 When you're done, return **only the story content**.
 **Output format:** Use plain text, do not use markup, JSON or a serial format.
 `;
 
-export const PROMPT_AGENT_4_CLEANER_TEMPLATE = `You are an expert children's story editor. Your task is to meticulously review and clean the following story text to ensure it is well-formatted, free of extraneous artifacts, and ready for publication.
+export const PROMPT_AGENT_5_CLEANER_TEMPLATE = `You are an expert children's story editor. Your task is to meticulously review and clean the following story text to ensure it is well-formatted, free of extraneous artifacts, and ready for publication.
 
-The text you have been passed may contain various extra components that were used to develop a story.
+The text you have been passed may contain various extra components that were used to develop a story or review notes.
+**Important Note:** If this story appears to have been elaborated or intentionally lengthened, be careful not to remove or shorten the newly added content or detailed descriptions. Your primary focus is on cleanup of artifacts (like stray notes, markup), grammar, and punctuation, not on content reduction of intended elaborations.
 
 Make sure the story text:
 *   Has no extra introductory or concluding phrases.
@@ -87,17 +110,20 @@ Make sure the story text:
 *   Has correct punctuation and grammar.
 *   Flows smoothly and is easy to read.
 *   Does not contain any markdown or formatting that would not appear in a published children's story.
-*   Ensure that no lingering markup, JSON or a serial format remains in the story - even thoughnthere should not be any in the first place.
+*   Ensure that no lingering markup, JSON or a serial format remains in the story.
+*   Remove any stray reviewer comments or structural notes if they accidentally made it into the story body.
+*   Some "*" characters may have been used to indicate emphasis or other formatting in the original text. Remove these and ensure the text reads smoothly without them. If they should be replaced with punctuation or other characters, do so appropriately.
 
 Here is the story to clean:
 \${storyText}`;
 
-export const PROMPT_AGENT_5_TITLER_TEMPLATE = `You are a skilled children's book title creator. Your task is to generate a concise and captivating title for the following children's story. The title should be appropriate for the target audience and reflect the story's theme or central conflict.
+export const PROMPT_AGENT_6_TITLER_TEMPLATE = `You are a skilled children's book title creator. Your task is to generate a concise and captivating title for the following children's story. The title should be appropriate for the target audience and reflect the story's theme or central conflict.
 
 Provide ONLY the title, with no extra words or introductory phrases.
 
 Here is the story:
 \${storyText}`;
+
 
 export const PROMPT_ILLUSTRATOR_NOTES_TEMPLATE = `You are an experienced children's book art director and illustrator consultant. Based on the story provided, write **a set of illustrator's notes** that give clear visual guidance for an artist who will be drawing each page of the story.
 
