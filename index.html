@@ -28,6 +28,15 @@
             <label for="audienceInput">Target Audience</label>
             <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7, young adults">
 
+            <div class="suggestions-group">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="useEngineSuggestionsCheckbox">
+                    <label for="useEngineSuggestionsCheckbox" class="checkbox-label">Let Story Engine Decide Scene/Story</label>
+                </div>
+                <label for="userSuggestionsTextarea" class="sr-only">Optional Scene/Story Suggestions</label>
+                <textarea id="userSuggestionsTextarea" rows="4" placeholder="Optional: Enter specific scene ideas, plot points, or story direction here..."></textarea>
+            </div>
+
             <label for="craftingFrameworkSelect">Story Crafting Framework</label>
             <select id="craftingFrameworkSelect">
                 <!-- Options will be populated by script.js -->

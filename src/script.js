@@ -12,6 +12,8 @@ const LS_CHARACTERS = 'storyCharacters_storyCircle';
 const LS_AUDIENCE = 'storyAudience_storyCircle';
 const LS_SELECTED_FRAMEWORK = 'storySelectedFramework_storyCircle';
 const LS_SELECTED_MODEL = 'geminiSelectedModel_storyCircle';
+const LS_USE_ENGINE_SUGGESTIONS = 'useEngineSuggestions_storyCircle'; // New
+const LS_USER_SUGGESTIONS = 'userSuggestions_storyCircle';         // New
 
 // --- Imports ---
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
@@ -26,10 +28,11 @@ import {
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, modalModelSelect, downloadChatLogButton;
-let copyStoryButton, saveStoryButton; // New buttons for story actions
+let copyStoryButton, saveStoryButton;
+let useEngineSuggestionsCheckbox, userSuggestionsTextarea; // New for suggestions UI
 
 // --- Global State ---
-let lastRunChatLog = []; // To store prompts and responses for download
+let lastRunChatLog = [];
 
 // --- UI Update Functions ---
 function displayLoading(isLoading, message = '') {
@@ -41,15 +44,16 @@ function displayLoading(isLoading, message = '') {
         if (storyTitleDiv) storyTitleDiv.textContent = '';
         if (storyOutputDiv) storyOutputDiv.textContent = 'Your story will appear here...';
         if (generateButton) generateButton.disabled = true;
-        if (copyStoryButton) copyStoryButton.style.display = 'none'; // Hide story actions
+        if (copyStoryButton) copyStoryButton.style.display = 'none';
         if (saveStoryButton) saveStoryButton.style.display = 'none';
     } else {
         if (statusMessageDiv && statusMessageDiv.classList.contains('loading')) {
-            statusMessageDiv.textContent = ''; // Clear message on completion, success/error will set new one
-            statusMessageDiv.className = '';
+            if (!statusMessageDiv.classList.contains('success') && !statusMessageDiv.classList.contains('error')) {
+                statusMessageDiv.textContent = '';
+                statusMessageDiv.className = '';
+            }
         }
         if (generateButton) generateButton.disabled = false;
-        // Story actions visibility handled by displayOutput
     }
 }
 
@@ -59,14 +63,8 @@ function displayOutput(title, storyText) {
     if (statusMessageDiv) {
         statusMessageDiv.textContent = 'Story generated successfully!';
         statusMessageDiv.className = 'success';
-        setTimeout(() => {
-            if (statusMessageDiv && statusMessageDiv.classList.contains('success') && statusMessageDiv.textContent === 'Story generated successfully!') {
-                statusMessageDiv.textContent = '';
-                statusMessageDiv.className = '';
-            }
-        }, 4000);
+        // Timeout will be handled by showTemporaryStatus logic if it's called after this
     }
-    // Show story action buttons
     if (copyStoryButton) copyStoryButton.style.display = 'inline-block';
     if (saveStoryButton) saveStoryButton.style.display = 'inline-block';
 }
@@ -77,7 +75,6 @@ function displayError(errorMessage) {
         statusMessageDiv.className = 'error';
     }
     if (storyTitleDiv) storyTitleDiv.textContent = '';
-    // Hide story actions on error
     if (copyStoryButton) copyStoryButton.style.display = 'none';
     if (saveStoryButton) saveStoryButton.style.display = 'none';
     console.error("Pipeline Error Details:", errorMessage);
@@ -86,10 +83,9 @@ function displayError(errorMessage) {
 function showTemporaryStatus(message, type = 'info', duration = 3000) {
     if (statusMessageDiv) {
         statusMessageDiv.textContent = message;
-        statusMessageDiv.className = type; // 'success', 'error', or a generic 'info' if styled
+        statusMessageDiv.className = type; 
         setTimeout(() => {
-            // Clear only if the message hasn't been replaced by a newer status
-            if (statusMessageDiv.textContent === message) {
+            if (statusMessageDiv.textContent === message && statusMessageDiv.className === type) { // Check if it's still our message
                 statusMessageDiv.textContent = '';
                 statusMessageDiv.className = '';
             }
@@ -105,6 +101,20 @@ function updateFrameworkSummaryDisplay() {
         frameworkSummaryDiv.textContent = summary;
     } else if (frameworkSummaryDiv) {
         frameworkSummaryDiv.textContent = "Select a framework to see its summary.";
+    }
+}
+
+function updateSuggestionsTextareaStyle() {
+    if (!userSuggestionsTextarea || !useEngineSuggestionsCheckbox) return;
+
+    if (useEngineSuggestionsCheckbox.checked) {
+        userSuggestionsTextarea.classList.remove('suggestions-used');
+        userSuggestionsTextarea.classList.add('suggestions-not-used');
+        userSuggestionsTextarea.disabled = true;
+    } else {
+        userSuggestionsTextarea.classList.remove('suggestions-not-used');
+        userSuggestionsTextarea.classList.add('suggestions-used');
+        userSuggestionsTextarea.disabled = false;
     }
 }
 
@@ -142,7 +152,7 @@ function constructAgentPrompt(basePromptTemplate, dataObject) {
 }
 
 // --- Gemini API Call Function ---
-async function callAgentAPI(prompt, currentApiKey, selectedModelId, agentName = "Agent") { // Added agentName
+async function callAgentAPI(prompt, currentApiKey, selectedModelId, agentName = "Agent") {
     if (!currentApiKey) {
         console.error("API Key is missing in callAgentAPI");
         throw new Error("Gemini API Key is missing. Please enter it via Settings (⚙️) and try again.");
@@ -155,7 +165,6 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId, agentName = 
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModelId}:generateContent?key=${currentApiKey}`;
     
     console.log(`Calling ${agentName} with model ${selectedModelId}. Prompt starts with: "${prompt.substring(0,100)}..."`);
-    // Log prompt for chat log
     lastRunChatLog.push({ agentName, type: 'prompt', content: prompt, timestamp: new Date().toISOString() });
 
 
@@ -182,7 +191,6 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId, agentName = 
             } else {
                 errorMessage += ` - ${response.statusText}`;
             }
-            // Log error response for chat log
             lastRunChatLog.push({ agentName, type: 'error-response', content: JSON.stringify(responseData, null, 2), timestamp: new Date().toISOString() });
             console.error("API Error Data:", responseData);
             throw new Error(errorMessage);
@@ -211,14 +219,12 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId, agentName = 
         }
         
         const rawTextOutput = responseData.candidates[0].content.parts[0].text;
-        // Log successful response for chat log
         lastRunChatLog.push({ agentName, type: 'response', content: rawTextOutput, timestamp: new Date().toISOString() });
         console.log(`${agentName} raw output from model ${selectedModelId} starts with: "${rawTextOutput.substring(0,100)}..."`);
         return rawTextOutput;
 
     } catch (error) {
         console.error(`Error in callAgentAPI with model ${selectedModelId} for ${agentName}:`, error);
-        // Ensure error is logged if not caught above
         if (!lastRunChatLog.find(log => log.agentName === agentName && log.type.includes('error'))) {
             lastRunChatLog.push({ agentName, type: 'general-error', content: error.message, timestamp: new Date().toISOString() });
         }
@@ -230,17 +236,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
     modalApiKeyInput = document.getElementById('modalApiKeyInput');
     modalModelSelect = document.getElementById('modalModelSelect');
-    downloadChatLogButton = document.getElementById('downloadChatLogButton'); // New
+    downloadChatLogButton = document.getElementById('downloadChatLogButton');
     charactersInput = document.getElementById('charactersInput');
     audienceInput = document.getElementById('audienceInput');
+    useEngineSuggestionsCheckbox = document.getElementById('useEngineSuggestionsCheckbox'); // New
+    userSuggestionsTextarea = document.getElementById('userSuggestionsTextarea');       // New
     craftingFrameworkSelect = document.getElementById('craftingFrameworkSelect');
     frameworkSummaryDiv = document.getElementById('frameworkSummary');
     generateButton = document.getElementById('generateButton');
     statusMessageDiv = document.getElementById('statusMessage');
     storyTitleDiv = document.getElementById('storyTitle');
     storyOutputDiv = document.getElementById('storyOutput');
-    copyStoryButton = document.getElementById('copyStoryButton'); // New
-    saveStoryButton = document.getElementById('saveStoryButton'); // New
+    copyStoryButton = document.getElementById('copyStoryButton');
+    saveStoryButton = document.getElementById('saveStoryButton');
 
 
     settingsModal = document.getElementById('settingsModal');
@@ -249,16 +257,32 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
     // --- Initial UI Setup & Event Listeners ---
-    const criticalElements = { modalApiKeyInput, modalModelSelect, downloadChatLogButton, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, copyStoryButton, saveStoryButton };
+    const criticalElements = { modalApiKeyInput, modalModelSelect, downloadChatLogButton, charactersInput, audienceInput, useEngineSuggestionsCheckbox, userSuggestionsTextarea, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, copyStoryButton, saveStoryButton };
     for (const elName in criticalElements) {
         if (!criticalElements[elName]) {
             console.error(`Error: ${elName} element not found in HTML! UI may not function correctly.`);
         }
     }
     
-    // Hide story actions initially
     if (copyStoryButton) copyStoryButton.style.display = 'none';
     if (saveStoryButton) saveStoryButton.style.display = 'none';
+
+    // Suggestions UI Setup
+    if (useEngineSuggestionsCheckbox && userSuggestionsTextarea) {
+        const savedUseEngine = loadFromLocalStorage(LS_USE_ENGINE_SUGGESTIONS);
+        useEngineSuggestionsCheckbox.checked = savedUseEngine === null ? true : (savedUseEngine === 'true'); // Default to true (checked)
+        userSuggestionsTextarea.value = loadFromLocalStorage(LS_USER_SUGGESTIONS) || '';
+        updateSuggestionsTextareaStyle(); // Set initial style
+
+        useEngineSuggestionsCheckbox.addEventListener('change', () => {
+            updateSuggestionsTextareaStyle();
+            saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, useEngineSuggestionsCheckbox.checked.toString());
+        });
+        userSuggestionsTextarea.addEventListener('input', () => {
+            saveToLocalStorage(LS_USER_SUGGESTIONS, userSuggestionsTextarea.value);
+        });
+    }
+
 
     if (modalModelSelect) {
         for (const modelId in AVAILABLE_MODELS) {
@@ -360,9 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                // Sanitize title for filename
                 const safeTitle = storyTitleText.replace(/[^a-z0-9_\-\s]/gi, '_').replace(/\s+/g, '_');
-                a.download = `${safeTitle}.txt`;
+                a.download = `${safeTitle || 'generated_story'}.txt`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -413,9 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleGenerateStory() {
-        lastRunChatLog = []; // Clear previous log at the start of a new generation
+        lastRunChatLog = []; 
 
-        if (!modalApiKeyInput || !modalModelSelect || !charactersInput || !audienceInput || !craftingFrameworkSelect) {
+        if (!modalApiKeyInput || !modalModelSelect || !charactersInput || !audienceInput || !craftingFrameworkSelect || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea) {
              displayError(`Cannot generate story: Critical form elements missing. Please check HTML or report issue.`);
             return;
         }
@@ -439,8 +462,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedFrameworkKey = craftingFrameworkSelect.value;
         const selectedCraftGuideText = STORY_CRAFTING_GUIDES[selectedFrameworkKey];
 
+        // Prepare user suggestions
+        let userProvidedSuggestionsText = "";
+        const useEngineForSuggestions = useEngineSuggestionsCheckbox.checked;
+        const suggestionsText = userSuggestionsTextarea.value.trim();
+
+        if (!useEngineForSuggestions && suggestionsText) {
+            userProvidedSuggestionsText = `\n**User Story/Scene Suggestions:**\nThe user has provided the following suggestions. Please use these for guidance and inspiration when crafting the story, if they align well with the characters, audience, and chosen story framework. Be flexible with the user's wording and formatting. The suggestions are:\n"""\n${suggestionsText}\n"""\n`;
+        }
+
+
         saveToLocalStorage(LS_CHARACTERS, charactersStr);
         saveToLocalStorage(LS_AUDIENCE, audienceStr);
+        // User suggestions already saved by their input/change listeners
 
         if (!charactersStr.trim()) { displayError('Please enter at least one character.'); if (charactersInput) charactersInput.focus(); return; }
         const parsedCharsArray = parseCharacters(charactersStr);
@@ -452,7 +486,13 @@ document.addEventListener('DOMContentLoaded', () => {
         displayLoading(true, `Initializing story generation with ${selectedFrameworkKey} using ${AVAILABLE_MODELS[storedModelId]}...`);
 
         try {
-            const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, { charactersList: parsedCharsArray.join(', '), audience: audienceStr, CRAFT_GUIDE_TEXT: selectedCraftGuideText });
+            const agent1DataObject = {
+                charactersList: parsedCharsArray.join(', '),
+                audience: audienceStr,
+                USER_SUGGESTIONS_TEXT: userProvidedSuggestionsText, // Add suggestions here
+                CRAFT_GUIDE_TEXT: selectedCraftGuideText
+            };
+            const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, agent1DataObject);
             displayLoading(true, `Step 1/5: Crafting draft...`);
             const agent1Output_FullText = await callAgentAPI(agent1Prompt, storedApiKey, storedModelId, "Agent 1: Story Crafter");
 
