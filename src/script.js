@@ -12,6 +12,12 @@ const DEFAULT_READING_AGE_MIN = 5;
 const DEFAULT_READING_AGE_MAX = 12; 
 const DEFAULT_TARGET_READING_AGE = 7; 
 
+// Font Size Configuration
+const STORY_FONT_SIZE_STEP = 0.1; // Amount to increase/decrease font size by in rem
+const MIN_STORY_FONT_SIZE_REM = 0.7;
+const MAX_STORY_FONT_SIZE_REM = 2.0;
+const DEFAULT_STORY_FONT_SIZE_REM = 1.0; // Matches #storyOutput initial CSS if defined, or browser default
+
 // --- Local Storage Keys (Constants) ---
 import { 
     LS_API_KEY, LS_CHARACTERS, LS_AUDIENCE, LS_SELECTED_FRAMEWORK, LS_SELECTED_MODEL,
@@ -19,6 +25,7 @@ import {
     LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, 
     LS_READING_AGE_MIN, LS_READING_AGE_MAX, 
     saveToLocalStorage, loadFromLocalStorage 
+    // LS_STORY_FONT_SIZE, // Add if making font size persistent
 } from './localStorage.js';
 
 // --- Imports from Modules ---
@@ -34,7 +41,7 @@ import {
     PROMPT_AGENT_6_TITLER_TEMPLATE,
 } from './prompts/agent_prompts.js';
 import { callAgentAPI } from './api.js';
-import { parseCharacters, constructAgentPrompt, countWords } from './utils.js'; // Added countWords
+import { parseCharacters, constructAgentPrompt, countWords } from './utils.js'; 
 import { 
     initUIElements,
     updateStatusInStoryOutput, 
@@ -45,16 +52,23 @@ import {
     updateFrameworkSummaryDisplay, 
     updateSuggestionsTextareaStyle,
     disableMainControls, 
-    enableMainControls
+    enableMainControls,
+    applyStoryFontSize // New function from ui.js
 } from './ui.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
-let copyStoryButton, saveStoryButton, elaborateStoryButton; 
+let copyStoryButton, saveStoryButton, elaborateStoryButton, decreaseFontButton, increaseFontButton; // Added font buttons
 let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
 let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
+
+// --- Application State for Font Size ---
+let currentStoryFontSizeRem = DEFAULT_STORY_FONT_SIZE_REM;
+// To make it persistent:
+// let currentStoryFontSizeRem = parseFloat(loadFromLocalStorage(LS_STORY_FONT_SIZE)) || DEFAULT_STORY_FONT_SIZE_REM;
+
 
 // --- Pipeline Configurations ---
 const STORY_GENERATION_PIPELINE = [
@@ -118,12 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
     copyStoryButton = document.getElementById('copyStoryButton');
     saveStoryButton = document.getElementById('saveStoryButton');
     elaborateStoryButton = document.getElementById('elaborateStoryButton');
+    decreaseFontButton = document.getElementById('decreaseFontButton'); // New
+    increaseFontButton = document.getElementById('increaseFontButton'); // New
     settingsModal = document.getElementById('settingsModal');
     settingsButton = document.getElementById('settingsButton');
     cancelSettingsButton = document.getElementById('cancelSettingsButton');
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
-    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer) {
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton) {
         console.error("Critical UI elements are missing. Application may not function correctly.");
         if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
         return;
@@ -131,8 +147,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initUIElements({ 
         storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton,
+        decreaseFontButton, increaseFontButton, // Pass new buttons
         craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea
     });
+
+    // Apply initial font size (could be loaded from LS if persistent)
+    applyStoryFontSize(currentStoryFontSizeRem);
 
     if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome! Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
     enableMainControls();
@@ -262,6 +282,28 @@ document.addEventListener('DOMContentLoaded', () => {
             showTemporaryToast("Story saved as .txt file!", "success");
         }
     });
+
+    // Font Size Control Event Listeners
+    increaseFontButton.addEventListener('click', () => {
+        let newSize = currentStoryFontSizeRem + STORY_FONT_SIZE_STEP;
+        if (newSize > MAX_STORY_FONT_SIZE_REM) {
+            newSize = MAX_STORY_FONT_SIZE_REM;
+        }
+        currentStoryFontSizeRem = newSize;
+        applyStoryFontSize(currentStoryFontSizeRem);
+        // if (LS_STORY_FONT_SIZE) saveToLocalStorage(LS_STORY_FONT_SIZE, currentStoryFontSizeRem.toString());
+    });
+
+    decreaseFontButton.addEventListener('click', () => {
+        let newSize = currentStoryFontSizeRem - STORY_FONT_SIZE_STEP;
+        if (newSize < MIN_STORY_FONT_SIZE_REM) {
+            newSize = MIN_STORY_FONT_SIZE_REM;
+        }
+        currentStoryFontSizeRem = newSize;
+        applyStoryFontSize(currentStoryFontSizeRem);
+        // if (LS_STORY_FONT_SIZE) saveToLocalStorage(LS_STORY_FONT_SIZE, currentStoryFontSizeRem.toString());
+    });
+
 
     charactersInput.addEventListener('input', () => saveToLocalStorage(LS_CHARACTERS, charactersInput.value));
     audienceInput.addEventListener('input', () => saveToLocalStorage(LS_AUDIENCE, audienceInput.value));

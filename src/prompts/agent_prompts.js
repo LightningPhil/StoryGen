@@ -27,6 +27,12 @@ Below is the Craft Guide you MUST follow for structuring the story and applying 
 3.  Limit exclamation marks to 8 or fewer per story.
 4.  Avoid generic adjectives; swap with precise verbs or concrete images.
 5.  Keep dialogue tags simple (said, asked, whispered), unless a vivid alternative truly adds color.
+6.  Avoid situations, scenes or characters that are too scary or dark for children. The story should be amusing, sweet, and suitable for the target audience.
+7.  Avoid situations, scenes or characters that are too sad or depressing for children. The story should be amusing, sweet, and suitable for the target audience.
+8.  Avoid situations, scenes or characters that are too violent or aggressive for children. The story should be amusing, sweet, and suitable for the target audience.
+9.  Avoid situations, scenes or characters that are too complex or confusing for children. The story should be amusing, sweet, and suitable for the target audience.
+10.  Avoid situations, scenes or characters that are too mature or adult-themed for children. The story should be amusing, sweet, and suitable for the target audience.
+11.  Avoid situations, scenes or characters that are too strange or surreal for children. The story should be amusing, sweet, and suitable for the target audience.
 
 **Output Requirements:**
 1.  **Story Structure Outline:** First, provide a concise outline (1–2 sentences per step) mapping your story to the structure in the Craft Guide. Label each step clearly according to the chosen framework.
