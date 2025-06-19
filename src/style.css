@@ -11,39 +11,65 @@
     --font-primary: 'Inter', sans-serif;
     --font-headings: 'Montserrat', sans-serif;
 
-    --color-bg-page: #f0f4f8; 
+    /* --- Lively & Neat Colour Palette --- */
+    --color-bg-page: #f4f5f7; /* Very light, almost white-grey */
     --color-bg-app-container: #ffffff;
-    --color-bg-controls-panel: #f8f9fa; 
+    --color-bg-controls-panel: #fafbfc; 
     --color-bg-story-panel: #ffffff; 
-    --color-text-primary: #212529; 
-    --color-text-secondary: #495057; 
-    --color-accent: #007bff; 
-    --color-accent-hover: #0056b3;
-    --color-border: #dee2e6; 
-    --color-border-light: #e9ecef; 
     
-    --color-error-bg: #f8d7da;
-    --color-error-text: #721c24;
-    --color-error-border: #f5c6cb;
-    --color-success-bg: #d4edda;
-    --color-success-text: #155724;
-    --color-success-border: #c3e6cb;
-    --color-info-bg: #d1ecf1;
-    --color-info-text: #0c5460;
-    --color-info-border: #bee5eb;
-    
-    --color-suggestions-bg-used: #e6fffa; 
-    --color-suggestions-bg-not-used: #f1f3f5; 
-    
-    --slider-track-color: #ced4da;
-    --slider-thumb-color: var(--color-accent);
+    --color-text-primary: #24292e; /* Very dark grey (GitHub-like) for titles/main text */
+    --color-text-secondary: #57606a; /* Medium grey for secondary text/labels */
+    --color-text-light: #6a737d;   /* Lighter grey for subtle text */
 
-    --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
-    --shadow-md: 0 .5rem 1rem rgba(0,0,0,.15);
-    --border-radius-sm: 0.25rem;
-    --border-radius-md: 0.375rem;
+    /* Primary Accent for critical actions - now a dark, confident grey */
+    --color-button-primary-bg: #343a40; /* Dark grey, almost black */
+    --color-button-primary-text: #ffffff;
+    --color-button-primary-hover-bg: #23272b; /* Slightly darker on hover */
+    --color-button-primary-border: #343a40;
+
+    /* Secondary Accent: A lighter grey, for secondary buttons or borders */
+    --color-button-secondary-bg: #f8f9fa; 
+    --color-button-secondary-text: var(--color-text-primary);
+    --color-button-secondary-hover-bg: #e9ecef;
+    --color-button-secondary-border: #ced4da;
+
+    /* Tertiary Accent: For cancel buttons, subtle actions - often text-like */
+    --color-button-tertiary-text: var(--color-text-secondary);
+    --color-button-tertiary-hover-bg: #f1f3f5;
+    --color-button-tertiary-border: transparent; /* Or a very light border if preferred */
+
+
+    --color-checkbox-accent: var(--color-text-primary); /* Dark grey for checkbox checkmark */
+    --color-checkbox-border: #adb5bd; /* Slightly darker grey for unchecked border */
+
+    --color-border: #d0d7de; 
+    --color-border-light: #e6ebf1; 
     
-    --controls-panel-width: 400px; 
+    --color-error-bg: #ffebe9; 
+    --color-error-text: #c93c37;
+    --color-error-border: #ffccc7;
+    --color-success-bg: #dff0d8; 
+    --color-success-text: #3c763d;
+    --color-success-border: #d6e9c6;
+    --color-info-bg: #e0f2fe;   
+    --color-info-text: #0c5473;
+    --color-info-border: #b3e5fc;
+    
+    --color-suggestions-bg-used: #eef7ff; 
+    --color-suggestions-bg-not-used: #f6f8fa; 
+    
+    --slider-track-color: #e9ecef; /* Lighter track */
+    --slider-thumb-color: var(--color-text-secondary); 
+
+    --focus-ring-color: rgba(87, 96, 106, 0.25); /* Subtle grey focus ring */
+
+
+    --shadow-sm: 0 1px 2px rgba(27,31,36,0.075);
+    --shadow-md: 0 3px 6px rgba(27,31,36,0.1), 0 1px 2px rgba(27,31,36,0.06);
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px; 
+    
+    --controls-panel-width: 380px; 
     --panel-padding: 20px;
 }
 
@@ -56,20 +82,22 @@ body {
     font-family: var(--font-primary);
     background-color: var(--color-bg-page);
     color: var(--color-text-primary);
-    line-height: 1.6;
+    line-height: 1.65; 
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0;
     margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .app-container {
     display: flex;
     width: 95vw;
     height: 95vh;
-    max-width: 1900px; 
-    max-height: 1200px; 
+    max-width: 1800px; 
+    max-height: 1100px; 
     background-color: var(--color-bg-app-container);
     border-radius: var(--border-radius-md);
     box-shadow: var(--shadow-md);
@@ -103,10 +131,11 @@ body {
 }
 
 .panel-header h1 {
-    font-size: 1.5rem; 
+    font-size: 1.4rem; 
     color: var(--color-text-primary);
     font-family: var(--font-headings);
-    font-weight: 700;
+    font-weight: 600; /* Slightly less heavy */
+    letter-spacing: -0.01em;
 }
 
 .settings-icon-button { 
@@ -114,19 +143,19 @@ body {
     color: var(--color-text-secondary); border-radius: 50%;
     transition: background-color 0.2s ease, color 0.2s ease; line-height: 0;
 }
-.settings-icon-button svg { width: 22px; height: 22px; display: block; } 
-.settings-icon-button:hover { background-color: #e9ecef; color: var(--color-accent); }
+.settings-icon-button svg { width: 20px; height: 20px; display: block; } 
+.settings-icon-button:hover { background-color: var(--color-border-light); color: var(--color-text-primary); }
 
 
 .form-section { 
     flex-grow: 1; 
     overflow-y: auto; 
-    padding-right: 5px; 
-    margin-right: -10px; 
+    padding-right: 10px; 
+    margin-right: -15px; 
 }
-.form-section::-webkit-scrollbar { width: 8px; } /* Adjusted for consistency */
+.form-section::-webkit-scrollbar { width: 6px; }
 .form-section::-webkit-scrollbar-track { background: transparent; } 
-.form-section::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+.form-section::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
 .form-section::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
 
 
@@ -135,9 +164,11 @@ body {
     margin-top: 16px; 
     margin-bottom: 6px;
     font-family: var(--font-headings);
-    font-weight: 600;
-    font-size: 0.875rem; 
+    font-weight: 500; /* Medium weight for labels */
+    font-size: 0.8rem; 
     color: var(--color-text-secondary);
+    text-transform: uppercase; 
+    letter-spacing: 0.05em;
 }
 .sr-only { 
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -152,28 +183,28 @@ body {
     padding: 10px 12px;
     margin-bottom: 10px; 
     border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-md); /* Consistent rounded corners */
     background-color: #fff;
     font-family: var(--font-primary);
     font-size: 0.9rem; 
     color: var(--color-text-primary);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .controls-panel input[type="text"]:focus,
 .controls-panel textarea:focus,
 .controls-panel select:focus,
 .controls-panel input[type="number"]:focus {
     outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); 
+    border-color: var(--color-text-secondary); 
+    box-shadow: 0 0 0 3px var(--focus-ring-color); 
 }
 
 .controls-panel textarea { min-height: 60px; } 
 
 .controls-panel select { 
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234A5568' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center; background-size: 14px 14px; padding-right: 35px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2357606a'%3E%3Cpath d='M8 10.75L3.5 6.25H12.5L8 10.75Z'/%3E%3C/svg%3E"); 
+    background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 12px; padding-right: 35px;
 }
 
 .control-group {
@@ -181,14 +212,17 @@ body {
     margin-bottom: 8px; 
     padding: 12px; 
     border: 1px solid var(--color-border-light);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-md); 
     background-color: #fff; 
 }
 .control-group label.group-title { 
     margin-top: 0;
     margin-bottom: 8px; 
-    font-size: 0.9rem; 
+    font-size: 0.85rem; /* Group titles slightly smaller */
     color: var(--color-text-primary);
+    text-transform: none; 
+    letter-spacing: normal;
+    font-weight: 600;
 }
 
 .checkbox-wrapper {
@@ -198,12 +232,15 @@ body {
     margin-top: 3px;
 }
 .controls-panel input[type="checkbox"] {
-    width: auto; 
+    width: 1em; 
     height: 1em; 
     margin-right: 8px;
-    accent-color: var(--color-accent); 
+    accent-color: var(--color-checkbox-accent); 
+    border: 1px solid var(--color-checkbox-border);
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
     flex-shrink: 0; 
+    position: relative; 
 }
 .controls-panel label.checkbox-label { 
     margin: 0; 
@@ -212,7 +249,7 @@ body {
     font-size: 0.85rem; 
     color: var(--color-text-secondary);
     cursor: pointer;
-    line-height: 1.2; 
+    line-height: 1.3; /* Adjusted */
     margin-right: 8px; 
 }
 .controls-panel .inline-number-input { 
@@ -227,7 +264,7 @@ body {
     font-family: var(--font-primary);
     font-weight: normal;
     font-size: 0.85rem;
-    color: var(--color-text-secondary);
+    color: var(--color-text-light); 
     align-self: center; 
 }
 
@@ -236,6 +273,7 @@ body {
     min-height: 70px; 
     margin-bottom: 0; 
     margin-top: 5px; 
+    font-size: 0.875rem;
 }
 #userSuggestionsTextarea.suggestions-used { background-color: var(--color-suggestions-bg-used); }
 #userSuggestionsTextarea.suggestions-not-used { background-color: var(--color-suggestions-bg-not-used); }
@@ -244,7 +282,7 @@ body {
 /* Slider Styles in Controls Panel */
 .slider-container {
     margin-top: 8px;
-    padding-left: 5px; 
+    padding-left: 0; 
     opacity: 1;
     transition: opacity 0.3s ease;
 }
@@ -252,24 +290,25 @@ body {
     opacity: 0.5;
     pointer-events: none;
 }
-
 .slider-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px; 
-    margin-top: 8px;
-    margin-bottom: 4px;
+    gap: 10px; 
+    margin-top: 5px; 
+    margin-bottom: 0px; 
 }
 .slider-wrapper .slider-label-min,
 .slider-wrapper .slider-label-max {
-    font-size: 0.75rem; 
-    color: var(--color-text-secondary);
+    font-size: 0.7rem; /* Even smaller */
+    color: var(--color-text-light);
     flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 .controls-panel input[type="range"] {
     flex-grow: 1;
     -webkit-appearance: none; appearance: none;
-    height: 6px; 
+    height: 5px; 
     background: var(--slider-track-color);
     border-radius: 3px;
     outline: none; opacity: 0.9;
@@ -278,39 +317,96 @@ body {
 .controls-panel input[type="range"]:hover { opacity: 1; }
 .controls-panel input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 16px; height: 16px; 
+    width: 14px; height: 14px; 
     background: var(--slider-thumb-color);
     border-radius: 50%; cursor: pointer;
-    border: 2px solid #fff; box-shadow: var(--shadow-sm);
+    border: none; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
 }
 .controls-panel input[type="range"]::-moz-range-thumb {
     width: 14px; height: 14px;
     background: var(--slider-thumb-color);
     border-radius: 50%; cursor: pointer;
-    border: 2px solid #fff; box-shadow: var(--shadow-sm);
+    border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .slider-value-display {
-    display: none; /* Hidden as per your request */
+    display: none; 
 }
 
+/* --- Button Theming --- */
+button {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    border-radius: var(--border-radius-md); /* More rounded buttons */
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    border: 1px solid transparent; 
+}
+button:focus-visible { 
+    outline: 2px solid var(--slider-thumb-color); /* Use slider thumb for focus too */
+    outline-offset: 2px;
+}
 
+/* Primary Button (e.g., Generate Story, Save & Close in Modal) */
+.button-primary {
+    background-color: var(--color-button-primary-bg); 
+    color: var(--color-button-primary-text); 
+    border-color: var(--color-button-primary-border);
+}
+.button-primary:hover {
+    background-color: var(--color-button-primary-hover-bg); 
+    border-color: var(--color-button-primary-hover-bg);
+    transform: translateY(-1px);
+}
+.button-primary:active { transform: translateY(0); }
+.button-primary:disabled {
+    background-color: #adb5bd; border-color: #adb5bd;
+    color: #f8f9fa; cursor: not-allowed; transform: translateY(0);
+}
 .controls-panel #generateButton {
-    width: 100%;
-    padding: 12px 15px; 
-    font-size: 1rem;
-    margin-top: 20px; 
+    width: 100%; padding: 12px 15px; font-size: 0.95rem; margin-top: 20px; 
+    font-weight: 600; 
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.controls-panel .framework-summary {
+
+/* Secondary Button (e.g., Download Log) */
+.button-secondary {
+    background-color: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
+    border-color: var(--color-button-secondary-border);
+}
+.button-secondary:hover {
+    background-color: var(--color-button-secondary-hover-bg);
+    border-color: #adb5bd;
+}
+
+/* Tertiary Button (e.g., Cancel in Modal) */
+.button-tertiary {
+    background-color: transparent;
+    color: var(--color-button-tertiary-text);
+    border-color: var(--color-border); /* Give it a subtle border */
+}
+.button-tertiary:hover {
+    background-color: var(--color-button-tertiary-hover-bg);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-light);
+}
+
+
+.controls-panel .framework-summary { 
     padding: 10px; margin-bottom: 15px; font-size: 0.8rem;
     background-color: var(--color-suggestions-bg-not-used); 
+    border-radius: var(--border-radius-sm);
 }
 
 
 /* Story Display Panel (Right Side) */
-.story-display-panel {
+.story-display-panel { 
     flex-grow: 1; 
-    padding: var(--panel-padding);
+    padding: var(--panel-padding) calc(var(--panel-padding) + 10px) var(--panel-padding) var(--panel-padding); 
     display: flex;
     flex-direction: column;
     overflow: hidden; 
@@ -321,16 +417,17 @@ body {
     margin-top: 0; 
     margin-bottom: 15px;
     flex-shrink: 0; 
-    min-height: 46px; 
-    padding: 10px 15px;
-    font-size: 0.9rem;
+    min-height: 42px; 
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    border-radius: var(--border-radius-sm);
 }
 
 .story-display-panel .story-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px; 
+    margin-bottom: 12px; 
     flex-shrink: 0; 
 }
 
@@ -339,9 +436,10 @@ body {
     text-align: left;
     flex-grow: 1;
     margin: 0; 
-    font-size: 1.6rem; 
-    font-weight: 700;
-    color: var(--color-accent);
+    font-size: 1.8rem; 
+    font-weight: 600; /* Slightly less heavy for balance */
+    color: var(--color-text-primary); 
+    letter-spacing: -0.02em;
     padding-right: 15px; 
 }
 
@@ -351,63 +449,70 @@ body {
     flex-shrink: 0; 
 }
 .story-action-button { 
-    padding: 6px; 
+    padding: 7px; 
+    color: var(--color-text-light);
+    border-color: var(--color-border-light);
+    border-radius: var(--border-radius-sm); /* Consistent radius */
 }
 .story-action-button svg { width: 16px; height: 16px; } 
+.story-action-button:hover { 
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+    background-color: var(--color-bg-controls-panel); 
+}
 
 
 .story-display-panel #storyOutput {
     flex-grow: 1; 
     overflow-y: auto; 
-    background-color: #fff; 
-    border: 1px solid var(--color-border-light);
+    background-color: var(--color-bg-story-panel); 
+    border: none; 
     padding: 20px;
+    padding-right: 25px; 
     border-radius: var(--border-radius-sm);
-    margin-top: 10px;
-    line-height: 1.7; 
-    font-size: 0.95rem; 
+    margin-top: 0; 
+    line-height: 1.75; 
+    font-size: 1rem; 
     color: var(--color-text-primary);
-    white-space: pre-wrap; /* <<< THIS IS THE FIX FOR PARAGRAPHS */
+    white-space: pre-wrap; 
 }
 .story-display-panel #storyOutput::-webkit-scrollbar { width: 8px; }
-.story-display-panel #storyOutput::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-.story-display-panel #storyOutput::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-.story-display-panel #storyOutput::-webkit-scrollbar-thumb:hover { background: #bbb; }
+.story-display-panel #storyOutput::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 4px; }
+.story-display-panel #storyOutput::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+.story-display-panel #storyOutput::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
 
 
 /* Modal Styles */
 .modal { 
     display: none; position: fixed; z-index: 1000; left: 0; top: 0;
     width: 100%; height: 100%; overflow: auto;
-    background-color: rgba(33, 37, 41, 0.75); 
-    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    background-color: rgba(33, 37, 41, 0.6); 
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
     padding-top: 8vh; 
 }
 .modal-content { 
     background-color: var(--color-bg-app-container); margin: 0 auto;
-    padding: 25px 30px; border: none; width: 90%; max-width: 500px; 
+    padding: 25px 30px; border: none; width: 90%; max-width: 480px; 
     border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); position: relative;
 }
-.modal-content h2 { font-size: 1.4rem; margin-bottom: 20px; }
-.modal-content label { font-size: 0.85rem; margin-top: 12px; margin-bottom: 5px; }
+.modal-content h2 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 25px; text-align: center; }
+.modal-content label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 15px; margin-bottom: 6px; }
 
 .modal-content .form-row { 
-    margin-bottom: 15px;
+    margin-bottom: 18px; /* Increased spacing between rows */
 }
-.modal-content .form-row:last-of-type {
-    margin-bottom: 20px; 
-}
+/* .modal-content .form-row:last-of-type removed as .modal-actions handles spacing now */
 
-.modal-content .form-row.two-col {
-    display: flex;
+.modal-content .form-row.modal-two-col {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
     gap: 15px; 
-    align-items: flex-end; 
+    align-items: end; 
 }
-.modal-content .form-row.two-col .form-group {
-    flex: 1; 
-    min-width: 0; 
+.modal-content .form-row.modal-two-col .form-group {
+    /* No specific style needed, grid handles it */
 }
-.modal-content .form-row.two-col .form-group label {
+.modal-content .form-row.modal-two-col .form-group label {
     margin-top: 0; 
 }
 
@@ -416,37 +521,61 @@ body {
 .modal-content select,
 .modal-content input[type="number"] {
     width: 100%; 
-    padding: 10px 12px;
+    padding: 9px 12px; 
     font-size: 0.9rem; 
     margin-bottom: 0; 
+    border-radius: var(--border-radius-sm);
 }
-.modal-content .form-row.two-col input[type="number"] {
-     text-align: center; 
+.modal-content .form-row.modal-two-col input[type="number"] {
+     text-align: left; /* Default for consistency */
 }
 .modal-content input[type="text"]:focus,
 .modal-content select:focus,
 .modal-content input[type="number"]:focus { 
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); 
+    border-color: var(--color-text-secondary); 
+    box-shadow: 0 0 0 3px var(--focus-ring-color); 
 }
-
 
 .modal-content .control-group-modal { 
     margin-top: 15px; margin-bottom: 18px; padding: 12px;
     border: 1px solid var(--color-border-light); border-radius: var(--border-radius-sm);
     background-color: var(--color-bg-controls-panel); 
 }
-.modal-content .group-title-modal { font-size: 0.9rem; margin-bottom: 8px; }
+.modal-content .group-title-modal { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; font-weight: 600;}
 .modal-content .inline-inputs { display: flex; align-items: center; gap: 8px; }
-.modal-content .inline-inputs label { margin: 0; font-size: 0.8rem; }
+.modal-content .inline-inputs label { margin: 0; font-size: 0.8rem; text-transform: none; letter-spacing: normal;}
 .modal-content .inline-inputs input[type="number"] {
-    width: 60px; margin-bottom: 0; padding: 8px; font-size: 0.9rem;
+    width: 65px; margin-bottom: 0; padding: 8px; font-size: 0.85rem;
+}
+
+.modal-actions { 
+    margin-top: 25px;
+    border-top: 1px solid var(--color-border-light);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column; 
+    gap: 10px;
+}
+.modal-main-actions { 
+    display: flex;
+    justify-content: flex-end; 
+    gap: 10px;
 }
 
 .modal-content button { 
-    padding: 10px 15px; font-size: 0.95rem; margin-top: 8px;
+    padding: 10px 15px; font-size: 0.9rem; margin-top: 0; /* Reset margin as wrappers handle it */
+    border-radius: var(--border-radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500; /* Standard weight for modal buttons */
 }
-.modal-content .secondary-button { margin-bottom: 8px; } 
-#saveSettingsButton { margin-top: 15px; } 
-.close-button { top: 12px; right: 12px; font-size: 26px; } 
+#saveSettingsButton { 
+    /* Uses .button-primary from general button theming */
+}
+.modal-content .secondary-button {
+     /* Uses .button-secondary from general button theming */
+}
+.modal-content .button-tertiary {
+    /* Uses .button-tertiary from general button theming */
+}
+/* Removed .close-button styles as it's removed from HTML */

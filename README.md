@@ -2,6 +2,9 @@
 
 This project is a web application that generates stories based on user input, utilizing the Gemini API.
 
+## Spelling Convention
+
+Please use UK English spellings throughout the project.
 ## Serving the Application
 
 This application is designed to be served using **Internet Information Services (IIS)**. Ensure your IIS server is configured to serve static files from the project's root directory.
@@ -31,11 +34,18 @@ The selected framework guides the story generation process. The definitions for 
 
 ## Project File Structure
 
+├── .gitignore
+├── favicon.ico
 ├── index.html
 ├── README.md
+├── story_craft_guide_collection.md
 └── src/
-├── script.js
-├── style.css
-└── prompts/
-├── agent_prompts.js
-└── story_crafting_guides.js
+    ├── api.js
+    ├── localStorage.js
+    ├── script.js
+    ├── style.css
+    ├── ui.js
+    ├── utils.js
+    └── prompts/
+        ├── agent_prompts.js
+        └── story_crafting_guides.js

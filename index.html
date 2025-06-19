@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./src/style.css">
-    <link rel="icon" type="image/x-icon" href="favicon.ico"> <!-- Corrected path -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
     <div class="app-container"> 
@@ -17,7 +17,7 @@
                 <h1>Story Generator</h1>
                 <button id="settingsButton" class="settings-icon-button" aria-label="Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
                         <circle cx="12" cy="12" r="3"/>
                     </svg>
                 </button>
@@ -41,10 +41,10 @@
                 </div>
 
                 <div class="control-group">
-                    <label class="group-title" for="targetReadingAgeSlider">Reading Level Adjustment</label>
-                    <div class="checkbox-wrapper"> <!-- Added checkbox for enabling reading age -->
+                    <label class="group-title">Reading Level Adjustment</label>
+                    <div class="checkbox-wrapper">
                         <input type="checkbox" id="enableReadingAgeAdjustmentCheckbox">
-                        <label for="enableReadingAgeAdjustmentCheckbox" class="checkbox-label">Enable Reading Age Adjustment</label>
+                        <label for="enableReadingAgeAdjustmentCheckbox" class="checkbox-label">Adjust Reading Level</label>
                     </div>
                     <div id="readingAgeSliderContainer" class="slider-container"> 
                         <div class="slider-wrapper">
@@ -56,7 +56,6 @@
                     </div>
                 </div>
 
-
                 <label for="craftingFrameworkSelect">Story Crafting Framework</label>
                 <select id="craftingFrameworkSelect">
                     <!-- Options will be populated by script.js -->
@@ -65,7 +64,7 @@
                     <!-- Summary will appear here -->
                 </div>
 
-                <button id="generateButton">Generate Story</button>
+                <button id="generateButton" class="button-primary">Generate Story</button>
             </section>
         </aside>
 
@@ -108,7 +107,7 @@
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <button id="closeSettingsModal" class="close-button" aria-label="Close settings">×</button>
+            <!-- Top right 'X' button REMOVED -->
             <h2>Settings</h2>
             
             <div class="form-row">
@@ -116,7 +115,7 @@
                 <input type="text" id="modalApiKeyInput" placeholder="Enter your Gemini API Key">
             </div>
 
-            <div class="form-row two-col">
+            <div class="form-row modal-two-col"> <!-- Specific class for modal two-column -->
                 <div class="form-group">
                     <label for="modalModelSelect">Gemini Model</label>
                     <select id="modalModelSelect">
@@ -138,9 +137,14 @@
                     <input type="number" id="readingAgeMaxInput" min="3" max="18" step="1">
                 </div>
             </div>
-
-            <button id="downloadChatLogButton" class="secondary-button">Download Last Session Log</button>
-            <button id="saveSettingsButton">Save & Close</button>
+            
+            <div class="modal-actions"> <!-- Wrapper for bottom buttons -->
+                <button id="downloadChatLogButton" class="button-secondary">Download Last Session Log</button>
+                <div class="modal-main-actions">
+                    <button id="cancelSettingsButton" class="button-tertiary">Cancel</button>
+                    <button id="saveSettingsButton" class="button-primary">Save & Close</button>
+                </div>
+            </div>
         </div>
     </div>
 

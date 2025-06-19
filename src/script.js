@@ -18,9 +18,10 @@ const LS_SELECTED_FRAMEWORK = 'storySelectedFramework_storyCircle';
 const LS_SELECTED_MODEL = 'geminiSelectedModel_storyCircle';
 const LS_USE_ENGINE_SUGGESTIONS = 'useEngineSuggestions_storyCircle';
 const LS_USER_SUGGESTIONS = 'userSuggestions_storyCircle';
+// Import LS keys from localStorage.js where they are defined
 import { 
     LS_MIN_API_INTERVAL, 
-    LS_ADJUST_READING_AGE_ENABLED, // Re-added
+    LS_ADJUST_READING_AGE_ENABLED, 
     LS_TARGET_READING_AGE, 
     LS_READING_AGE_MIN, 
     LS_READING_AGE_MAX, 
@@ -54,10 +55,10 @@ import {
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv;
-let settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
+let settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput; // closeSettingsModalButton removed
 let copyStoryButton, saveStoryButton, elaborateStoryButton;
 let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
-let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer; // Updated
+let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
 
 // --- Global State ---
@@ -65,7 +66,7 @@ let lastRunChatLog = [];
 let latestGeneratedStoryText = ""; 
 let latestGeneratedStoryTitle = ""; 
 
-function updateTargetReadingAgeSliderDOMState() { // Renamed to reflect it updates DOM state
+function updateTargetReadingAgeSliderDOMState() {
     if (!targetReadingAgeSlider || !readingAgeMinInput || !readingAgeMaxInput || !targetReadingAgeValueDisplay || !enableReadingAgeAdjustmentCheckbox || !readingAgeSliderContainer) return;
 
     const minAge = parseInt(loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString(), 10);
@@ -79,11 +80,10 @@ function updateTargetReadingAgeSliderDOMState() { // Renamed to reflect it updat
     if (currentValue > maxAge) currentValue = maxAge;
     
     targetReadingAgeSlider.value = currentValue.toString();
-    if (targetReadingAgeValueDisplay) { // It's hidden by CSS, but JS can still update if ever made visible
+    if (targetReadingAgeValueDisplay) { 
         targetReadingAgeValueDisplay.textContent = currentValue.toString();
     }
 
-    // Enable/disable slider based on checkbox
     const isEnabled = enableReadingAgeAdjustmentCheckbox.checked;
     targetReadingAgeSlider.disabled = !isEnabled;
     if (isEnabled) {
@@ -106,10 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
     audienceInput = document.getElementById('audienceInput');
     useEngineSuggestionsCheckbox = document.getElementById('useEngineSuggestionsCheckbox');
     userSuggestionsTextarea = document.getElementById('userSuggestionsTextarea');
-    enableReadingAgeAdjustmentCheckbox = document.getElementById('enableReadingAgeAdjustmentCheckbox'); // New
+    enableReadingAgeAdjustmentCheckbox = document.getElementById('enableReadingAgeAdjustmentCheckbox'); 
     targetReadingAgeSlider = document.getElementById('targetReadingAgeSlider'); 
     targetReadingAgeValueDisplay = document.getElementById('targetReadingAgeValue'); 
-    readingAgeSliderContainer = document.getElementById('readingAgeSliderContainer'); // New wrapper
+    readingAgeSliderContainer = document.getElementById('readingAgeSliderContainer'); 
     craftingFrameworkSelect = document.getElementById('craftingFrameworkSelect');
     frameworkSummaryDiv = document.getElementById('frameworkSummary');
     generateButton = document.getElementById('generateButton');
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elaborateStoryButton = document.getElementById('elaborateStoryButton');
     settingsModal = document.getElementById('settingsModal');
     settingsButton = document.getElementById('settingsButton');
-    closeSettingsModalButton = document.getElementById('closeSettingsModal');
+    cancelSettingsButton = document.getElementById('cancelSettingsButton'); // New cancel button
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
     initUIElements({
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea
     });
 
-    const criticalElements = { modalApiKeyInput, modalModelSelect, minApiIntervalInput, readingAgeMinInput, readingAgeMaxInput, downloadChatLogButton, charactersInput, audienceInput, useEngineSuggestionsCheckbox, userSuggestionsTextarea, enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, copyStoryButton, saveStoryButton, elaborateStoryButton };
+    const criticalElements = { modalApiKeyInput, modalModelSelect, minApiIntervalInput, readingAgeMinInput, readingAgeMaxInput, downloadChatLogButton, charactersInput, audienceInput, useEngineSuggestionsCheckbox, userSuggestionsTextarea, enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAgeValueDisplay, readingAgeSliderContainer, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, copyStoryButton, saveStoryButton, elaborateStoryButton };
     for (const elName in criticalElements) {
         if (!criticalElements[elName]) {
             const errorMsg = `FATAL ERROR: DOM Element "${elName}" not found. UI will not function correctly. Check HTML IDs.`;
@@ -149,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elaborateStoryButton) elaborateStoryButton.style.display = 'none';
 
     if (useEngineSuggestionsCheckbox && userSuggestionsTextarea) {
-        // ... (same as before)
         const savedUseEngine = loadFromLocalStorage(LS_USE_ENGINE_SUGGESTIONS);
         useEngineSuggestionsCheckbox.checked = savedUseEngine === null ? true : (savedUseEngine === 'true');
         userSuggestionsTextarea.value = loadFromLocalStorage(LS_USER_SUGGESTIONS) || '';
@@ -164,16 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Reading Age Adjustment UI & Logic
-    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider && targetReadingAgeValueDisplay) {
+    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider && targetReadingAgeValueDisplay && readingAgeSliderContainer) {
         const savedEnableAdjust = loadFromLocalStorage(LS_ADJUST_READING_AGE_ENABLED);
-        enableReadingAgeAdjustmentCheckbox.checked = savedEnableAdjust === 'true'; // Default false
-
-        updateTargetReadingAgeSliderDOMState(); // Set initial min/max from LS/defaults, and initial value & enabled state
+        enableReadingAgeAdjustmentCheckbox.checked = savedEnableAdjust === 'true'; 
+        
+        updateTargetReadingAgeSliderDOMState(); 
         
         const savedTargetAge = loadFromLocalStorage(LS_TARGET_READING_AGE);
         targetReadingAgeSlider.value = savedTargetAge || DEFAULT_TARGET_READING_AGE.toString();
-        targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value; // Though hidden, keep it updated
+        if(targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value;
 
         enableReadingAgeAdjustmentCheckbox.addEventListener('change', () => {
             updateTargetReadingAgeSliderDOMState();
@@ -181,13 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         targetReadingAgeSlider.addEventListener('input', () => {
-            targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value; // Update hidden display
+            if(targetReadingAgeValueDisplay) targetReadingAgeValueDisplay.textContent = targetReadingAgeSlider.value;
             saveToLocalStorage(LS_TARGET_READING_AGE, targetReadingAgeSlider.value);
         });
     }
 
-
-    // ... (modalModelSelect, modalApiKeyInput, minApiIntervalInput, readingAgeMin/MaxInput setup in DOMContentLoaded - same as before)
     if (modalModelSelect) {
         for (const modelId in AVAILABLE_MODELS) {
             const option = document.createElement('option');
@@ -218,8 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         readingAgeMaxInput.value = loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX;
     }
 
-
-    if (settingsButton && settingsModal && closeSettingsModalButton && saveSettingsButton && modalApiKeyInput && modalModelSelect && downloadChatLogButton && minApiIntervalInput && readingAgeMinInput && readingAgeMaxInput) {
+    if (settingsButton && settingsModal && saveSettingsButton && cancelSettingsButton && modalApiKeyInput && modalModelSelect && downloadChatLogButton && minApiIntervalInput && readingAgeMinInput && readingAgeMaxInput) {
         settingsButton.addEventListener('click', () => {
             modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || '';
             const savedModel = loadFromLocalStorage(LS_SELECTED_MODEL);
@@ -230,9 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsModal.style.display = 'block';
             modalApiKeyInput.focus();
         });
-        closeSettingsModalButton.addEventListener('click', () => {
+
+        cancelSettingsButton.addEventListener('click', () => { // Event listener for new Cancel button
             settingsModal.style.display = 'none';
         });
+
         saveSettingsButton.addEventListener('click', () => {
             saveToLocalStorage(LS_API_KEY, modalApiKeyInput.value.trim());
             saveToLocalStorage(LS_SELECTED_MODEL, modalModelSelect.value);
@@ -261,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsModal.style.display = 'none';
             showTemporaryStatus('Settings saved successfully.', 'success');
         });
-        // ... (download log, window click, keydown listeners remain the same)
+        
         downloadChatLogButton.addEventListener('click', () => {
             if (lastRunChatLog.length === 0) {
                 showTemporaryStatus('No chat log available from the last run.', 'info', 4000);
@@ -301,8 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-    // ... (copy, save, framework select, input listeners - same as before) ...
     if (copyStoryButton && storyOutputDiv) {
         copyStoryButton.addEventListener('click', () => {
             const storyTextToCopy = storyOutputDiv.textContent; 
@@ -340,7 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     if (craftingFrameworkSelect) {
         Object.keys(STORY_CRAFTING_GUIDES).forEach(frameworkName => {
             const option = document.createElement('option');
@@ -363,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
         frameworkSummaryDiv.textContent = "Framework selection dropdown is missing.";
     }
 
-
     if (charactersInput) {
         charactersInput.value = loadFromLocalStorage(LS_CHARACTERS) || '';
         charactersInput.addEventListener('input', () => saveToLocalStorage(LS_CHARACTERS, charactersInput.value));
@@ -372,7 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
         audienceInput.value = loadFromLocalStorage(LS_AUDIENCE) || '';
         audienceInput.addEventListener('input', () => saveToLocalStorage(LS_AUDIENCE, audienceInput.value));
     }
-
 
     if (storyOutputDiv) {
         storyOutputDiv.textContent = 'Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
@@ -384,19 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleGenerateStory() {
         lastRunChatLog = []; 
 
-        // Ensure all DOM elements are available for this function
-        if (!targetReadingAgeSlider || !enableReadingAgeAdjustmentCheckbox /* other checks */ ) {
-             displayError(`Cannot generate story: Reading age UI elements missing.`);
+        if (!targetReadingAgeSlider || !enableReadingAgeAdjustmentCheckbox /* other critical elements */ ) {
+             displayError(`Cannot generate story: One or more critical UI elements are missing.`);
             return;
         }
-        // ... (rest of initial checks for API key, model etc.)
 
         const storedApiKey = loadFromLocalStorage(LS_API_KEY) || '';
         const storedModelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
         const minApiIntervalSeconds = parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString(), 10);
         const minApiIntervalMs = (isNaN(minApiIntervalSeconds) || minApiIntervalSeconds < 0 ? DEFAULT_MIN_API_INTERVAL_S : minApiIntervalSeconds) * 1000;
 
-        // ... (rest of validation for API key, model, form inputs)
         if (!storedApiKey) {
             displayError('Please enter your Gemini API Key in Settings (⚙️).');
             if (settingsModal && modalApiKeyInput) { settingsModal.style.display = 'block'; modalApiKeyInput.focus(); }
@@ -422,12 +411,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let readingAgeNote = "";
-        if (enableReadingAgeAdjustmentCheckbox.checked) { // Check if adjustment is enabled
+        if (enableReadingAgeAdjustmentCheckbox.checked) { 
             const targetAge = targetReadingAgeSlider.value || DEFAULT_TARGET_READING_AGE;
             readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
         }
 
-        // ... (rest of input validation and initial setup)
         saveToLocalStorage(LS_CHARACTERS, charactersStr);
         saveToLocalStorage(LS_AUDIENCE, audienceStr);
 
@@ -438,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedCraftGuideText) { displayError('Invalid story crafting framework selected.'); if(craftingFrameworkSelect) craftingFrameworkSelect.focus(); return; }
 
         if (statusMessageDiv) { statusMessageDiv.textContent = ''; statusMessageDiv.className = ''; }
-        displayLoading(true, `Initializing story generation...`);
+        displayLoading(true, `Initialising story generation...`); // UK Spelling
         
         latestGeneratedStoryText = "";
         latestGeneratedStoryTitle = "";
@@ -452,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
-            // ... (rest of the agent pipeline calls, passing readingAgeNote to relevant agents)
             const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, agent1DataObject);
             displayLoading(true, `Step 1/6: Crafting initial draft...`);
             currentWorkingStoryText = await callAgentAPI(agent1Prompt, storedApiKey, storedModelId, "Agent 1: Story Crafter", 0, lastRunChatLog, statusMessageDiv, minApiIntervalMs);
@@ -508,7 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
             displayOutput(latestGeneratedStoryTitle, latestGeneratedStoryText); 
 
         } catch (error) {
-            // ... error handling ...
             let userFriendlyMessage = error.message || 'An unknown error occurred during story generation.';
             if (error.message && (error.message.toLowerCase().includes("api key not valid") || error.message.toLowerCase().includes("invalid gemini api key"))) {
                  userFriendlyMessage = `Invalid Gemini API Key. Please check your API Key in Settings (⚙️) and try again.`;
@@ -535,7 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // ... (retrieve API key, model, audience, etc. - same as before)
         const storedApiKey = loadFromLocalStorage(LS_API_KEY) || '';
         const storedModelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
         const audienceStr = loadFromLocalStorage(LS_AUDIENCE) || "children";
@@ -545,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const minApiIntervalMs = (isNaN(minApiIntervalSeconds) || minApiIntervalSeconds < 0 ? DEFAULT_MIN_API_INTERVAL_S : minApiIntervalSeconds) * 1000;
         
         let readingAgeNote = "";
-        if (enableReadingAgeAdjustmentCheckbox.checked) { // Check if adjustment is enabled
+        if (enableReadingAgeAdjustmentCheckbox.checked) { 
             const targetAge = targetReadingAgeSlider.value || DEFAULT_TARGET_READING_AGE;
             readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
         }
@@ -569,7 +554,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 READING_AGE_NOTE: readingAgeNote,
                 CRAFT_GUIDE_TEXT: selectedCraftGuideText
             };
-            // ... (rest of elaboration pipeline calls, passing readingAgeNote)
             const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_ELABORATOR_TEMPLATE, agent2DataObject);
             displayLoading(true, `Step 1/4 (Elaboration): Elaborating content...`);
             currentWorkingStoryText = await callAgentAPI(agent2Prompt, storedApiKey, storedModelId, "Agent 2: Elaborator (Elaboration Cycle)", 0, lastRunChatLog, statusMessageDiv, minApiIntervalMs);
@@ -605,7 +589,6 @@ document.addEventListener('DOMContentLoaded', () => {
             displayOutput(latestGeneratedStoryTitle, latestGeneratedStoryText, true);
 
         } catch (error) {
-            // ... (error handling)
             let userFriendlyMessage = error.message || 'An unknown error occurred during story elaboration.';
              if (error.message && (error.message.toLowerCase().includes("api key not valid") || error.message.toLowerCase().includes("invalid gemini api key"))) {
                  userFriendlyMessage = `Invalid Gemini API Key. Please check your API Key in Settings (⚙️) and try again.`;
