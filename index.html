@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Circle Story Generator</title>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Story Circle Children's Story Generator</h1>
+
+        <label for="charactersInput">Describe the characters any way you wish:</label>
+        <textarea id="charactersInput" rows="2" placeholder="e.g., a brave knight, a mischievous squirrel"></textarea>
+
+        <label for="audienceInput">Target Audience:</label>
+        <input type="text" id="audienceInput" placeholder="e.g., girl age 11, boys and girls age 5-7">
+
+        <label for="wordCountMin">Minimum Word Count:</label>
+        <input type="number" id="wordCountMin" value="1200" min="500" max="2000">
+
+        <label for="wordCountMax">Maximum Word Count:</label>
+        <input type="number" id="wordCountMax" value="1600" min="500" max="2000">
+
+        <button id="generateButton">Generate Story</button>
+
+        <div id="statusMessage"></div>
+        
+        <h2 id="storyTitle"></h2>
+        <div id="storyOutput">Your story will appear here...</div>
+    </div>
+
+    <script src="./src/script.js" type="module"></script>
+</body>
+</html>
