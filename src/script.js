@@ -1,10 +1,9 @@
 // --- Configuration ---
-const DEFAULT_GEMINI_MODEL_ID = "gemini-2.0-flash"; // Updated default, -latest often points to newest stable
+const DEFAULT_GEMINI_MODEL_ID = "gemini-2.0-flash"; 
 const AVAILABLE_MODELS = {
     "gemini-2.5-flash": "Gemini-2.5-Flash",
     "gemini-2.0-flash": "Gemini-2.0-flash",
     "gemini-1.5-flash": "Gemini-1.5-Flash"
-    // Add other models here if they become available and you want to support them
 };
 
 // --- Local Storage Keys ---
@@ -12,7 +11,7 @@ const LS_API_KEY = 'geminiApiKey_storyCircle';
 const LS_CHARACTERS = 'storyCharacters_storyCircle';
 const LS_AUDIENCE = 'storyAudience_storyCircle';
 const LS_SELECTED_FRAMEWORK = 'storySelectedFramework_storyCircle';
-const LS_SELECTED_MODEL = 'geminiSelectedModel_storyCircle'; // New LS Key for model
+const LS_SELECTED_MODEL = 'geminiSelectedModel_storyCircle';
 
 // --- Imports ---
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
@@ -26,8 +25,11 @@ import {
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv;
-let settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, modalModelSelect; // Added modalModelSelect
+let settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, modalModelSelect, downloadChatLogButton;
+let copyStoryButton, saveStoryButton; // New buttons for story actions
 
+// --- Global State ---
+let lastRunChatLog = []; // To store prompts and responses for download
 
 // --- UI Update Functions ---
 function displayLoading(isLoading, message = '') {
@@ -39,12 +41,15 @@ function displayLoading(isLoading, message = '') {
         if (storyTitleDiv) storyTitleDiv.textContent = '';
         if (storyOutputDiv) storyOutputDiv.textContent = 'Your story will appear here...';
         if (generateButton) generateButton.disabled = true;
+        if (copyStoryButton) copyStoryButton.style.display = 'none'; // Hide story actions
+        if (saveStoryButton) saveStoryButton.style.display = 'none';
     } else {
         if (statusMessageDiv && statusMessageDiv.classList.contains('loading')) {
-            statusMessageDiv.textContent = '';
+            statusMessageDiv.textContent = ''; // Clear message on completion, success/error will set new one
             statusMessageDiv.className = '';
         }
         if (generateButton) generateButton.disabled = false;
+        // Story actions visibility handled by displayOutput
     }
 }
 
@@ -55,12 +60,15 @@ function displayOutput(title, storyText) {
         statusMessageDiv.textContent = 'Story generated successfully!';
         statusMessageDiv.className = 'success';
         setTimeout(() => {
-            if (statusMessageDiv && statusMessageDiv.classList.contains('success')) {
+            if (statusMessageDiv && statusMessageDiv.classList.contains('success') && statusMessageDiv.textContent === 'Story generated successfully!') {
                 statusMessageDiv.textContent = '';
                 statusMessageDiv.className = '';
             }
         }, 4000);
     }
+    // Show story action buttons
+    if (copyStoryButton) copyStoryButton.style.display = 'inline-block';
+    if (saveStoryButton) saveStoryButton.style.display = 'inline-block';
 }
 
 function displayError(errorMessage) {
@@ -69,8 +77,26 @@ function displayError(errorMessage) {
         statusMessageDiv.className = 'error';
     }
     if (storyTitleDiv) storyTitleDiv.textContent = '';
+    // Hide story actions on error
+    if (copyStoryButton) copyStoryButton.style.display = 'none';
+    if (saveStoryButton) saveStoryButton.style.display = 'none';
     console.error("Pipeline Error Details:", errorMessage);
 }
+
+function showTemporaryStatus(message, type = 'info', duration = 3000) {
+    if (statusMessageDiv) {
+        statusMessageDiv.textContent = message;
+        statusMessageDiv.className = type; // 'success', 'error', or a generic 'info' if styled
+        setTimeout(() => {
+            // Clear only if the message hasn't been replaced by a newer status
+            if (statusMessageDiv.textContent === message) {
+                statusMessageDiv.textContent = '';
+                statusMessageDiv.className = '';
+            }
+        }, duration);
+    }
+}
+
 
 function updateFrameworkSummaryDisplay() {
     if (craftingFrameworkSelect && frameworkSummaryDiv) {
@@ -116,7 +142,7 @@ function constructAgentPrompt(basePromptTemplate, dataObject) {
 }
 
 // --- Gemini API Call Function ---
-async function callAgentAPI(prompt, currentApiKey, selectedModelId) { // Added selectedModelId
+async function callAgentAPI(prompt, currentApiKey, selectedModelId, agentName = "Agent") { // Added agentName
     if (!currentApiKey) {
         console.error("API Key is missing in callAgentAPI");
         throw new Error("Gemini API Key is missing. Please enter it via Settings (⚙️) and try again.");
@@ -128,7 +154,10 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId) { // Added s
 
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModelId}:generateContent?key=${currentApiKey}`;
     
-    console.log(`Calling Agent with model ${selectedModelId}. Prompt starts with: "${prompt.substring(0,150)}..."`);
+    console.log(`Calling ${agentName} with model ${selectedModelId}. Prompt starts with: "${prompt.substring(0,100)}..."`);
+    // Log prompt for chat log
+    lastRunChatLog.push({ agentName, type: 'prompt', content: prompt, timestamp: new Date().toISOString() });
+
 
     const requestBody = {
         contents: [{ parts: [{ text: prompt }] }],
@@ -153,6 +182,8 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId) { // Added s
             } else {
                 errorMessage += ` - ${response.statusText}`;
             }
+            // Log error response for chat log
+            lastRunChatLog.push({ agentName, type: 'error-response', content: JSON.stringify(responseData, null, 2), timestamp: new Date().toISOString() });
             console.error("API Error Data:", responseData);
             throw new Error(errorMessage);
         }
@@ -162,23 +193,35 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId) { // Added s
             if (responseData.candidates && responseData.candidates.length > 0 && responseData.candidates[0].finishReason === 'SAFETY') {
                  blockDetails += ` Candidate finish reason: SAFETY.`;
             }
-            throw new Error(`Content generation blocked by API (model: ${selectedModelId}). Reason: ${responseData.promptFeedback.blockReason}. Details: ${blockDetails}`);
+            const blockErrorMsg = `Content generation blocked by API (model: ${selectedModelId}). Reason: ${responseData.promptFeedback.blockReason}. Details: ${blockDetails}`;
+            lastRunChatLog.push({ agentName, type: 'blocked-response', content: blockErrorMsg, fullResponse: JSON.stringify(responseData, null, 2), timestamp: new Date().toISOString() });
+            throw new Error(blockErrorMsg);
         }
 
         if (!responseData.candidates || !responseData.candidates[0] || !responseData.candidates[0].content || !responseData.candidates[0].content.parts || !responseData.candidates[0].content.parts[0] || !responseData.candidates[0].content.parts[0].text) {
             if (responseData.candidates && responseData.candidates.length > 0 && responseData.candidates[0].finishReason && responseData.candidates[0].finishReason !== 'STOP') {
-                 throw new Error(`Content generation stopped prematurely (model: ${selectedModelId}). Finish Reason: ${responseData.candidates[0].finishReason}. Check safety ratings if available: ${JSON.stringify(responseData.candidates[0].safetyRatings)}`);
+                const prematureStopMsg = `Content generation stopped prematurely (model: ${selectedModelId}). Finish Reason: ${responseData.candidates[0].finishReason}. Check safety ratings if available: ${JSON.stringify(responseData.candidates[0].safetyRatings)}`;
+                lastRunChatLog.push({ agentName, type: 'premature-stop-response', content: prematureStopMsg, fullResponse: JSON.stringify(responseData, null, 2), timestamp: new Date().toISOString() });
+                 throw new Error(prematureStopMsg);
             }
+            const structureErrorMsg = 'Failed to extract content from API response. Structure might have changed or content was not generated as expected from model ' + selectedModelId + '.';
+            lastRunChatLog.push({ agentName, type: 'structure-error-response', content: structureErrorMsg, fullResponse: JSON.stringify(responseData, null, 2), timestamp: new Date().toISOString() });
             console.error("Unexpected API response structure or empty content from model " + selectedModelId + ":", responseData);
-            throw new Error('Failed to extract content from API response. Structure might have changed or content was not generated as expected from model ' + selectedModelId + '.');
+            throw new Error(structureErrorMsg);
         }
         
         const rawTextOutput = responseData.candidates[0].content.parts[0].text;
-        console.log(`Agent raw output from model ${selectedModelId} starts with: "${rawTextOutput.substring(0,150)}..."`);
+        // Log successful response for chat log
+        lastRunChatLog.push({ agentName, type: 'response', content: rawTextOutput, timestamp: new Date().toISOString() });
+        console.log(`${agentName} raw output from model ${selectedModelId} starts with: "${rawTextOutput.substring(0,100)}..."`);
         return rawTextOutput;
 
     } catch (error) {
-        console.error(`Error in callAgentAPI with model ${selectedModelId}:`, error);
+        console.error(`Error in callAgentAPI with model ${selectedModelId} for ${agentName}:`, error);
+        // Ensure error is logged if not caught above
+        if (!lastRunChatLog.find(log => log.agentName === agentName && log.type.includes('error'))) {
+            lastRunChatLog.push({ agentName, type: 'general-error', content: error.message, timestamp: new Date().toISOString() });
+        }
         throw error instanceof Error ? error : new Error(String(error.message || `An unknown network or API error occurred with model ${selectedModelId}.`));
     }
 }
@@ -186,7 +229,8 @@ async function callAgentAPI(prompt, currentApiKey, selectedModelId) { // Added s
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
     modalApiKeyInput = document.getElementById('modalApiKeyInput');
-    modalModelSelect = document.getElementById('modalModelSelect'); // New
+    modalModelSelect = document.getElementById('modalModelSelect');
+    downloadChatLogButton = document.getElementById('downloadChatLogButton'); // New
     charactersInput = document.getElementById('charactersInput');
     audienceInput = document.getElementById('audienceInput');
     craftingFrameworkSelect = document.getElementById('craftingFrameworkSelect');
@@ -195,6 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
     statusMessageDiv = document.getElementById('statusMessage');
     storyTitleDiv = document.getElementById('storyTitle');
     storyOutputDiv = document.getElementById('storyOutput');
+    copyStoryButton = document.getElementById('copyStoryButton'); // New
+    saveStoryButton = document.getElementById('saveStoryButton'); // New
+
 
     settingsModal = document.getElementById('settingsModal');
     settingsButton = document.getElementById('settingsButton');
@@ -202,14 +249,17 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSettingsButton = document.getElementById('saveSettingsButton');
 
     // --- Initial UI Setup & Event Listeners ---
-    const criticalElements = { modalApiKeyInput, modalModelSelect, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton };
+    const criticalElements = { modalApiKeyInput, modalModelSelect, downloadChatLogButton, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv, settingsModal, settingsButton, closeSettingsModalButton, saveSettingsButton, copyStoryButton, saveStoryButton };
     for (const elName in criticalElements) {
         if (!criticalElements[elName]) {
             console.error(`Error: ${elName} element not found in HTML! UI may not function correctly.`);
         }
     }
     
-    // Populate Model Select Dropdown in Modal
+    // Hide story actions initially
+    if (copyStoryButton) copyStoryButton.style.display = 'none';
+    if (saveStoryButton) saveStoryButton.style.display = 'none';
+
     if (modalModelSelect) {
         for (const modelId in AVAILABLE_MODELS) {
             const option = document.createElement('option');
@@ -217,12 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = AVAILABLE_MODELS[modelId];
             modalModelSelect.appendChild(option);
         }
-        // Load saved model or set default
         const savedModel = loadFromLocalStorage(LS_SELECTED_MODEL);
         if (savedModel && AVAILABLE_MODELS[savedModel]) {
             modalModelSelect.value = savedModel;
         } else {
-            modalModelSelect.value = DEFAULT_GEMINI_MODEL_ID; // Default if nothing saved or invalid
+            modalModelSelect.value = DEFAULT_GEMINI_MODEL_ID;
         }
     }
 
@@ -230,13 +279,11 @@ document.addEventListener('DOMContentLoaded', () => {
         modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || '';
     }
 
-    if (settingsButton && settingsModal && closeSettingsModalButton && saveSettingsButton && modalApiKeyInput && modalModelSelect) {
+    if (settingsButton && settingsModal && closeSettingsModalButton && saveSettingsButton && modalApiKeyInput && modalModelSelect && downloadChatLogButton) {
         settingsButton.addEventListener('click', () => {
-            // Load current settings into modal before showing
             modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || '';
             const savedModel = loadFromLocalStorage(LS_SELECTED_MODEL);
             modalModelSelect.value = (savedModel && AVAILABLE_MODELS[savedModel]) ? savedModel : DEFAULT_GEMINI_MODEL_ID;
-            
             settingsModal.style.display = 'block';
             modalApiKeyInput.focus();
         });
@@ -245,18 +292,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         saveSettingsButton.addEventListener('click', () => {
             saveToLocalStorage(LS_API_KEY, modalApiKeyInput.value.trim());
-            saveToLocalStorage(LS_SELECTED_MODEL, modalModelSelect.value); // Save selected model
+            saveToLocalStorage(LS_SELECTED_MODEL, modalModelSelect.value);
             settingsModal.style.display = 'none';
-             if (statusMessageDiv) {
-                statusMessageDiv.textContent = 'Settings saved successfully.';
-                statusMessageDiv.className = 'success'; 
-                setTimeout(() => {
-                    if (statusMessageDiv && statusMessageDiv.classList.contains('success')) {
-                        statusMessageDiv.textContent = '';
-                        statusMessageDiv.className = '';
-                    }
-                }, 3000);
+            showTemporaryStatus('Settings saved successfully.', 'success');
+        });
+        downloadChatLogButton.addEventListener('click', () => {
+            if (lastRunChatLog.length === 0) {
+                showTemporaryStatus('No chat log available from the last run.', 'info', 4000);
+                return;
             }
+            let logContent = "Story Generation Session Log\n=============================\n\n";
+            lastRunChatLog.forEach(entry => {
+                logContent += `Timestamp: ${entry.timestamp}\n`;
+                logContent += `Agent: ${entry.agentName}\n`;
+                logContent += `Type: ${entry.type}\n`;
+                logContent += `Content:\n-------\n${entry.content}\n-------\n\n`;
+                if (entry.fullResponse) {
+                    logContent += `Full API Response (for errors/blocks):\n${entry.fullResponse}\n\n`;
+                }
+            });
+
+            const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `story_generation_log_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showTemporaryStatus('Chat log download initiated.', 'success');
         });
         window.addEventListener('click', (event) => {
             if (event.target === settingsModal) {
@@ -266,6 +331,44 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && settingsModal.style.display === 'block') {
                 settingsModal.style.display = 'none';
+            }
+        });
+    }
+
+    if (copyStoryButton && storyOutputDiv) {
+        copyStoryButton.addEventListener('click', () => {
+            const storyText = storyOutputDiv.textContent;
+            if (storyText && storyText !== 'Your story will appear here...') {
+                navigator.clipboard.writeText(storyText).then(() => {
+                    showTemporaryStatus('Story copied to clipboard!', 'success', 2000);
+                }).catch(err => {
+                    console.error('Failed to copy story: ', err);
+                    showTemporaryStatus('Failed to copy story.', 'error', 2000);
+                });
+            } else {
+                showTemporaryStatus('No story to copy.', 'info', 2000);
+            }
+        });
+    }
+
+    if (saveStoryButton && storyOutputDiv && storyTitleDiv) {
+        saveStoryButton.addEventListener('click', () => {
+            const storyText = storyOutputDiv.textContent;
+            const storyTitleText = storyTitleDiv.textContent || 'Untitled Story';
+            if (storyText && storyText !== 'Your story will appear here...') {
+                const blob = new Blob([`Title: ${storyTitleText}\n\n${storyText}`], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                // Sanitize title for filename
+                const safeTitle = storyTitleText.replace(/[^a-z0-9_\-\s]/gi, '_').replace(/\s+/g, '_');
+                a.download = `${safeTitle}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                showTemporaryStatus('No story to save.', 'info', 2000);
             }
         });
     }
@@ -310,44 +413,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleGenerateStory() {
+        lastRunChatLog = []; // Clear previous log at the start of a new generation
+
         if (!modalApiKeyInput || !modalModelSelect || !charactersInput || !audienceInput || !craftingFrameworkSelect) {
-            const missing = [
-                !modalApiKeyInput && "API Key input (in modal)",
-                !modalModelSelect && "Model select (in modal)",
-                !charactersInput && "Characters input",
-                !audienceInput && "Audience input",
-                !craftingFrameworkSelect && "Framework select"
-            ].filter(Boolean).join(', ');
-            displayError(`Cannot generate story: Missing form elements (${missing}). Please check the HTML or report this issue.`);
+             displayError(`Cannot generate story: Critical form elements missing. Please check HTML or report issue.`);
             return;
         }
 
-        const currentApiKey = modalApiKeyInput.value.trim(); // Still get from modal for consistency, even if saved
-        const selectedModelId = modalModelSelect.value; // Get selected model from modal
-        
-        // It's better to rely on the loaded values from local storage for generation
-        // or prompt user to save settings if they are not set.
         const storedApiKey = loadFromLocalStorage(LS_API_KEY) || '';
         const storedModelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
 
-
         if (!storedApiKey) {
             displayError('Please enter your Gemini API Key in Settings (⚙️).');
-            if (settingsModal && modalApiKeyInput) {
-                settingsModal.style.display = 'block';
-                modalApiKeyInput.focus();
-            }
+            if (settingsModal && modalApiKeyInput) { settingsModal.style.display = 'block'; modalApiKeyInput.focus(); }
             return;
         }
         if (!storedModelId || !AVAILABLE_MODELS[storedModelId]) {
              displayError('Please select a valid Gemini Model in Settings (⚙️).');
-            if (settingsModal && modalModelSelect) {
-                settingsModal.style.display = 'block';
-                modalModelSelect.focus();
-            }
+            if (settingsModal && modalModelSelect) { settingsModal.style.display = 'block'; modalModelSelect.focus(); }
             return;
         }
-
 
         const charactersStr = charactersInput.value;
         const audienceStr = audienceInput.value;
@@ -357,97 +442,48 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_CHARACTERS, charactersStr);
         saveToLocalStorage(LS_AUDIENCE, audienceStr);
 
-        if (!charactersStr.trim()) {
-            displayError('Please enter at least one character.');
-            if (charactersInput) charactersInput.focus();
-            return;
-        }
+        if (!charactersStr.trim()) { displayError('Please enter at least one character.'); if (charactersInput) charactersInput.focus(); return; }
         const parsedCharsArray = parseCharacters(charactersStr);
-        if (parsedCharsArray.length === 0) {
-             displayError('Please enter valid character descriptions (e.g., "brave dog, clever cat").');
-             if (charactersInput) charactersInput.focus();
-             return;
-        }
-        if (!audienceStr.trim()) {
-            displayError('Please enter the target audience.');
-            if (audienceInput) audienceInput.focus();
-            return;
-        }
-        if (!selectedCraftGuideText) {
-            displayError('Invalid story crafting framework selected. Please try again.');
-            if(craftingFrameworkSelect) craftingFrameworkSelect.focus();
-            return;
-        }
+        if (parsedCharsArray.length === 0) { displayError('Please enter valid character descriptions.'); if (charactersInput) charactersInput.focus(); return; }
+        if (!audienceStr.trim()) { displayError('Please enter the target audience.'); if (audienceInput) audienceInput.focus(); return; }
+        if (!selectedCraftGuideText) { displayError('Invalid story crafting framework selected.'); if(craftingFrameworkSelect) craftingFrameworkSelect.focus(); return; }
 
-        if (statusMessageDiv) {
-            statusMessageDiv.textContent = '';
-            statusMessageDiv.className = '';
-        }
+        if (statusMessageDiv) { statusMessageDiv.textContent = ''; statusMessageDiv.className = ''; }
         displayLoading(true, `Initializing story generation with ${selectedFrameworkKey} using ${AVAILABLE_MODELS[storedModelId]}...`);
 
         try {
-            displayLoading(true, `Step 1/5: Crafting initial story draft using ${selectedFrameworkKey}...`);
-            const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, {
-                charactersList: parsedCharsArray.join(', '),
-                audience: audienceStr,
-                CRAFT_GUIDE_TEXT: selectedCraftGuideText
-            });
-            const agent1Output_FullText = await callAgentAPI(agent1Prompt, storedApiKey, storedModelId);
-            console.log("Agent 1 Output (first 500 chars):", agent1Output_FullText.substring(0, 500));
+            const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, { charactersList: parsedCharsArray.join(', '), audience: audienceStr, CRAFT_GUIDE_TEXT: selectedCraftGuideText });
+            displayLoading(true, `Step 1/5: Crafting draft...`);
+            const agent1Output_FullText = await callAgentAPI(agent1Prompt, storedApiKey, storedModelId, "Agent 1: Story Crafter");
 
-            displayLoading(true, `Step 2/5: Reviewing draft based on ${selectedFrameworkKey}...`);
-            const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_REVIEWER_TEMPLATE, {
-                storyText: agent1Output_FullText,
-                CRAFT_GUIDE_TEXT: selectedCraftGuideText
-            });
-            const agent2Output_ReviewText = await callAgentAPI(agent2Prompt, storedApiKey, storedModelId);
-            console.log("Agent 2 Output (first 500 chars):", agent2Output_ReviewText.substring(0, 500));
+            const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_REVIEWER_TEMPLATE, { storyText: agent1Output_FullText, CRAFT_GUIDE_TEXT: selectedCraftGuideText });
+            displayLoading(true, `Step 2/5: Reviewing draft...`);
+            const agent2Output_ReviewText = await callAgentAPI(agent2Prompt, storedApiKey, storedModelId, "Agent 2: Story Reviewer");
 
-            displayLoading(true, `Step 3/5: Polishing story with feedback (using ${selectedFrameworkKey})...`);
-            const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_POLISHER_TEMPLATE, {
-                draftText: agent1Output_FullText,
-                reviewText: agent2Output_ReviewText,
-                CRAFT_GUIDE_TEXT: selectedCraftGuideText
-            });
-            const agent3Output_Story = await callAgentAPI(agent3Prompt, storedApiKey, storedModelId);
-            console.log("Agent 3 Output (first 500 chars):", agent3Output_Story.substring(0, 500));
+            const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_POLISHER_TEMPLATE, { draftText: agent1Output_FullText, reviewText: agent2Output_ReviewText, CRAFT_GUIDE_TEXT: selectedCraftGuideText });
+            displayLoading(true, `Step 3/5: Polishing story...`);
+            const agent3Output_Story = await callAgentAPI(agent3Prompt, storedApiKey, storedModelId, "Agent 3: Story Polisher");
 
-            displayLoading(true, "Step 4/5: Cleaning up the story...");
-            const agent4Prompt = constructAgentPrompt(PROMPT_AGENT_4_CLEANER_TEMPLATE, {
-                storyText: agent3Output_Story 
-            });
-            const agent4Output_CleanStory = await callAgentAPI(agent4Prompt, storedApiKey, storedModelId);
-            console.log("Agent 4 Output (first 500 chars):", agent4Output_CleanStory.substring(0, 500));
+            const agent4Prompt = constructAgentPrompt(PROMPT_AGENT_4_CLEANER_TEMPLATE, { storyText: agent3Output_Story });
+            displayLoading(true, "Step 4/5: Cleaning story...");
+            const agent4Output_CleanStory = await callAgentAPI(agent4Prompt, storedApiKey, storedModelId, "Agent 4: Story Cleaner");
 
-            displayLoading(true, "Step 5/5: Generating a title...");
-            const agent5Prompt = constructAgentPrompt(PROMPT_AGENT_5_TITLER_TEMPLATE, {
-                storyText: agent4Output_CleanStory 
-            });
-            const agent5Output_Title = await callAgentAPI(agent5Prompt, storedApiKey, storedModelId);
-            console.log("Agent 5 Output (first 500 chars):", agent5Output_Title.substring(0, 500));
+            const agent5Prompt = constructAgentPrompt(PROMPT_AGENT_5_TITLER_TEMPLATE, { storyText: agent4Output_CleanStory });
+            displayLoading(true, "Step 5/5: Generating title...");
+            const agent5Output_Title = await callAgentAPI(agent5Prompt, storedApiKey, storedModelId, "Agent 5: Title Generator");
 
             displayOutput(agent5Output_Title.trim(), agent4Output_CleanStory.trim()); 
 
         } catch (error) {
             let userFriendlyMessage = error.message || 'An unknown error occurred during story generation.';
-            // Error messages already include model ID if it's part of the API call error
             if (error.message && (error.message.toLowerCase().includes("api key not valid") || error.message.toLowerCase().includes("invalid gemini api key"))) {
-                 userFriendlyMessage = `Invalid Gemini API Key. Please check your API Key in Settings (⚙️) and try again.`; // Simplified as model is part of error from API call
-                 if (settingsModal && modalApiKeyInput) {
-                    settingsModal.style.display = 'block';
-                    modalApiKeyInput.focus();
-                 }
+                 userFriendlyMessage = `Invalid Gemini API Key. Please check your API Key in Settings (⚙️) and try again.`;
+                 if (settingsModal && modalApiKeyInput) { settingsModal.style.display = 'block'; modalApiKeyInput.focus(); }
             } else if (error.message && error.message.includes("API Key is missing")) {
                 userFriendlyMessage = `Gemini API Key is missing. Please enter it via Settings (⚙️) and try again.`;
-                 if (settingsModal && modalApiKeyInput) {
-                    settingsModal.style.display = 'block';
-                    modalApiKeyInput.focus();
-                 }
+                 if (settingsModal && modalApiKeyInput) { settingsModal.style.display = 'block'; modalApiKeyInput.focus(); }
             } else if (error.message && error.message.includes("Model not selected")) {
-                 if (settingsModal && modalModelSelect) {
-                    settingsModal.style.display = 'block';
-                    modalModelSelect.focus();
-                 }
+                 if (settingsModal && modalModelSelect) { settingsModal.style.display = 'block'; modalModelSelect.focus(); }
             }
             displayError(userFriendlyMessage);
         } finally {
