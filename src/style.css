@@ -11,6 +11,7 @@
     --font-primary: 'Inter', sans-serif;
     --font-headings: 'Montserrat', sans-serif;
 
+    /* --- Lively & Neat Colour Palette --- */
     --color-bg-page: #f4f5f7; 
     --color-bg-app-container: #ffffff;
     --color-bg-controls-panel: #fafbfc; 
@@ -20,6 +21,7 @@
     --color-text-primary: #24292e; 
     --color-text-secondary: #57606a; 
     --color-text-light: #6a737d;   
+    --color-text-placeholder: #adb5bd; /* For "Waiting for Title..." */
 
     --color-button-primary-bg: #343a40; 
     --color-button-primary-text: #ffffff;
@@ -33,7 +35,7 @@
 
     --color-button-tertiary-text: var(--color-text-secondary);
     --color-button-tertiary-hover-bg: #f1f3f5;
-    --color-button-tertiary-border: #ced4da; /* Give cancel a subtle border */
+    --color-button-tertiary-border: #ced4da; 
 
     --color-checkbox-accent: var(--color-text-primary); 
     --color-checkbox-border: #adb5bd; 
@@ -60,7 +62,7 @@
     
     --controls-panel-width: 380px; 
     --panel-padding: 20px;
-    --header-height-approx: 55px; /* Approximate height of panel/story headers */
+    --header-height-approx: 55px; 
 }
 
 html, body {
@@ -115,11 +117,11 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px; 
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--color-border-light);
+    padding-bottom: 15px; 
+    border-bottom: 1px solid var(--color-border-light); 
     flex-shrink: 0; 
-    min-height: var(--header-height-approx); /* Ensure consistent height */
-    box-sizing: content-box; /* Padding and border are outside min-height */
+    min-height: var(--header-height-approx); 
+    box-sizing: content-box; 
 }
 
 .panel-header h1 {
@@ -365,7 +367,7 @@ button:focus-visible {
 .button-secondary {
     background-color: var(--color-button-secondary-bg);
     color: var(--color-button-secondary-text);
-    border: 1px solid var(--color-button-secondary-border); /* Ensure border for secondary */
+    border: 1px solid var(--color-button-secondary-border); 
 }
 .button-secondary:hover {
     background-color: var(--color-button-secondary-hover-bg);
@@ -402,18 +404,18 @@ button:focus-visible {
     background-color: var(--color-bg-story-panel);
 }
 
-/* No #statusMessage div styling here as it's removed from HTML structure of this panel */
+/* No dedicated #statusMessage div styling here as it's removed from HTML structure of this panel */
 
 .story-display-panel .story-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px; 
+    padding-bottom: 15px;  /* MATCH panel-header padding-bottom */
+    border-bottom: 1px solid var(--color-border-light); /* MATCH panel-header border-bottom */
     flex-shrink: 0; 
-    padding-bottom: 10px; 
-    border-bottom: 1px solid var(--color-border-light); 
-    min-height: var(--header-height-approx); /* Match control panel header height */
-    box-sizing: content-box; /* Padding and border are outside min-height */
+    min-height: var(--header-height-approx); /* MATCH panel-header min-height */
+    box-sizing: content-box; 
 }
 
 .story-display-panel #storyTitle {
@@ -427,7 +429,13 @@ button:focus-visible {
     letter-spacing: -0.02em;
     padding-right: 15px; 
     line-height: 1.3;
+    min-height: 1.3em; /* Ensure space for the text or placeholder */
 }
+.story-display-panel #storyTitle.placeholder {
+    color: var(--color-text-placeholder); 
+    font-style: italic; 
+}
+
 
 .story-actions-bar {
     display: flex;
@@ -455,7 +463,7 @@ button:focus-visible {
     border: 1px solid var(--color-border-light);
     padding: 25px; 
     border-radius: var(--border-radius-md); 
-    margin-top: 0; 
+    margin-top: 0; /* Story header now handles spacing and line */
     line-height: 1.75; 
     font-size: 1rem; 
     color: var(--color-text-primary);
@@ -501,7 +509,7 @@ button:focus-visible {
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 15px; 
-    align-items: end; /* Align based on input bottom */
+    align-items: end; 
 }
 .modal-content .form-row.modal-two-col .form-group {
     /* No specific style needed, grid handles it */
@@ -525,7 +533,7 @@ button:focus-visible {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .modal-content .form-row.modal-two-col input[type="number"] {
-     text-align: left; /* Keep consistent */
+     text-align: left; 
 }
 .modal-content input[type="text"]:focus,
 .modal-content select:focus,
@@ -571,7 +579,4 @@ button:focus-visible {
     letter-spacing: 0.05em;
     font-weight: 500; 
 }
-/* Apply button classes directly in HTML */
-/* #saveSettingsButton {} */
-/* .modal-content .secondary-button {} */
-/* .modal-content .button-tertiary {} */
+/* Button classes .button-primary, .button-secondary, .button-tertiary will apply */
