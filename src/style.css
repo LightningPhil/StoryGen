@@ -32,7 +32,8 @@ label {
 
 input[type="text"],
 textarea,
-input[type="number"] {
+input[type="number"],
+select { /* Added select for consistent styling */
     width: calc(100% - 22px);
     padding: 10px;
     margin-bottom: 10px;
@@ -105,4 +106,18 @@ button:disabled {
     white-space: pre-wrap; 
     min-height: 150px;
     line-height: 1.6;
+}
+
+/* New style for framework summary */
+.framework-summary {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 0px; /* Adjusted to be right after select */
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #495057;
+    border: 1px solid #ced4da;
+    min-height: 3em; /* Ensure it has some height even if empty initially */
+    line-height: 1.4;
 }

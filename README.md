@@ -8,23 +8,29 @@ This application is designed to be served using **Internet Information Services 
 
 ## Gemini API Configuration
 
-*   **API Key:** The Gemini API key is currently **hardcoded** directly into `src/script.js`. For production environments, it is highly recommended to use a more secure method for managing API keys (e.g., environment variables, server-side proxy).
+*   **API Key:** The Gemini API key is entered by the user in the UI. For production environments, it is highly recommended to use a more secure method for managing API keys (e.g., environment variables, server-side proxy).
 *   **Model Choice:** The application uses the `gemini-2.0-flash` model, as specified in `src/script.js`.
 
-## Project File Structure
+## Story Crafting Frameworks
 
-```
-.
+The application allows users to choose from several story crafting frameworks:
+
+*   Dan Harmon's Story Circle
+*   Three-Act Structure
+*   Kishōtenketsu
+*   Freytag’s Pyramid
+*   Hero’s Journey (Condensed)
+*   “But, Therefore” Chain
+*   Chekhov’s Sketch
+
+The selected framework guides the story generation process. The definitions for these frameworks are located in `src/prompts/story_crafting_guides.js`.
+
+## Project File Structure
 ├── index.html
 ├── README.md
 └── src/
-    ├── script.js
-    ├── style.css
-    └── prompts/
-        ├── agent1_story_crafter_template.js
-        ├── agent2_reviewer_template.js
-        ├── agent3_polisher_template.js
-        ├── agent4_cleaner_template.js
-        ├── agent5_titler_template.js
-        ├── illustrator_notes_template.js
-        └── story_circle_craft_guide.js
+├── script.js
+├── style.css
+└── prompts/
+├── agent_prompts.js
+└── story_crafting_guides.js

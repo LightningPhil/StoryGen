@@ -2,21 +2,24 @@
 const GEMINI_MODEL_ID = "gemini-2.0-flash";
 
 // --- Local Storage Keys ---
-const LS_API_KEY = 'geminiApiKey_storyCircle'; // Added suffix for uniqueness
+const LS_API_KEY = 'geminiApiKey_storyCircle';
 const LS_CHARACTERS = 'storyCharacters_storyCircle';
 const LS_AUDIENCE = 'storyAudience_storyCircle';
+const LS_SELECTED_FRAMEWORK = 'storySelectedFramework_storyCircle';
 
 // --- Imports ---
-import { STORY_CIRCLE_AND_CRAFT_GUIDE } from './prompts/story_circle_craft_guide.js';
-import { PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE } from './prompts/agent1_story_crafter_template.js';
-import { PROMPT_AGENT_2_REVIEWER_TEMPLATE } from './prompts/agent2_reviewer_template.js';
-import { PROMPT_AGENT_3_POLISHER_TEMPLATE } from './prompts/agent3_polisher_template.js';
-import { PROMPT_AGENT_4_CLEANER_TEMPLATE } from './prompts/agent4_cleaner_template.js';
-import { PROMPT_AGENT_5_TITLER_TEMPLATE } from './prompts/agent5_titler_template.js';
-// import { PROMPT_ILLUSTRATOR_NOTES_TEMPLATE } from './prompts/illustrator_notes_template.js'; // Not used in current flow
+import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js'; // Added STORY_FRAMEWORK_SUMMARIES
+import {
+    PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
+    PROMPT_AGENT_2_REVIEWER_TEMPLATE,
+    PROMPT_AGENT_3_POLISHER_TEMPLATE,
+    PROMPT_AGENT_4_CLEANER_TEMPLATE,
+    PROMPT_AGENT_5_TITLER_TEMPLATE,
+    // PROMPT_ILLUSTRATOR_NOTES_TEMPLATE // Not used in current flow, but available
+} from './prompts/agent_prompts.js';
 
 // --- Global DOM Element Variables ---
-let apiKeyInput, charactersInput, audienceInput, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv;
+let apiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv; // Added frameworkSummaryDiv
 
 // --- UI Update Functions ---
 function displayLoading(isLoading, message = '') {
@@ -61,6 +64,18 @@ function displayError(errorMessage) {
     console.error("Pipeline Error Details:", errorMessage);
 }
 
+// New function to update framework summary
+function updateFrameworkSummaryDisplay() {
+    if (craftingFrameworkSelect && frameworkSummaryDiv) {
+        const selectedFrameworkKey = craftingFrameworkSelect.value;
+        const summary = STORY_FRAMEWORK_SUMMARIES[selectedFrameworkKey] || "No summary available for this framework.";
+        frameworkSummaryDiv.textContent = summary;
+    } else if (frameworkSummaryDiv) {
+        frameworkSummaryDiv.textContent = "Select a framework to see its summary.";
+    }
+}
+
+
 // --- Local Storage Helper Functions ---
 function saveToLocalStorage(key, value) {
     try {
@@ -90,9 +105,6 @@ function constructAgentPrompt(basePromptTemplate, dataObject) {
     for (const key in dataObject) {
         const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
         prompt = prompt.replace(placeholder, dataObject[key]);
-    }
-    if (prompt.includes('${STORY_CIRCLE_AND_CRAFT_GUIDE}')) {
-        prompt = prompt.replace(/\$\{STORY_CIRCLE_AND_CRAFT_GUIDE\}/g, STORY_CIRCLE_AND_CRAFT_GUIDE);
     }
     return prompt;
 }
@@ -170,21 +182,52 @@ document.addEventListener('DOMContentLoaded', () => {
     apiKeyInput = document.getElementById('apiKeyInput');
     charactersInput = document.getElementById('charactersInput');
     audienceInput = document.getElementById('audienceInput');
+    craftingFrameworkSelect = document.getElementById('craftingFrameworkSelect');
+    frameworkSummaryDiv = document.getElementById('frameworkSummary'); // New element
     generateButton = document.getElementById('generateButton');
     statusMessageDiv = document.getElementById('statusMessage');
     storyTitleDiv = document.getElementById('storyTitle');
     storyOutputDiv = document.getElementById('storyOutput');
 
     // --- Initial UI Setup & Event Listeners ---
-    // Check if critical elements were found.
-    const criticalElements = { apiKeyInput, charactersInput, audienceInput, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv };
+    const criticalElements = { apiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, statusMessageDiv, storyTitleDiv, storyOutputDiv };
     for (const elName in criticalElements) {
         if (!criticalElements[elName]) {
             console.error(`Error: ${elName} element not found in HTML! UI may not function correctly.`);
+            // For frameworkSummaryDiv, it's okay if it's not found, but we should handle it gracefully.
+            if (elName === 'frameworkSummaryDiv' && !criticalElements[elName]) {
+                 console.warn("frameworkSummaryDiv not found, summary display will be disabled.");
+            } else if (!criticalElements[elName]) {
+                // For other critical elements, log an error
+                console.error(`Error: ${elName} element not found in HTML! UI may not function correctly.`);
+            }
         }
     }
 
-    // Load settings from Local Storage and attach listeners
+    if (craftingFrameworkSelect) {
+        Object.keys(STORY_CRAFTING_GUIDES).forEach(frameworkName => {
+            const option = document.createElement('option');
+            option.value = frameworkName;
+            option.textContent = frameworkName;
+            craftingFrameworkSelect.appendChild(option);
+        });
+        const savedFramework = loadFromLocalStorage(LS_SELECTED_FRAMEWORK);
+        if (savedFramework && STORY_CRAFTING_GUIDES[savedFramework]) {
+            craftingFrameworkSelect.value = savedFramework;
+        } else if (Object.keys(STORY_CRAFTING_GUIDES).length > 0) {
+            craftingFrameworkSelect.value = Object.keys(STORY_CRAFTING_GUIDES)[0];
+        }
+        craftingFrameworkSelect.addEventListener('change', () => {
+            saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
+            updateFrameworkSummaryDisplay(); // Update summary on change
+        });
+        updateFrameworkSummaryDisplay(); // Initial summary display
+    } else if (frameworkSummaryDiv) {
+        // If select is missing but summary div exists, show a message
+        frameworkSummaryDiv.textContent = "Framework selection dropdown is missing.";
+    }
+
+
     if (apiKeyInput) {
         apiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || '';
         apiKeyInput.addEventListener('input', () => saveToLocalStorage(LS_API_KEY, apiKeyInput.value.trim()));
@@ -199,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (storyOutputDiv) {
-        storyOutputDiv.textContent = 'Enter API Key, characters, audience, then click "Generate Story" to create a tale using the Story Circle!';
+        storyOutputDiv.textContent = 'Enter API Key, characters, audience, select a framework, then click "Generate Story" to create a tale!';
     }
     if (storyTitleDiv) {
         storyTitleDiv.textContent = '';
@@ -207,11 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Main Event Handler ---
     async function handleGenerateStory() {
-        if (!apiKeyInput || !charactersInput || !audienceInput) {
+        if (!apiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect) {
             const missing = [
                 !apiKeyInput && "API Key input",
                 !charactersInput && "Characters input",
-                !audienceInput && "Audience input"
+                !audienceInput && "Audience input",
+                !craftingFrameworkSelect && "Framework select"
             ].filter(Boolean).join(', ');
             displayError(`Cannot generate story: Missing form elements (${missing}). Please check the HTML or report this issue.`);
             return;
@@ -223,15 +267,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (apiKeyInput) apiKeyInput.focus();
             return;
         }
-        // Save API key on attempt, in case 'input' event didn't cover all scenarios (e.g. paste)
         saveToLocalStorage(LS_API_KEY, currentApiKey);
 
         const charactersStr = charactersInput.value;
         const audienceStr = audienceInput.value;
+        const selectedFrameworkKey = craftingFrameworkSelect.value;
+        const selectedCraftGuideText = STORY_CRAFTING_GUIDES[selectedFrameworkKey];
 
-        // Save other inputs on attempt too
         saveToLocalStorage(LS_CHARACTERS, charactersStr);
         saveToLocalStorage(LS_AUDIENCE, audienceStr);
+        saveToLocalStorage(LS_SELECTED_FRAMEWORK, selectedFrameworkKey); // Already done on change, but good for safety
 
         if (!charactersStr.trim()) {
             displayError('Please enter at least one character.');
@@ -249,32 +294,40 @@ document.addEventListener('DOMContentLoaded', () => {
             if (audienceInput) audienceInput.focus();
             return;
         }
+        if (!selectedCraftGuideText) {
+            displayError('Invalid story crafting framework selected. Please try again.');
+            if(craftingFrameworkSelect) craftingFrameworkSelect.focus();
+            return;
+        }
 
         displayLoading(true, "Initializing Story Circle pipeline...");
 
         try {
             // Agent 1: Story Crafter
-            displayLoading(true, "Step 1/5: Crafting initial Story Circle outline and draft...");
+            displayLoading(true, `Step 1/5: Crafting initial story draft using ${selectedFrameworkKey}...`);
             const agent1Prompt = constructAgentPrompt(PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, {
                 charactersList: parsedCharsArray.join(', '),
-                audience: audienceStr
+                audience: audienceStr,
+                CRAFT_GUIDE_TEXT: selectedCraftGuideText
             });
             const agent1Output_FullText = await callAgentAPI(agent1Prompt, currentApiKey);
             console.log("Agent 1 Output (first 500 chars):", agent1Output_FullText.substring(0, 500));
 
             // Agent 2: Story Reviewer
-            displayLoading(true, "Step 2/5: Reviewing draft based on Story Circle...");
+            displayLoading(true, `Step 2/5: Reviewing draft based on ${selectedFrameworkKey}...`);
             const agent2Prompt = constructAgentPrompt(PROMPT_AGENT_2_REVIEWER_TEMPLATE, {
-                storyText: agent1Output_FullText
+                storyText: agent1Output_FullText,
+                CRAFT_GUIDE_TEXT: selectedCraftGuideText
             });
             const agent2Output_ReviewText = await callAgentAPI(agent2Prompt, currentApiKey);
             console.log("Agent 2 Output (first 500 chars):", agent2Output_ReviewText.substring(0, 500));
 
             // Agent 3: Story Polisher & Rewriter
-            displayLoading(true, "Step 3/5: Polishing story with Story Circle feedback...");
+            displayLoading(true, `Step 3/5: Polishing story with feedback (using ${selectedFrameworkKey})...`);
             const agent3Prompt = constructAgentPrompt(PROMPT_AGENT_3_POLISHER_TEMPLATE, {
                 draftText: agent1Output_FullText,
-                reviewText: agent2Output_ReviewText
+                reviewText: agent2Output_ReviewText,
+                CRAFT_GUIDE_TEXT: selectedCraftGuideText
             });
             const agent3Output_Story = await callAgentAPI(agent3Prompt, currentApiKey);
             console.log("Agent 3 Output (first 500 chars):", agent3Output_Story.substring(0, 500));
@@ -312,7 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Attach Event Listener to Generate Button ---
     if (generateButton) {
         generateButton.addEventListener('click', handleGenerateStory);
     } else {
