@@ -14,7 +14,7 @@ The application employs a client-side agent-based system. When a user requests a
     *   **Polisher (Agent 4):** Rewrites the story, incorporating the reviewer's feedback to improve pacing, humour, emotional depth, and structural adherence.
     *   **Cleaner (Agent 5):** Performs a final pass to remove any extraneous formatting or artefacts, ensuring the text is ready.
     *   **Titler (Agent 6):** Generates a captivating title for the finalised story.
-3.  **Output:** The final story and its title are displayed to the user. An "Elaborate Story" option allows users to run a similar (shorter) pipeline on the current story to further expand it.
+3.  **Output:** The final story and its title are displayed to the user. The word count of the final story is logged to the browser console. An "Elaborate Story" option allows users to run a similar (shorter) pipeline on the current story to further expand it.
 
 All processing, including API calls, is handled in the user's browser. Application settings and the last generated story can be persisted using Local Storage.
 
@@ -27,6 +27,7 @@ All processing, including API calls, is handled in the user's browser. Applicati
 *   **Story Elaboration:** Further develop and expand generated stories.
 *   **Settings Persistence:** API key, model preferences, and other settings are saved locally.
 *   **Chat Log Download:** Download a JSON log of the last generation session for debugging or review.
+*   **Word Count:** The final word count of the generated/elaborated story is logged to the browser console.
 *   **Client-Side Operation:** Runs entirely in the browser (requires an internet connection for API calls).
 *   **Responsive Design:** Adapts to various screen sizes.
 
@@ -35,6 +36,7 @@ All processing, including API calls, is handled in the user's browser. Applicati
 Please use UK English spellings throughout the project for documentation and user-facing text. Code elements (variables, function names, CSS classes) should follow conventional US English spellings common in programming.
 
 ## Project File Structure
+
 ├── .gitignore
 ├── favicon.ico
 ├── index.html
@@ -47,7 +49,7 @@ Please use UK English spellings throughout the project for documentation and use
 ├── script.js # Main application logic, event handling, pipeline orchestration.
 ├── style.css # CSS styles for the application.
 ├── ui.js # Functions for manipulating the user interface.
-├── utils.js # Utility functions (e.g., parsing inputs).
+├── utils.js # Utility functions (e.g., parsing inputs, counting words).
 └── prompts/
 ├── agent_prompts.js # Templates for prompts sent to the Gemini API agents.
 └── story_crafting_guides.js # Detailed guides and rules for each story framework.
@@ -58,7 +60,7 @@ Please use UK English spellings throughout the project for documentation and use
 Application settings are managed via the UI:
 
 *   **Gemini API Key:** Your Google Gemini API key is required for the application to function. This can be entered in the "Settings" modal (⚙️ icon).
-*   **Gemini Model:** Select your preferred Gemini model from the available options in Settings.
+*   **Gemini Model:** Select your preferred Gemini model (Gemini-2.5-Flash, Gemini-2.0-Flash, Gemini-1.5-Flash) from the available options in Settings. The default is Gemini-2.5-Flash.
 *   **Minimum API Interval:** Configure the minimum time (in seconds) between consecutive API calls to help manage rate limits.
 *   **Reading Age Slider Limits:** Define the minimum and maximum ages for the reading age adjustment slider.
 

@@ -34,7 +34,7 @@ import {
     PROMPT_AGENT_6_TITLER_TEMPLATE,
 } from './prompts/agent_prompts.js';
 import { callAgentAPI } from './api.js';
-import { parseCharacters, constructAgentPrompt } from './utils.js';
+import { parseCharacters, constructAgentPrompt, countWords } from './utils.js'; // Added countWords
 import { 
     initUIElements,
     updateStatusInStoryOutput, 
@@ -57,8 +57,6 @@ let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, targetReadingAge
 let readingAgeMinInput, readingAgeMaxInput; 
 
 // --- Pipeline Configurations ---
-// Ensure dataKeys here match the keys returned by gatherPipelineInputs for shared data
-// and keys in initialPipelineData for pipeline-specific data.
 const STORY_GENERATION_PIPELINE = [
     { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, step: "1/6", dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
     { name: "Agent 2: Elaborator", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, step: "2/6", dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT'], outputKey: 'storyText' },
@@ -268,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
     charactersInput.addEventListener('input', () => saveToLocalStorage(LS_CHARACTERS, charactersInput.value));
     audienceInput.addEventListener('input', () => saveToLocalStorage(LS_AUDIENCE, audienceInput.value));
 
-    // --- Core Logic Functions ---
     function gatherPipelineInputs() {
         const apiKey = loadFromLocalStorage(LS_API_KEY) || '';
         const modelId = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
@@ -277,9 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const audience = audienceInput.value.trim() || "children";
         const frameworkKey = craftingFrameworkSelect.value;
-        const craftGuideText = STORY_CRAFTING_GUIDES[frameworkKey] || ""; // Ensure CRAFT_GUIDE_TEXT is always defined
+        const craftGuideText = STORY_CRAFTING_GUIDES[frameworkKey] || ""; 
 
-        let userSuggestionsText = ""; // Key name matches pipeline config
+        let userSuggestionsText = ""; 
         if (useEngineSuggestionsCheckbox.checked) {
             userSuggestionsText = "User has opted for the story engine to decide on specific suggestions if any are needed. Focus on the core request and framework.";
         } else {
@@ -287,26 +284,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (suggestions) {
                 userSuggestionsText = `User Suggestions (please incorporate these if they align with the story framework and goal):\n${suggestions}`;
             } else {
-                userSuggestionsText = ""; // Explicitly empty if no suggestions and not engine-decided
+                userSuggestionsText = ""; 
             }
         }
         
-        let readingAgeNote = ""; // Key name matches pipeline config
+        let readingAgeNote = ""; 
         if (enableReadingAgeAdjustmentCheckbox.checked) { 
             const targetAge = targetReadingAgeSlider.value || DEFAULT_TARGET_READING_AGE;
             readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace(/\$\{targetReadingAge\}/g, targetAge.toString());
         }
-        // Ensure readingAgeNote is always a string, even if empty. It's initialized as "" above.
 
         return { 
             apiKey, 
             modelId, 
             minApiIntervalMs, 
             audience, 
-            // frameworkKey, // Not directly used by agents, craftGuideText is
-            CRAFT_GUIDE_TEXT: craftGuideText, // Use the exact key name expected by pipeline
-            READING_AGE_NOTE: readingAgeNote, // Use the exact key name
-            USER_SUGGESTIONS_TEXT: userSuggestionsText // Use the exact key name
+            CRAFT_GUIDE_TEXT: craftGuideText, 
+            READING_AGE_NOTE: readingAgeNote, 
+            USER_SUGGESTIONS_TEXT: userSuggestionsText 
         };
     }
 
@@ -318,15 +313,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const agentDataObject = {};
 
-            // Populate agentDataObject from commonInputs and currentPipelineData based on agentDef.dataKeys
             agentDef.dataKeys.forEach(key => {
                 if (commonInputs.hasOwnProperty(key)) {
                     agentDataObject[key] = commonInputs[key];
                 } else if (currentPipelineData.hasOwnProperty(key)) {
                     agentDataObject[key] = currentPipelineData[key];
                 } else {
-                    // This case should now be rarer because gatherPipelineInputs ensures common keys are present
-                    // Potentially, a key might be missing if it's purely from pipelineData and wasn't initialized
                     console.warn(`Data key "${key}" for agent "${agentDef.name}" not found in commonInputs or pipelineData. Using empty string.`);
                     agentDataObject[key] = ''; 
                 }
@@ -348,9 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (agentDef.outputKey) {
                 currentPipelineData[agentDef.outputKey] = agentOutput;
             } else {
-                // Default to updating 'storyText' if no specific outputKey,
-                // but this should be explicit in the config for clarity.
-                // Assuming 'storyText' is the primary output if outputKey is missing.
                 currentPipelineData.storyText = agentOutput; 
             }
         }
@@ -364,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appState.latestGeneratedStoryText = ""; 
         appState.latestGeneratedStoryTitle = "";
 
-        const commonInputs = gatherPipelineInputs(); // This now returns keys like CRAFT_GUIDE_TEXT
+        const commonInputs = gatherPipelineInputs();
 
         if (!commonInputs.apiKey) {
             displayErrorInStoryOutput("API Key is missing. Please configure it in Settings.");
@@ -383,12 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateStatusInStoryOutput(`Initialising story generation...\n`);
         
-        // initialPipelineData should contain data specific to the start of this pipeline
         const initialPipelineData = {
             charactersList: parseCharacters(charactersInput.value).join(', ') || "a brave little mouse",
-            // USER_SUGGESTIONS_TEXT is now part of commonInputs
-            // READING_AGE_NOTE is now part of commonInputs
-            // CRAFT_GUIDE_TEXT is now part of commonInputs
             storyText: "", 
             reviewText: "",
             titleText: ""
@@ -400,6 +385,9 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
             appState.latestGeneratedStoryTitle = (finalData.titleText || "Untitled Story").trim();
             
+            const wordCount = countWords(appState.latestGeneratedStoryText);
+            console.log(`Final word count = ${wordCount}`);
+
             updateStatusInStoryOutput("Story generation complete!\n"); 
             displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText); 
 
@@ -436,13 +424,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const initialPipelineData = {
             storyText: appState.latestGeneratedStoryText, 
             reviewText: "" 
-            // Audience, CRAFT_GUIDE_TEXT, READING_AGE_NOTE, USER_SUGGESTIONS_TEXT come from commonInputs
         };
 
         try {
             const finalData = await runPipeline(ELABORATION_PIPELINE, initialPipelineData, commonInputs);
             
             appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
+            
+            const wordCount = countWords(appState.latestGeneratedStoryText);
+            console.log(`Final word count (after elaboration) = ${wordCount}`);
             
             updateStatusInStoryOutput("Story elaboration complete!\n");
             displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText, true);
