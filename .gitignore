@@ -1,1 +1,6 @@
+# dependencies
 node_modules/
+
+# project metadata – ignored
+package.json
+package-lock.json
