@@ -14,8 +14,8 @@ Here is the reviewer's text:
 Your primary task is to **rewrite the story**, incorporating all the reviewer's feedback to make the final version more polished, engaging, and delightful for both children and the adults who read to them.
 **Crucially, pay close attention to strengthening the Story Circle structure based on the review comments.** Ensure all 8 steps of Dan Harmon's Story Circle are well-defined, flow logically, and contribute to a satisfying and emotionally resonant narrative arc suitable for children.
 
-Keep the core characters and plot elements from 'the draft material' intact, but improve pacing, humor, emotional depth, clarity, and overall narrative impact, guided by the review. **Remember to adhere to the word count requirements.**
+Keep the core characters and plot elements from 'the draft material' intact, but improve pacing, humor, emotional depth, clarity, and overall narrative impact, guided by the review.
 
 When you're done, return **only the story content**.
-**Outpout format:** Use plain text, do not use markup, JSON or a serial format.
+**Output format:** Use plain text, do not use markup, JSON or a serial format.
 `;

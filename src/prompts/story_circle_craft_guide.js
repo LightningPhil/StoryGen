@@ -18,5 +18,4 @@ Your story MUST follow this 8-step structure:
 3.  In **Step 4**: Include at least one obstacle that directly tests the flaw/fear.  Let that fear shape a choice or mistake. Include a brief beat where the hero almost turns back or freezes.  
 4.  In **Step 6**: Show a *tangible sacrifice* in **3 or more sentences** (hesitation, then sensory detail, then immediate consequence).  During the sacrifice, amplify the fear: use **three sensory details** (sound, texture, smell, etc.) to make the cost visceral. Show a moment of doubt *before* the commitment.  
 5.  In **Step 8**: Illustrate the transformed fear. The hero should respond to a small echo of the original trigger, but with new confidence or wisdom. This section should include a vivid sensory image (no moral summary).
-6.  Length: **\${wordCountMin}-\${wordCountMax} words total** (approx. \${wordsPerStep} per circle step). The length of the story and the sections is important.  Ensure you adhere to this.
-7.  Style: less than 8 exclamation marks; replace generic adjectives such as ('magical', 'glowing') with precise verbs & fresh sense details.`;
+6.  Style: less than 8 exclamation marks; replace generic adjectives such as ('magical', 'glowing') with precise verbs & fresh sense details.`;
