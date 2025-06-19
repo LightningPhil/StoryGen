@@ -4,35 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Circle Story Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./src/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Story Circle Children's Story Generator</h1>
+        <header class="header-bar">
+            <h1>Story Generator</h1>
+            <button id="settingsButton" class="settings-icon-button" aria-label="Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </button>
+        </header>
 
-        <label for="apiKeyInput">Gemini API Key:</label>
-        <input type="text" id="apiKeyInput" placeholder="Enter your Gemini API Key">
+        <main>
+            <label for="charactersInput">Characters</label>
+            <textarea id="charactersInput" rows="3" placeholder="e.g., a curious fox named Finley, a wise old owl"></textarea>
 
-        <label for="charactersInput">Describe the characters any way you wish:</label>
-        <textarea id="charactersInput" rows="2" placeholder="e.g., a brave knight, a mischievous squirrel"></textarea>
+            <label for="audienceInput">Target Audience</label>
+            <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7, young adults">
 
-        <label for="audienceInput">Target Audience:</label>
-        <input type="text" id="audienceInput" placeholder="e.g., girl age 11, boys and girls age 5-7">
+            <label for="craftingFrameworkSelect">Story Crafting Framework</label>
+            <select id="craftingFrameworkSelect">
+                <!-- Options will be populated by script.js -->
+            </select>
+            <div id="frameworkSummary" class="framework-summary">
+                <!-- Summary will appear here -->
+            </div>
 
-        <label for="craftingFrameworkSelect">Story Crafting Framework:</label>
-        <select id="craftingFrameworkSelect">
-            <!-- Options will be populated by script.js -->
-        </select>
-        <div id="frameworkSummary" class="framework-summary">
-            <!-- Summary will appear here -->
+            <button id="generateButton">Generate Story</button>
+
+            <div id="statusMessage"></div>
+            
+            <h2 id="storyTitle"></h2>
+            <div id="storyOutput">Your story will appear here...</div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <button id="closeSettingsModal" class="close-button" aria-label="Close settings">×</button>
+            <h2>Settings</h2>
+            
+            <label for="modalApiKeyInput">Gemini API Key</label>
+            <input type="text" id="modalApiKeyInput" placeholder="Enter your Gemini API Key">
+
+            <label for="modalModelSelect">Gemini Model</label>
+            <select id="modalModelSelect">
+                <!-- Options will be populated by script.js -->
+            </select>
+
+            <button id="saveSettingsButton">Save & Close</button>
         </div>
-
-        <button id="generateButton">Generate Story</button>
-
-        <div id="statusMessage"></div>
-        
-        <h2 id="storyTitle"></h2>
-        <div id="storyOutput">Your story will appear here...</div>
     </div>
 
     <script src="./src/script.js" type="module"></script>

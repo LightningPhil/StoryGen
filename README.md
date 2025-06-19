@@ -8,8 +8,11 @@ This application is designed to be served using **Internet Information Services 
 
 ## Gemini API Configuration
 
-*   **API Key:** The Gemini API key is entered by the user in the UI. For production environments, it is highly recommended to use a more secure method for managing API keys (e.g., environment variables, server-side proxy).
-*   **Model Choice:** The application uses the `gemini-2.0-flash` model, as specified in `src/script.js`.
+*   **API Key:** The Gemini API key is entered by the user in the Settings menu (⚙️ icon).
+*   **Model Choice:** The application allows users to choose their preferred Gemini model via the Settings menu. Available models include:
+    *   Gemini 1.5 Flash (Latest)
+    *   Gemini 1.5 Pro (Latest)
+    The default model is `gemini-1.5-flash-latest`. The selected model is saved in local storage.
 
 ## Story Crafting Frameworks
 
@@ -21,11 +24,13 @@ The application allows users to choose from several story crafting frameworks:
 *   Freytag’s Pyramid
 *   Hero’s Journey (Condensed)
 *   “But, Therefore” Chain
+*   Pixar Story Spine
 *   Chekhov’s Sketch
 
 The selected framework guides the story generation process. The definitions for these frameworks are located in `src/prompts/story_crafting_guides.js`.
 
 ## Project File Structure
+
 ├── index.html
 ├── README.md
 └── src/
