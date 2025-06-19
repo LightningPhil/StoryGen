@@ -1,3 +1,5 @@
+// src/utils.js
+
 export function parseCharacters(characterString) {
     if (!characterString) return [];
     return characterString.split(',').map(char => char.trim()).filter(char => char.length > 0);

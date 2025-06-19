@@ -1,13 +1,14 @@
-// --- Global DOM Element Variables (assumed to be initialized in main script.js) ---
-// This file will receive them as parameters or access them if they are truly global.
-// For simplicity here, we'll assume they are accessible.
-// A more robust approach might involve passing them or using a shared UI state object.
+// src/ui.js
 
-let statusMessageDiv, storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton;
+// --- DOM Element References (initialized by initUIElements) ---
+let storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton;
 let craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea;
+// statusMessageDiv is removed
+
+// Temporary toast element (if you want one, otherwise remove this part)
+let toastElement = null; 
 
 export function initUIElements(elements) {
-    statusMessageDiv = elements.statusMessageDiv;
     storyTitleDiv = elements.storyTitleDiv;
     storyOutputDiv = elements.storyOutputDiv;
     generateButton = elements.generateButton;
@@ -18,103 +19,86 @@ export function initUIElements(elements) {
     frameworkSummaryDiv = elements.frameworkSummaryDiv;
     useEngineSuggestionsCheckbox = elements.useEngineSuggestionsCheckbox;
     userSuggestionsTextarea = elements.userSuggestionsTextarea;
+
+    // Optional: Create a toast element dynamically if you don't have one in HTML
+    // For now, showTemporaryToast will just console.log if no dedicated element.
 }
 
+// --- New Status Handling in Story Output ---
 
-export function displayLoading(isLoading, message = '') {
-    if (!statusMessageDiv) return; // Guard clause
-
-    if (isLoading) {
-        statusMessageDiv.textContent = message || 'Processing...';
-        statusMessageDiv.className = 'loading';
-        
-        // Only clear fully for a brand new generation if not a retry/step message
-        if (message && !message.toLowerCase().includes("elaborat") && !message.toLowerCase().includes("step") && !message.toLowerCase().includes("retry")) {
-             if (storyTitleDiv) storyTitleDiv.textContent = '';
-             if (storyOutputDiv) storyOutputDiv.textContent = 'Your story will appear here...';
-        }
-        if (generateButton) generateButton.disabled = true;
-        if (elaborateStoryButton) elaborateStoryButton.disabled = true;
-        if (copyStoryButton) copyStoryButton.style.display = 'none';
-        if (saveStoryButton) saveStoryButton.style.display = 'none';
-    } else {
-        // Clear loading message only if it's not an error, success, or info message
-        if (statusMessageDiv.classList.contains('loading')) {
-            statusMessageDiv.textContent = '';
-            statusMessageDiv.className = '';
-        }
-        if (generateButton) generateButton.disabled = false;
-        // elaborateStoryButton enabled/disabled based on story presence in displayOutput/Error
-    }
+// Appends a status message to the story output area
+export function updateStatusInStoryOutput(message, isFinalStatus = false) {
+    if (!storyOutputDiv) return;
+    // If it's the final success message, we might clear previous statuses first,
+    // or this function is called sequentially. For now, just appends.
+    // A more complex log might involve styled spans.
+    storyOutputDiv.textContent += message;
+    storyOutputDiv.scrollTop = storyOutputDiv.scrollHeight; // Scroll to bottom
 }
 
-export function displayOutput(title, storyText, isElaboration = false) {
+// Clears all content (including statuses) from story output, preparing for new story or log
+export function clearStoryOutput() {
+    if (!storyOutputDiv) return;
+    storyOutputDiv.textContent = ""; 
+}
+
+// Displays the final story, replacing any status logs
+export function displayFinalStoryOutput(title, storyText, isElaboration = false) {
     if (storyTitleDiv) storyTitleDiv.textContent = title;
-    if (storyOutputDiv) storyOutputDiv.textContent = storyText;
+    if (storyOutputDiv) storyOutputDiv.textContent = storyText; // Replace content
     
+    // UI feedback for non-story area can still use a toast if implemented
     const successMessage = isElaboration ? 'Story elaborated successfully!' : 'Story generated successfully!';
-    showTemporaryStatus(successMessage, 'success', 4000);
+    showTemporaryToast(successMessage, 'success');
+
 
     if (copyStoryButton) copyStoryButton.style.display = 'inline-block';
     if (saveStoryButton) saveStoryButton.style.display = 'inline-block';
     if (elaborateStoryButton) {
         elaborateStoryButton.style.display = 'inline-block';
-        elaborateStoryButton.disabled = false;
+        if (generateButton && !generateButton.disabled) { // Only enable if main generate isn't also running
+             elaborateStoryButton.disabled = false;
+        }
     }
 }
 
-export function displayError(errorMessage) {
-    if (statusMessageDiv) {
-        statusMessageDiv.textContent = `Error: ${errorMessage}`;
-        statusMessageDiv.className = 'error';
+// Displays an error message, potentially within the story output or as a toast
+export function displayErrorInStoryOutput(errorMessage, isCritical = true) {
+    if (storyOutputDiv) {
+        // Prepend or append error. Prepending makes it more visible.
+        storyOutputDiv.textContent = `ERROR: ${errorMessage}\n\n` + storyOutputDiv.textContent;
+        storyOutputDiv.scrollTop = 0; // Scroll to top to see error
     }
-    if (storyTitleDiv) storyTitleDiv.textContent = '';
+    if (storyTitleDiv) storyTitleDiv.textContent = "Error"; // Indicate error in title
 
     if (copyStoryButton) copyStoryButton.style.display = 'none';
     if (saveStoryButton) saveStoryButton.style.display = 'none';
     if (elaborateStoryButton) {
-        elaborateStoryButton.style.display = 'none';
+        elaborateStoryButton.style.display = 'none'; 
         elaborateStoryButton.disabled = true;
     }
-    console.error("Pipeline Error Details:", errorMessage); // Keep this critical console log
+    console.error("Pipeline Error Details:", errorMessage); // Always log critical errors
 }
 
-export function showTemporaryStatus(message, type = 'info', duration = 3000) {
-    if (!statusMessageDiv) return;
-
-    // If a more severe error is already showing, don't overwrite with info/success
-    if (statusMessageDiv.classList.contains('error') && type !== 'error') {
-        return; 
-    }
-    // If loading is active and this is not an error, let loading message persist
-    if (statusMessageDiv.classList.contains('loading') && type !== 'error' && type !== 'info') { // Allow 'info' for retry updates
-        // If the new message is different, update it, otherwise let loading animation/text persist
-        if (statusMessageDiv.textContent !== message) {
-            statusMessageDiv.textContent = message;
-            statusMessageDiv.className = type;
-        }
-    } else {
-        statusMessageDiv.textContent = message;
-        statusMessageDiv.className = type;
-    }
-    
-    setTimeout(() => {
-        // Clear only if this specific temporary message is still showing
-        if (statusMessageDiv.textContent === message && statusMessageDiv.className === type) {
-            // If it was success/info, and loading is done, clear it.
-            // If it was an error, it should persist until next action.
-            if (type !== 'error') {
-                statusMessageDiv.textContent = '';
-                statusMessageDiv.className = '';
-            }
-        }
-    }, duration);
+// For non-critical UI feedback (e.g., "Copied!", "Settings Saved")
+// This could create a temporary toast-like message element if desired.
+// For now, it will just log to console if no dedicated toast UI exists.
+export function showTemporaryToast(message, type = 'info', duration = 3000) {
+    console.log(`[${type.toUpperCase()}] Toast: ${message}`); // Fallback to console
+    // If you implement a toast HTML element:
+    // if (toastElement) {
+    //     toastElement.textContent = message;
+    //     toastElement.className = `toast toast-${type}`; // Add CSS for .toast and .toast-success, .toast-error etc.
+    //     toastElement.style.display = 'block';
+    //     setTimeout(() => {
+    //         if (toastElement) toastElement.style.display = 'none';
+    //     }, duration);
+    // }
 }
 
-
+// --- Existing UI Update Functions ---
 export function updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES_DATA) {
     if (!craftingFrameworkSelect || !frameworkSummaryDiv) return;
-
     const selectedFrameworkKey = craftingFrameworkSelect.value;
     const summary = STORY_FRAMEWORK_SUMMARIES_DATA[selectedFrameworkKey] || "No summary available for this framework.";
     frameworkSummaryDiv.textContent = summary;
@@ -122,7 +106,6 @@ export function updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES_DATA) {
 
 export function updateSuggestionsTextareaStyle() {
     if (!userSuggestionsTextarea || !useEngineSuggestionsCheckbox) return;
-
     if (useEngineSuggestionsCheckbox.checked) {
         userSuggestionsTextarea.classList.remove('suggestions-used');
         userSuggestionsTextarea.classList.add('suggestions-not-used');
@@ -132,4 +115,27 @@ export function updateSuggestionsTextareaStyle() {
         userSuggestionsTextarea.classList.add('suggestions-used');
         userSuggestionsTextarea.disabled = false;
     }
+}
+
+export function disableMainControls() {
+    if (generateButton) generateButton.disabled = true;
+    if (elaborateStoryButton) elaborateStoryButton.disabled = true;
+}
+
+export function enableMainControls() {
+    if (generateButton) generateButton.disabled = false;
+    // elaborateStoryButton is enabled by displayFinalStoryOutput if a story exists
+    if (latestGeneratedStoryText && elaborateStoryButton) { // latestGeneratedStoryText needs to be accessible or passed
+        elaborateStoryButton.disabled = false;
+    } else if (elaborateStoryButton) {
+        elaborateStoryButton.disabled = true;
+    }
+}
+
+// This global variable is managed by script.js, ui.js needs read-access for enableMainControls
+// This is a bit of a hack. Better to pass it or use a state manager.
+// For now, this illustrates the dependency.
+let latestGeneratedStoryText = ""; 
+export function setLatestStoryTextForUI(text) { // Called by script.js to update this
+    latestGeneratedStoryText = text;
 }

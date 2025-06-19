@@ -11,59 +11,48 @@
     --font-primary: 'Inter', sans-serif;
     --font-headings: 'Montserrat', sans-serif;
 
-    /* --- Lively & Neat Colour Palette --- */
-    --color-bg-page: #f4f5f7; /* Very light, almost white-grey */
+    --color-bg-page: #f4f5f7; 
     --color-bg-app-container: #ffffff;
     --color-bg-controls-panel: #fafbfc; 
-    --color-bg-story-panel: #ffffff; 
+    --color-bg-story-panel: #fdfdfe; 
+    --color-bg-story-output: #ffffff; 
     
-    --color-text-primary: #24292e; /* Very dark grey (GitHub-like) for titles/main text */
-    --color-text-secondary: #57606a; /* Medium grey for secondary text/labels */
-    --color-text-light: #6a737d;   /* Lighter grey for subtle text */
+    --color-text-primary: #24292e; 
+    --color-text-secondary: #57606a; 
+    --color-text-light: #6a737d;   
 
-    /* Primary Accent for critical actions - now a dark, confident grey */
-    --color-button-primary-bg: #343a40; /* Dark grey, almost black */
+    --color-button-primary-bg: #343a40; 
     --color-button-primary-text: #ffffff;
-    --color-button-primary-hover-bg: #23272b; /* Slightly darker on hover */
+    --color-button-primary-hover-bg: #23272b; 
     --color-button-primary-border: #343a40;
 
-    /* Secondary Accent: A lighter grey, for secondary buttons or borders */
     --color-button-secondary-bg: #f8f9fa; 
     --color-button-secondary-text: var(--color-text-primary);
     --color-button-secondary-hover-bg: #e9ecef;
     --color-button-secondary-border: #ced4da;
 
-    /* Tertiary Accent: For cancel buttons, subtle actions - often text-like */
     --color-button-tertiary-text: var(--color-text-secondary);
     --color-button-tertiary-hover-bg: #f1f3f5;
-    --color-button-tertiary-border: transparent; /* Or a very light border if preferred */
+    --color-button-tertiary-border: #ced4da; /* Give cancel a subtle border */
 
-
-    --color-checkbox-accent: var(--color-text-primary); /* Dark grey for checkbox checkmark */
-    --color-checkbox-border: #adb5bd; /* Slightly darker grey for unchecked border */
+    --color-checkbox-accent: var(--color-text-primary); 
+    --color-checkbox-border: #adb5bd; 
 
     --color-border: #d0d7de; 
     --color-border-light: #e6ebf1; 
     
-    --color-error-bg: #ffebe9; 
-    --color-error-text: #c93c37;
-    --color-error-border: #ffccc7;
-    --color-success-bg: #dff0d8; 
-    --color-success-text: #3c763d;
-    --color-success-border: #d6e9c6;
-    --color-info-bg: #e0f2fe;   
-    --color-info-text: #0c5473;
-    --color-info-border: #b3e5fc;
+    --color-error-text: #c93c37; /* Error text color for story output */
+    --color-info-text: #0c5473;  /* Info text color for story output */
     
     --color-suggestions-bg-used: #eef7ff; 
     --color-suggestions-bg-not-used: #f6f8fa; 
     
-    --slider-track-color: #e9ecef; /* Lighter track */
+    --slider-track-color: #e9ecef; 
     --slider-thumb-color: var(--color-text-secondary); 
 
-    --focus-ring-color: rgba(87, 96, 106, 0.25); /* Subtle grey focus ring */
+    --focus-ring-color: rgba(87, 96, 106, 0.25); 
 
-
+    --shadow-xs: 0 1px 2px rgba(27,31,36,0.04); 
     --shadow-sm: 0 1px 2px rgba(27,31,36,0.075);
     --shadow-md: 0 3px 6px rgba(27,31,36,0.1), 0 1px 2px rgba(27,31,36,0.06);
     --border-radius-sm: 4px;
@@ -71,6 +60,7 @@
     
     --controls-panel-width: 380px; 
     --panel-padding: 20px;
+    --header-height-approx: 55px; /* Approximate height of panel/story headers */
 }
 
 html, body {
@@ -128,13 +118,15 @@ body {
     padding-bottom: 15px;
     border-bottom: 1px solid var(--color-border-light);
     flex-shrink: 0; 
+    min-height: var(--header-height-approx); /* Ensure consistent height */
+    box-sizing: content-box; /* Padding and border are outside min-height */
 }
 
 .panel-header h1 {
     font-size: 1.4rem; 
     color: var(--color-text-primary);
     font-family: var(--font-headings);
-    font-weight: 600; /* Slightly less heavy */
+    font-weight: 600; 
     letter-spacing: -0.01em;
 }
 
@@ -164,7 +156,7 @@ body {
     margin-top: 16px; 
     margin-bottom: 6px;
     font-family: var(--font-headings);
-    font-weight: 500; /* Medium weight for labels */
+    font-weight: 500; 
     font-size: 0.8rem; 
     color: var(--color-text-secondary);
     text-transform: uppercase; 
@@ -183,7 +175,7 @@ body {
     padding: 10px 12px;
     margin-bottom: 10px; 
     border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-md); /* Consistent rounded corners */
+    border-radius: var(--border-radius-md); 
     background-color: #fff;
     font-family: var(--font-primary);
     font-size: 0.9rem; 
@@ -210,7 +202,7 @@ body {
 .control-group {
     margin-top: 18px; 
     margin-bottom: 8px; 
-    padding: 12px; 
+    padding: 14px; 
     border: 1px solid var(--color-border-light);
     border-radius: var(--border-radius-md); 
     background-color: #fff; 
@@ -218,7 +210,7 @@ body {
 .control-group label.group-title { 
     margin-top: 0;
     margin-bottom: 8px; 
-    font-size: 0.85rem; /* Group titles slightly smaller */
+    font-size: 0.85rem; 
     color: var(--color-text-primary);
     text-transform: none; 
     letter-spacing: normal;
@@ -249,7 +241,7 @@ body {
     font-size: 0.85rem; 
     color: var(--color-text-secondary);
     cursor: pointer;
-    line-height: 1.3; /* Adjusted */
+    line-height: 1.3; 
     margin-right: 8px; 
 }
 .controls-panel .inline-number-input { 
@@ -299,7 +291,7 @@ body {
 }
 .slider-wrapper .slider-label-min,
 .slider-wrapper .slider-label-max {
-    font-size: 0.7rem; /* Even smaller */
+    font-size: 0.7rem; 
     color: var(--color-text-light);
     flex-shrink: 0;
     text-transform: uppercase;
@@ -337,18 +329,17 @@ body {
 button {
     font-family: var(--font-primary);
     font-weight: 500;
-    border-radius: var(--border-radius-md); /* More rounded buttons */
+    border-radius: var(--border-radius-md); 
     padding: 10px 15px;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
     border: 1px solid transparent; 
 }
 button:focus-visible { 
-    outline: 2px solid var(--slider-thumb-color); /* Use slider thumb for focus too */
+    outline: 2px solid var(--slider-thumb-color); 
     outline-offset: 2px;
 }
 
-/* Primary Button (e.g., Generate Story, Save & Close in Modal) */
 .button-primary {
     background-color: var(--color-button-primary-bg); 
     color: var(--color-button-primary-text); 
@@ -364,30 +355,27 @@ button:focus-visible {
     background-color: #adb5bd; border-color: #adb5bd;
     color: #f8f9fa; cursor: not-allowed; transform: translateY(0);
 }
-.controls-panel #generateButton {
+.controls-panel #generateButton.button-primary { 
     width: 100%; padding: 12px 15px; font-size: 0.95rem; margin-top: 20px; 
     font-weight: 600; 
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-
-/* Secondary Button (e.g., Download Log) */
 .button-secondary {
     background-color: var(--color-button-secondary-bg);
     color: var(--color-button-secondary-text);
-    border-color: var(--color-button-secondary-border);
+    border: 1px solid var(--color-button-secondary-border); /* Ensure border for secondary */
 }
 .button-secondary:hover {
     background-color: var(--color-button-secondary-hover-bg);
     border-color: #adb5bd;
 }
 
-/* Tertiary Button (e.g., Cancel in Modal) */
 .button-tertiary {
     background-color: transparent;
     color: var(--color-button-tertiary-text);
-    border-color: var(--color-border); /* Give it a subtle border */
+    border: 1px solid var(--color-border); 
 }
 .button-tertiary:hover {
     background-color: var(--color-button-tertiary-hover-bg);
@@ -406,22 +394,15 @@ button:focus-visible {
 /* Story Display Panel (Right Side) */
 .story-display-panel { 
     flex-grow: 1; 
-    padding: var(--panel-padding) calc(var(--panel-padding) + 10px) var(--panel-padding) var(--panel-padding); 
+    padding: var(--panel-padding);
+    padding-top: calc(var(--panel-padding) - 15px); 
     display: flex;
     flex-direction: column;
     overflow: hidden; 
     background-color: var(--color-bg-story-panel);
 }
 
-.story-display-panel #statusMessage {
-    margin-top: 0; 
-    margin-bottom: 15px;
-    flex-shrink: 0; 
-    min-height: 42px; 
-    padding: 8px 15px;
-    font-size: 0.85rem;
-    border-radius: var(--border-radius-sm);
-}
+/* No #statusMessage div styling here as it's removed from HTML structure of this panel */
 
 .story-display-panel .story-header {
     display: flex;
@@ -429,6 +410,10 @@ button:focus-visible {
     align-items: center;
     margin-bottom: 12px; 
     flex-shrink: 0; 
+    padding-bottom: 10px; 
+    border-bottom: 1px solid var(--color-border-light); 
+    min-height: var(--header-height-approx); /* Match control panel header height */
+    box-sizing: content-box; /* Padding and border are outside min-height */
 }
 
 .story-display-panel #storyTitle {
@@ -436,11 +421,12 @@ button:focus-visible {
     text-align: left;
     flex-grow: 1;
     margin: 0; 
-    font-size: 1.8rem; 
-    font-weight: 600; /* Slightly less heavy for balance */
+    font-size: 1.7rem; 
+    font-weight: 600; 
     color: var(--color-text-primary); 
     letter-spacing: -0.02em;
     padding-right: 15px; 
+    line-height: 1.3;
 }
 
 .story-actions-bar {
@@ -452,7 +438,7 @@ button:focus-visible {
     padding: 7px; 
     color: var(--color-text-light);
     border-color: var(--color-border-light);
-    border-radius: var(--border-radius-sm); /* Consistent radius */
+    border-radius: var(--border-radius-sm); 
 }
 .story-action-button svg { width: 16px; height: 16px; } 
 .story-action-button:hover { 
@@ -465,16 +451,16 @@ button:focus-visible {
 .story-display-panel #storyOutput {
     flex-grow: 1; 
     overflow-y: auto; 
-    background-color: var(--color-bg-story-panel); 
-    border: none; 
-    padding: 20px;
-    padding-right: 25px; 
-    border-radius: var(--border-radius-sm);
+    background-color: var(--color-bg-story-output); 
+    border: 1px solid var(--color-border-light);
+    padding: 25px; 
+    border-radius: var(--border-radius-md); 
     margin-top: 0; 
     line-height: 1.75; 
     font-size: 1rem; 
     color: var(--color-text-primary);
     white-space: pre-wrap; 
+    box-shadow: var(--shadow-xs); 
 }
 .story-display-panel #storyOutput::-webkit-scrollbar { width: 8px; }
 .story-display-panel #storyOutput::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 4px; }
@@ -495,19 +481,27 @@ button:focus-visible {
     padding: 25px 30px; border: none; width: 90%; max-width: 480px; 
     border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); position: relative;
 }
-.modal-content h2 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 25px; text-align: center; }
-.modal-content label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 15px; margin-bottom: 6px; }
+.modal-content h2 { 
+    font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; 
+    margin-bottom: 25px; text-align: center; 
+    color: var(--color-text-primary);
+}
+.modal-content label { 
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; 
+    margin-top: 15px; margin-bottom: 6px; 
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
 
 .modal-content .form-row { 
-    margin-bottom: 18px; /* Increased spacing between rows */
+    margin-bottom: 18px; 
 }
-/* .modal-content .form-row:last-of-type removed as .modal-actions handles spacing now */
 
 .modal-content .form-row.modal-two-col {
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 15px; 
-    align-items: end; 
+    align-items: end; /* Align based on input bottom */
 }
 .modal-content .form-row.modal-two-col .form-group {
     /* No specific style needed, grid handles it */
@@ -525,9 +519,13 @@ button:focus-visible {
     font-size: 0.9rem; 
     margin-bottom: 0; 
     border-radius: var(--border-radius-sm);
+    border: 1px solid var(--color-border);
+    background-color: #fff;
+    color: var(--color-text-primary);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .modal-content .form-row.modal-two-col input[type="number"] {
-     text-align: left; /* Default for consistency */
+     text-align: left; /* Keep consistent */
 }
 .modal-content input[type="text"]:focus,
 .modal-content select:focus,
@@ -541,7 +539,11 @@ button:focus-visible {
     border: 1px solid var(--color-border-light); border-radius: var(--border-radius-sm);
     background-color: var(--color-bg-controls-panel); 
 }
-.modal-content .group-title-modal { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; font-weight: 600;}
+.modal-content .group-title-modal { 
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; 
+    margin-bottom: 10px; font-weight: 600;
+    color: var(--color-text-primary);
+}
 .modal-content .inline-inputs { display: flex; align-items: center; gap: 8px; }
 .modal-content .inline-inputs label { margin: 0; font-size: 0.8rem; text-transform: none; letter-spacing: normal;}
 .modal-content .inline-inputs input[type="number"] {
@@ -563,19 +565,13 @@ button:focus-visible {
 }
 
 .modal-content button { 
-    padding: 10px 15px; font-size: 0.9rem; margin-top: 0; /* Reset margin as wrappers handle it */
+    padding: 10px 15px; font-size: 0.9rem; margin-top: 0; 
     border-radius: var(--border-radius-sm);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: 500; /* Standard weight for modal buttons */
+    font-weight: 500; 
 }
-#saveSettingsButton { 
-    /* Uses .button-primary from general button theming */
-}
-.modal-content .secondary-button {
-     /* Uses .button-secondary from general button theming */
-}
-.modal-content .button-tertiary {
-    /* Uses .button-tertiary from general button theming */
-}
-/* Removed .close-button styles as it's removed from HTML */
+/* Apply button classes directly in HTML */
+/* #saveSettingsButton {} */
+/* .modal-content .secondary-button {} */
+/* .modal-content .button-tertiary {} */
