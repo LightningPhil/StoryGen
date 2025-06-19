@@ -1,8 +1,12 @@
+// READING_AGE_ADJUSTMENT_TEXT_TEMPLATE is already defined and is suitable.
+// No changes needed to other prompt templates as ${READING_AGE_NOTE} will either be empty or contain the formatted text.
+
 export const READING_AGE_ADJUSTMENT_TEXT_TEMPLATE = `
 **Reading Age Adjustment Note (Target: \${targetReadingAge} years old):**
 Please adjust the story's vocabulary and sentence structures to be accessible and engaging for a child approximately \${targetReadingAge} years old. Aim for clarity and ease of understanding, using common words appropriate for this age and shorter, more direct sentences where suitable. This is about enhancing readability for younger independent readers or for easier read-aloud comprehension, without losing the story's charm or core message.
 `;
 
+// ... (all other PROMPT_AGENT_... templates remain the same as the last full version)
 export const PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE = `You are an award-winning author of enchanting children's stories, known for crafting tales that captivate young minds and delight the adults who read to them. Your task is to create a story based on the characters, audience, and any user suggestions provided, following the structure and techniques described in the chosen Craft Guide.
 
 The story should be based on the following characters: **\${charactersList}**.
