@@ -12,7 +12,14 @@ export const LS_ADJUST_READING_AGE_ENABLED = 'adjustReadingAgeEnabled_storyCircl
 export const LS_TARGET_READING_AGE = 'targetReadingAge_storyCircle';       // For the slider value
 export const LS_READING_AGE_MIN = 'readingAgeMin_storyCircle'; 
 export const LS_READING_AGE_MAX = 'readingAgeMax_storyCircle'; 
-export const LS_ENABLE_CONSOLIDATOR = 'enableConsolidator_storyCircle'; // New key for consolidator
+export const LS_ENABLE_CONSOLIDATOR = 'enableConsolidator_storyCircle';
+
+// --- New Keys for Stylistic Controls ---
+export const LS_SELECTED_AUTHOR_STYLE = 'storySelectedAuthorStyle_storyCircle';
+export const LS_ADJUSTMENT_TONE = 'storyAdjustmentTone_storyCircle';
+export const LS_ADJUSTMENT_PACING = 'storyAdjustmentPacing_storyCircle';
+export const LS_ADJUSTMENT_HUMOR = 'storyAdjustmentHumor_storyCircle';
+export const LS_ADJUSTMENT_EMOTION = 'storyAdjustmentEmotion_storyCircle';
 
 
 export function saveToLocalStorage(key, value) {

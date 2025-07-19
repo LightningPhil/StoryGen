@@ -31,7 +31,6 @@
                 <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7">
 
                 <div class="control-group">
-                    <!-- Removed group title -->
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="useEngineSuggestionsCheckbox">
                         <label for="useEngineSuggestionsCheckbox" class="checkbox-label">Delegate suggestions to Story Engine</label>
@@ -41,7 +40,6 @@
                 </div>
 
                 <div class="control-group">
-                    <!-- Removed group title -->
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="enableReadingAgeAdjustmentCheckbox">
                         <label for="enableReadingAgeAdjustmentCheckbox" class="checkbox-label">Adjust reading age</label>
@@ -56,7 +54,6 @@
                 </div>
 
                 <div class="control-group">
-                    <!-- Removed group title -->
                     <div class="checkbox-wrapper">
                         <input type="checkbox" id="enableConsolidatorCheckbox">
                         <label for="enableConsolidatorCheckbox" class="checkbox-label">Consolidate story for conciseness</label>
@@ -71,6 +68,15 @@
                     <!-- Summary will appear here -->
                 </div>
 
+                <label for="authorStyleSelect">Authorial Style</label>
+                <select id="authorStyleSelect">
+                    <!-- Options will be populated by script.js -->
+                </select>
+                <div id="styleSummary" class="framework-summary">
+                    <!-- Summary will appear here -->
+                </div>
+
+                <button id="adjustmentsButton" class="button-secondary button-fullwidth">Adjust Tone & Style...</button>
                 <button id="generateButton" class="button-primary">Generate Story</button>
             </section>
         </aside>
@@ -118,6 +124,42 @@
             </div>
             <div id="storyOutput">Your story will appear here...</div>
         </main>
+    </div>
+
+    <!-- Adjustments Modal -->
+    <div id="adjustmentsModal" class="modal">
+        <div class="modal-content">
+            <h2>Stylistic Adjustments</h2>
+            
+            <div class="form-row modal-two-col">
+                <div class="form-group">
+                    <label for="toneSelect">Tone</label>
+                    <select id="toneSelect"></select>
+                </div>
+                <div class="form-group">
+                    <label for="pacingSelect">Pacing & Cadence</label>
+                    <select id="pacingSelect"></select>
+                </div>
+            </div>
+
+            <div class="form-row modal-two-col">
+                <div class="form-group">
+                    <label for="humorSelect">Humor Style</label>
+                    <select id="humorSelect"></select>
+                </div>
+                <div class="form-group">
+                    <label for="emotionSelect">Emotional Journey</label>
+                    <select id="emotionSelect"></select>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <div class="modal-main-actions">
+                    <button id="cancelAdjustmentsButton" class="button-tertiary">Cancel</button>
+                    <button id="saveAdjustmentsButton" class="button-primary">Save & Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Settings Modal -->

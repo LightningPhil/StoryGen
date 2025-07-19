@@ -379,6 +379,13 @@ button:focus-visible {
     border-color: #adb5bd;
 }
 
+.button-secondary.button-fullwidth {
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
 .button-tertiary {
     background-color: transparent;
     color: var(--color-button-tertiary-text);
@@ -533,6 +540,11 @@ button:focus-visible {
     grid-template-columns: 1fr 1fr; 
     gap: 15px; 
     align-items: end; 
+}
+
+.modal-content .form-row.modal-two-col .form-group {
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-content .form-row.modal-two-col .form-group label {

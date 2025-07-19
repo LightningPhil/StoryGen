@@ -3,8 +3,9 @@ import appState from './appState.js';
 
 // --- DOM Element References (initialized by initUIElements) ---
 let storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton;
-let copyStoryButton, saveStoryButton, decreaseFontButton, increaseFontButton; // Added font buttons
+let copyStoryButton, saveStoryButton, decreaseFontButton, increaseFontButton;
 let craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea;
+let authorStyleSelect, styleSummaryDiv, adjustmentsButton; // New UI elements
 
 export function initUIElements(elements) {
     storyTitleDiv = elements.storyTitleDiv;
@@ -13,19 +14,24 @@ export function initUIElements(elements) {
     elaborateStoryButton = elements.elaborateStoryButton;
     copyStoryButton = elements.copyStoryButton;
     saveStoryButton = elements.saveStoryButton;
-    decreaseFontButton = elements.decreaseFontButton; // New
-    increaseFontButton = elements.increaseFontButton; // New
+    decreaseFontButton = elements.decreaseFontButton;
+    increaseFontButton = elements.increaseFontButton;
     craftingFrameworkSelect = elements.craftingFrameworkSelect;
     frameworkSummaryDiv = elements.frameworkSummaryDiv;
     useEngineSuggestionsCheckbox = elements.useEngineSuggestionsCheckbox;
     userSuggestionsTextarea = elements.userSuggestionsTextarea;
 
+    // New element references
+    authorStyleSelect = elements.authorStyleSelect;
+    styleSummaryDiv = elements.styleSummaryDiv;
+    adjustmentsButton = elements.adjustmentsButton;
+
     // Initial state for action buttons (hidden)
     if (copyStoryButton) copyStoryButton.classList.add('hidden');
     if (saveStoryButton) saveStoryButton.classList.add('hidden');
     if (elaborateStoryButton) elaborateStoryButton.classList.add('hidden');
-    if (decreaseFontButton) decreaseFontButton.classList.add('hidden'); // New
-    if (increaseFontButton) increaseFontButton.classList.add('hidden'); // New
+    if (decreaseFontButton) decreaseFontButton.classList.add('hidden');
+    if (increaseFontButton) increaseFontButton.classList.add('hidden');
 
 
     if (storyTitleDiv) { 
@@ -65,8 +71,8 @@ export function displayFinalStoryOutput(title, storyText, isElaboration = false)
     // Show all action buttons
     if (copyStoryButton) copyStoryButton.classList.remove('hidden');
     if (saveStoryButton) saveStoryButton.classList.remove('hidden');
-    if (decreaseFontButton) decreaseFontButton.classList.remove('hidden'); // New
-    if (increaseFontButton) increaseFontButton.classList.remove('hidden'); // New
+    if (decreaseFontButton) decreaseFontButton.classList.remove('hidden');
+    if (increaseFontButton) increaseFontButton.classList.remove('hidden');
     if (elaborateStoryButton) {
         elaborateStoryButton.classList.remove('hidden');
         if (generateButton && !generateButton.disabled) {
@@ -90,8 +96,8 @@ export function displayErrorInStoryOutput(errorMessage) {
     // Hide action buttons on error
     if (copyStoryButton) copyStoryButton.classList.add('hidden');
     if (saveStoryButton) saveStoryButton.classList.add('hidden');
-    if (decreaseFontButton) decreaseFontButton.classList.add('hidden'); // New
-    if (increaseFontButton) increaseFontButton.classList.add('hidden'); // New
+    if (decreaseFontButton) decreaseFontButton.classList.add('hidden');
+    if (increaseFontButton) increaseFontButton.classList.add('hidden');
     if (elaborateStoryButton) {
         elaborateStoryButton.classList.add('hidden');
         elaborateStoryButton.disabled = true; 
@@ -109,6 +115,14 @@ export function updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES_DATA) {
     frameworkSummaryDiv.textContent = summary;
 }
 
+// New function for author style summary
+export function updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES_DATA) {
+    if (!authorStyleSelect || !styleSummaryDiv) return;
+    const selectedStyleKey = authorStyleSelect.value;
+    const summary = STORY_STYLE_SUMMARIES_DATA[selectedStyleKey] || "No summary available for this style.";
+    styleSummaryDiv.textContent = summary;
+}
+
 export function updateSuggestionsTextareaStyle() {
     if (!userSuggestionsTextarea || !useEngineSuggestionsCheckbox) return;
     const isDisabled = useEngineSuggestionsCheckbox.checked;
@@ -120,11 +134,13 @@ export function updateSuggestionsTextareaStyle() {
 export function disableMainControls() {
     if (generateButton) generateButton.disabled = true;
     if (elaborateStoryButton) elaborateStoryButton.disabled = true;
+    if (adjustmentsButton) adjustmentsButton.disabled = true;
     // Font buttons usability depends on story presence, managed by displayFinalStoryOutput/displayErrorInStoryOutput
 }
 
 export function enableMainControls() {
     if (generateButton) generateButton.disabled = false;
+    if (adjustmentsButton) adjustmentsButton.disabled = false;
     
     if (appState.latestGeneratedStoryText && elaborateStoryButton) {
         elaborateStoryButton.disabled = false;
@@ -140,5 +156,21 @@ export function enableMainControls() {
 export function applyStoryFontSize(newSizeRem) {
     if (storyOutputDiv && typeof newSizeRem === 'number' && newSizeRem > 0) {
         storyOutputDiv.style.fontSize = `${newSizeRem}rem`;
+    }
+}
+
+// New generic function to populate dropdowns
+export function populateDropdown(selectElement, optionsObject, capitalize = true) {
+    if (!selectElement || !optionsObject) return;
+    selectElement.innerHTML = '';
+    for (const key in optionsObject) {
+        const option = document.createElement('option');
+        option.value = key;
+        let textContent = key.replace(/_/g, ' ');
+        if (capitalize) {
+            textContent = textContent.charAt(0).toUpperCase() + textContent.slice(1);
+        }
+        option.textContent = textContent;
+        selectElement.appendChild(option);
     }
 }
