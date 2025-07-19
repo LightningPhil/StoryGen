@@ -11,6 +11,8 @@ const UNIVERSAL_CRAFT_STANDARDS = `
 ---
 `;
 
+// --- Original Frameworks ---
+
 const STORY_CIRCLE_GUIDE = `
 **Instructions for Story Creation using Dan Harmon's Story Circle:**
 
@@ -160,7 +162,227 @@ const CHEKHOVS_SKETCH_GUIDE = `
 4. End with an *image,* not explanation—let reader infer meaning.
 `;
 
+// --- New Frameworks from .md file ---
+
+const SAVE_THE_CAT_GUIDE = `
+## Save the Cat! Beat Sheet
+
+#### Step Outline (15 beats)
+1. Opening Image  
+2. Theme Stated  
+3. Set-up  
+4. Catalyst (≈ 12%)  
+5. Debate  
+6. Break into 2 (Act 2)  
+7. B-Story  
+8. Fun & Games  
+9. Midpoint (50%)  
+10. Bad Guys Close In  
+11. All Is Lost (≈ 75%)  
+12. Dark Night of the Soul  
+13. Break into 3 (Act 3)  
+14. Finale  
+15. Final Image  
+
+#### Craft Checklist (Must-Follow)
+- State the **theme** in Beat 2 (≤ 15 words).  
+- Provide three escalating **Fun & Games** set-pieces.  
+- Include a **“whiff of death”** in All Is Lost.  
+- Mirror the Opening Image in the Finale.
+`;
+
+const SEVEN_POINT_STRUCTURE_GUIDE = `
+## Seven-Point Story Structure
+
+#### Step Outline
+1. Hook  
+2. First Plot Point  
+3. First Pinch (pressure)  
+4. Midpoint (shift)  
+5. Second Pinch (worst loss)  
+6. Second Plot Point  
+7. Resolution  
+
+#### Craft Checklist (Must-Follow)
+- Reveal protagonist’s **core flaw** in the Hook through action.  
+- Each **Pinch** removes an ally or resource and doubles stakes.  
+- Force an internal reversal at the **Midpoint**.  
+- Echo the Hook image in the Resolution.
+`;
+
+const SNOWFLAKE_METHOD_GUIDE = `
+## Snowflake Method (Iterative Expansion)
+
+#### Step Outline (10 passes)
+1. One-Sentence Summary  
+2. One-Paragraph Blurb  
+3. Character Summaries  
+4. Expanded Synopsis (1 page)  
+5. Character Deep-Dives (1 page each)  
+6. Four-Page Story Synopsis  
+7. Detailed Character Charts  
+8. Scene-List Spreadsheet  
+9. Full Narrative Description  
+10. Draft Manuscript  
+
+#### Craft Checklist (Must-Follow)
+- Cap **Step 1** at 25 words: protagonist + conflict + hook.  
+- After Step 4, add a **ticking clock** sentence.  
+- Cut or merge scenes lacking conflict in Step 8.  
+- Delay rich sensory detail until Step 9+.
+`;
+
+const FICHTEAN_CURVE_GUIDE = `
+## Fichtean Curve (“Crisis Ladder”)
+
+#### Step Outline
+1. Inciting Incident  
+2. Crisis 1  
+3. Reflection / Mini-Resolution  
+4. Crisis 2 (worse)  
+5. Reflection  
+6. Crisis 3 (worst)  
+7. Climax  
+8. Denouement  
+
+#### Craft Checklist (Must-Follow)
+- Begin **in medias res** within three paragraphs.  
+- Each crisis **forces a new decision** that deepens the flaw.  
+- Keep reflections under 150 words, ending on forward momentum.  
+- Resolve the **emotional arc** before plot loose ends.
+`;
+
+const GRIMMS_FOREST_PATH_GUIDE = `
+## Grimms’ Fairy-Tale Pattern (“Forest Path”)
+
+#### Step Outline (12 beats)
+1. Opening Formula (“Once upon a time…”)  
+2. Protagonist’s Hardship or Desire  
+3. Meeting the Supernatural  
+4. Trial #1  
+5. Trial #2  
+6. Trial #3  
+7. Descent / Darkest Peril  
+8. Clever or Compassionate Act  
+9. Magical Reward / Transformation  
+10. Punishment of the Wrongdoer  
+11. Moral Glimmer  
+12. Closing Formula (“…and if they haven’t died…”)  
+
+#### Craft Checklist (Must-Follow)
+1. Add an archaic word every ~120 words (“thither”, “quoth”).  
+2. Use the **rule of three** to escalate trials with a repeated motif.  
+3. Hint at genuine peril—abandonment, dismemberment, or death.  
+4. Give one line of dialogue to a **talking creature/object**.  
+5. Describe the villain’s punishment in one vivid sentence.  
+6. Finish with a moral ≤ 25 words.  
+7. Target sentences ~15 % longer than default.
+`;
+
+const GRIMMS_WISH_MIRROR_GUIDE = `
+## Grimms’ Wish-Mirror Pattern (“Rippled Lake”)
+
+#### Step Outline (11 beats)
+1. Opening Formula (“In days long vanished…”)  
+2. Yearning Revealed  
+3. Forbidden Bargain / Wish Granted  
+4. First Boon  
+5. Subtle Consequence  
+6. Second Boon  
+7. Dire Consequence (mirror twist)  
+8. Third Boon  
+9. Catastrophic Reversal  
+10. Atonement or Cunning Escape  
+11. Moral Echo  
+
+#### Craft Checklist (Must-Follow)
+1. Employ archaic verbs (“beseeched”, “abideth”).  
+2. Reference **mirrors, water, or reflections** at least three times.  
+3. Keep a triadic rhythm: three boons/wishes doubling stakes.  
+4. Make final punishment the **inverse** of the desire.  
+5. Let the granter speak one **rhymed couplet**.  
+6. Include an unsettling tactile detail.  
+7. Average sentence length ≈ 20 words.
+`;
+
+const GRIMMS_HIDDEN_BEAST_GUIDE = `
+## Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)
+
+#### Step Outline (12 beats)
+1. Enchanted Beast Encounter  
+2. Pact or Marriage under Condition  
+3. Life with the Beast in Secrecy  
+4. Forbidden Act / Broken Taboo  
+5. Sudden Separation and Lament  
+6. Quest for Lost Bridegroom  
+7. Trio of Impossible Tasks  
+8. Aid from Secret Helpers  
+9. Disenchantment / True Form Revealed  
+10. Reunion and Wedding Feast  
+11. Humbling of Betrayer  
+12. Moral of Constancy  
+
+#### Craft Checklist (Must-Follow)
+- Paint the beast in one vivid multi-sensory sentence.  
+- Establish a strict **taboo** (no light, no questions, etc.).  
+- Present exactly **three impossible tasks**, solved through kindness.  
+- Transform the beast in a single, colorful paragraph.  
+- Maintain romantic-gothic tone; no modern humor.  
+- Close with a moral praising loyalty.
+`;
+
+const GRIMMS_SIBLING_QUEST_GUIDE = `
+## Grimms’ Sibling-Quest Pattern (“Swans & Stars”)
+
+#### Step Outline (12 beats)
+1. Cursed Siblings Prologue  
+2. Sole Survivor’s Rescue Vow  
+3. Flight into the Wild Wood  
+4. Meeting Benevolent Helper  
+5. Gathering Painful Materials  
+6. Silent Toil and Sacrifice  
+7. Villain’s Interference  
+8. Trial by Fire or Execution  
+9. Final Moment of Transformation  
+10. Liberation of Siblings  
+11. Punishment of Malefactor  
+12. Harmonious Reign  
+
+#### Craft Checklist (Must-Follow)
+- Repeat a sibling-bond phrase three times (“blood of my blood”).  
+- Include one full scene of **silent suffering** (no dialogue).  
+- Use vivid nature imagery: moonlit reeds, starlit wings.  
+- Time the transformation with the execution stroke.  
+- Mirror cruelty in the villain’s punishment.  
+- End on a pastoral image of restored family.
+`;
+
+const GRIMMS_TRICKSTER_TRIUMPH_GUIDE = `
+## Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)
+
+#### Step Outline (9 beats)
+1. Humble Trickster Introduction  
+2. Chance Boast or Deception  
+3. Authority Imposes Task #1  
+4. Wily Solution to Task #1  
+5. Task #2 and Mischievous Fix  
+6. Task #3 and Daring Bluff  
+7. Rivals Turned on Each Other  
+8. Reward (Marriage, Wealth, Kingdom)  
+9. Winking Epilogue  
+
+#### Craft Checklist (Must-Follow)
+- Open with an archaic exclamation (“Gadzooks!”).  
+- Ensure each trick fools both mighty and simple.  
+- Use humorous hyperbole (“seven with one blow”).  
+- Keep trickster’s methods mysterious.  
+- Maintain brisk pace; no reflection > 100 words.  
+- End on a playful wink to the reader.
+`;
+
+
 export const STORY_CRAFTING_GUIDES = {
+    // Original frameworks
     "Dan Harmon's Story Circle": UNIVERSAL_CRAFT_STANDARDS + STORY_CIRCLE_GUIDE,
     "Three-Act Structure": UNIVERSAL_CRAFT_STANDARDS + THREE_ACT_STRUCTURE_GUIDE,
     "Kishōtenketsu": UNIVERSAL_CRAFT_STANDARDS + KISHOTENKETSU_GUIDE,
@@ -169,10 +391,22 @@ export const STORY_CRAFTING_GUIDES = {
     "“But, Therefore” Chain": UNIVERSAL_CRAFT_STANDARDS + BUT_THEREFORE_CHAIN_GUIDE,
     "Pixar Story Spine": UNIVERSAL_CRAFT_STANDARDS + PIXAR_STORY_SPINE_GUIDE,
     "Chekhov’s Sketch": UNIVERSAL_CRAFT_STANDARDS + CHEKHOVS_SKETCH_GUIDE,
+    // New Universal Frameworks
+    "Save the Cat! Beat Sheet": UNIVERSAL_CRAFT_STANDARDS + SAVE_THE_CAT_GUIDE,
+    "Seven-Point Story Structure": UNIVERSAL_CRAFT_STANDARDS + SEVEN_POINT_STRUCTURE_GUIDE,
+    "Snowflake Method (Iterative Expansion)": UNIVERSAL_CRAFT_STANDARDS + SNOWFLAKE_METHOD_GUIDE,
+    "Fichtean Curve (“Crisis Ladder”)": UNIVERSAL_CRAFT_STANDARDS + FICHTEAN_CURVE_GUIDE,
+    // New Grimm's Frameworks
+    "Grimms’ Fairy-Tale Pattern (“Forest Path”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_FOREST_PATH_GUIDE,
+    "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_WISH_MIRROR_GUIDE,
+    "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_HIDDEN_BEAST_GUIDE,
+    "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_SIBLING_QUEST_GUIDE,
+    "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_TRICKSTER_TRIUMPH_GUIDE,
 };
 
-// New: Summaries for each framework
+// Updated: Summaries for each framework
 export const STORY_FRAMEWORK_SUMMARIES = {
+    // Original summaries
     "Dan Harmon's Story Circle": "An 8-step circular journey focusing on a character leaving their comfort zone, facing challenges, and returning changed. Popularized by Dan Harmon.",
     "Three-Act Structure": "A classic model dividing a story into Setup (Act 1), Confrontation (Act 2), and Resolution (Act 3). Common in screenwriting and literature.",
     "Kishōtenketsu": "A four-act East Asian structure (Introduction, Development, Twist, Conclusion) that builds tension through contrast and surprise, often without direct conflict.",
@@ -180,5 +414,15 @@ export const STORY_FRAMEWORK_SUMMARIES = {
     "Hero’s Journey (Condensed)": "A condensed version of Joseph Campbell's Monomyth, outlining a hero's adventure, ordeal, and transformation across key stages.",
     "“But, Therefore” Chain": "A pacing and plotting technique emphasizing cause-and-effect by connecting story beats with 'But' (introducing an obstacle) or 'Therefore' (showing a consequence).",
     "Pixar Story Spine": "A simple sentence-scaffold ('Once upon a time... Every day... Until one day...') that outlines a character-driven story arc with escalating stakes. Used by Pixar.",
-    "Chekhov’s Sketch": "A short, impressionistic narrative focusing on mood, character insight, and a subtle internal shift, rather than a strong plot. Often open-ended."
+    "Chekhov’s Sketch": "A short, impressionistic narrative focusing on mood, character insight, and a subtle internal shift, rather than a strong plot. Often open-ended.",
+    // New summaries
+    "Save the Cat! Beat Sheet": "A detailed 15-beat story structure, popular in screenwriting, that maps out key plot points from opening image to finale.",
+    "Seven-Point Story Structure": "A plot structure focusing on two major turning points (Plot Points) and two pressure points (Pinches) that frame the story's Midpoint.",
+    "Snowflake Method (Iterative Expansion)": "A design process for writing stories where you start with a single sentence and build it out into a full narrative through ten iterative passes.",
+    "Fichtean Curve (“Crisis Ladder”)": "A plot structure that begins in the middle of the action and follows a character through a series of escalating crises, with brief moments of reflection, leading to a climax.",
+    "Grimms’ Fairy-Tale Pattern (“Forest Path”)": "A classic fairy-tale template following a protagonist through hardship, a series of three trials, and a magical resolution, often with a clear moral.",
+    "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
+    "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
+    "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
+    "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery."
 };
