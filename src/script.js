@@ -36,18 +36,8 @@ import appState from './appState.js';
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
 import { ADJUSTMENT_MODULES } from './prompts/adjustment_modules.js';
-import {
-    READING_AGE_ADJUSTMENT_TEXT_TEMPLATE, 
-    PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
-    PROMPT_AGENT_2_ELABORATOR_TEMPLATE,
-    PROMPT_AGENT_3_REVIEWER_TEMPLATE,
-    PROMPT_AGENT_4_POLISHER_TEMPLATE,
-    PROMPT_AGENT_5_CLEANER_TEMPLATE,
-    PROMPT_AGENT_6_TITLER_TEMPLATE,
-    PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE,
-} from './prompts/agent_prompts.js';
-import { callAgentAPI } from './api.js';
-import { parseCharacters, constructAgentPrompt, countWords } from './utils.js'; 
+import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts.js';
+import { parseCharacters, countWords } from './utils.js'; 
 import { 
     initUIElements,
     updateStatusInStoryOutput, 
@@ -63,6 +53,8 @@ import {
     applyStoryFontSize,
     populateDropdown
 } from './ui.js';
+// --- New Pipeline Module Import ---
+import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
@@ -74,57 +66,13 @@ let readingAgeMinInput, readingAgeMaxInput;
 let enableConsolidatorCheckbox;
 let authorStyleSelect, styleSummaryDiv, adjustmentsButton, adjustmentsModal, cancelAdjustmentsButton, saveAdjustmentsButton;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
-// New Agent Toggle Elements
 let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
 
 // --- Application State for Font Size ---
 let currentStoryFontSizeRem = DEFAULT_STORY_FONT_SIZE_REM;
 
-// --- Agent Definitions (Base) ---
-const AGENT_1_CRAFTER_DEF = { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
-const AGENT_2_ELABORATOR_DEF = { name: "Agent 2: Elaborator", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
-const AGENT_C_CONSOLIDATOR_DEF = { name: "Agent C: Consolidator", promptTemplate: PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
-const AGENT_3_REVIEWER_DEF = { name: "Agent 3: Reviewer", promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'reviewText' };
-const AGENT_4_POLISHER_DEF = { name: "Agent 4: Polisher", promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE, dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
-const AGENT_5_CLEANER_DEF = { name: "Agent 5: Cleaner", promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE, dataKeys: ['storyText'], outputKey: 'storyText' };
-const AGENT_6_TITLER_DEF = { name: "Agent 6: Titler", promptTemplate: PROMPT_AGENT_6_TITLER_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE'], outputKey: 'titleText' };
 
-
-// --- Dynamic Pipeline Configuration Functions ---
-function getStoryGenerationPipelineConfig(enableConsolidator) {
-    const pipeline = [
-        AGENT_1_CRAFTER_DEF,
-        AGENT_2_ELABORATOR_DEF,
-    ];
-    if (enableConsolidator) {
-        pipeline.push(AGENT_C_CONSOLIDATOR_DEF);
-    }
-    pipeline.push(AGENT_3_REVIEWER_DEF);
-    pipeline.push(AGENT_4_POLISHER_DEF);
-    if (enableConsolidator) {
-        pipeline.push(AGENT_C_CONSOLIDATOR_DEF);
-    }
-    pipeline.push(AGENT_5_CLEANER_DEF);
-    pipeline.push(AGENT_6_TITLER_DEF);
-    
-    return pipeline.map((agent, index) => ({ ...agent, step: `${index + 1}/${pipeline.length}` }));
-}
-
-function getElaborationPipelineConfig(enableConsolidator) {
-    const pipeline = [
-        AGENT_2_ELABORATOR_DEF,
-        AGENT_3_REVIEWER_DEF,
-        AGENT_4_POLISHER_DEF,
-    ];
-    if (enableConsolidator) {
-        pipeline.push(AGENT_C_CONSOLIDATOR_DEF);
-    }
-    pipeline.push(AGENT_5_CLEANER_DEF);
-
-    return pipeline.map((agent, index) => ({ ...agent, step: `${index + 1}/${pipeline.length}` }));
-}
-
-
+// --- UI Helper Functions ---
 function updateTargetReadingAgeSliderDOMState() {
     if (!targetReadingAgeSlider || !readingAgeMinInput || !readingAgeMaxInput || !enableReadingAgeAdjustmentCheckbox || !readingAgeSliderContainer) return;
     
@@ -144,7 +92,6 @@ function updateTargetReadingAgeSliderDOMState() {
     readingAgeSliderContainer.classList.toggle('disabled', !isEnabled);
 }
 
-// New function to control Agent Thinking Toggles UI
 function updateAgentTogglesUI() {
     if (!modalModelSelect || !agentTogglesContainer) return;
     const selectedModelId = modalModelSelect.value;
@@ -155,8 +102,9 @@ function updateAgentTogglesUI() {
 }
 
 
+// --- Main Application Logic ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Get existing elements
+    // Get DOM elements
     modalApiKeyInput = document.getElementById('modalApiKeyInput');
     modalModelSelect = document.getElementById('modalModelSelect');
     minApiIntervalInput = document.getElementById('minApiIntervalInput'); 
@@ -195,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pacingSelect = document.getElementById('pacingSelect');
     humorSelect = document.getElementById('humorSelect');
     emotionSelect = document.getElementById('emotionSelect');
-    // Get New Agent Toggle Elements
     agentTogglesContainer = document.getElementById('agentTogglesContainer');
     agent1CrafterToggle = document.getElementById('agent1CrafterToggle');
     agent2ElaboratorToggle = document.getElementById('agent2ElaboratorToggle');
@@ -224,46 +171,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome! Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
     enableMainControls();
 
-    // Populate Frameworks Dropdown
-    Object.keys(STORY_CRAFTING_GUIDES).forEach(key => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = key;
-        craftingFrameworkSelect.appendChild(option);
-    });
+    // Populate UI elements
+    populateDropdown(craftingFrameworkSelect, STORY_CRAFTING_GUIDES, false);
     const storedFramework = loadFromLocalStorage(LS_SELECTED_FRAMEWORK);
     if (storedFramework && STORY_CRAFTING_GUIDES[storedFramework]) {
         craftingFrameworkSelect.value = storedFramework;
     }
     updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES); 
-    craftingFrameworkSelect.addEventListener('change', () => {
-        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
-        saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
-    });
-    
-    // Populate Author Style Dropdown
+
     populateDropdown(authorStyleSelect, STORY_STYLE_GUIDES, false);
     authorStyleSelect.value = loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || "Default (No Specific Style)";
     updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
-    authorStyleSelect.addEventListener('change', () => {
-        updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
-        saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, authorStyleSelect.value);
-    });
 
-    // Populate Adjustment Module Dropdowns
     populateDropdown(toneSelect, ADJUSTMENT_MODULES.tone);
     populateDropdown(pacingSelect, ADJUSTMENT_MODULES.pacing);
     populateDropdown(humorSelect, ADJUSTMENT_MODULES.humor);
     populateDropdown(emotionSelect, ADJUSTMENT_MODULES.emotion);
     
-    // Load saved adjustment values
+    // Load all saved settings from Local Storage
     toneSelect.value = loadFromLocalStorage(LS_ADJUSTMENT_TONE) || 'none';
     pacingSelect.value = loadFromLocalStorage(LS_ADJUSTMENT_PACING) || 'default';
     humorSelect.value = loadFromLocalStorage(LS_ADJUSTMENT_HUMOR) || 'none';
     emotionSelect.value = loadFromLocalStorage(LS_ADJUSTMENT_EMOTION) || 'default';
 
-
-    // --- Load other settings from Local Storage ---
     modalModelSelect.innerHTML = ''; 
     Object.keys(AVAILABLE_MODELS).forEach(id => {
         const option = document.createElement('option');
@@ -289,11 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTargetReadingAgeSliderDOMState(); 
 
     enableConsolidatorCheckbox.checked = (loadFromLocalStorage(LS_ENABLE_CONSOLIDATOR) === 'true');
-    enableConsolidatorCheckbox.addEventListener('change', () => {
-        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, enableConsolidatorCheckbox.checked.toString());
-    });
-
-    // --- Load Agent Toggle States ---
+    
     agent1CrafterToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true';
     agent2ElaboratorToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true';
     agent3ReviewerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_3_REVIEWER) ?? 'true') === 'true';
@@ -305,6 +231,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Event Listeners ---
+    craftingFrameworkSelect.addEventListener('change', () => {
+        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
+        saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
+    });
+
+    authorStyleSelect.addEventListener('change', () => {
+        updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
+        saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, authorStyleSelect.value);
+    });
+
     useEngineSuggestionsCheckbox.addEventListener('change', () => {
         updateSuggestionsTextareaStyle();
         saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, useEngineSuggestionsCheckbox.checked.toString());
@@ -326,18 +262,21 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTargetReadingAgeSliderDOMState();
     });
 
+    enableConsolidatorCheckbox.addEventListener('change', () => {
+        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, enableConsolidatorCheckbox.checked.toString());
+    });
+
     // Settings Modal
     settingsButton.addEventListener('click', () => {
-        // Load current settings into modal before showing
         modalModelSelect.value = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
         modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || ''; 
         minApiIntervalInput.value = loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString();
         readingAgeMinInput.value = loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString();
         readingAgeMaxInput.value = loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString();
-        updateAgentTogglesUI(); // Ensure toggles are correctly enabled/disabled when modal opens
+        updateAgentTogglesUI();
         settingsModal.classList.add('active');
     });
-    modalModelSelect.addEventListener('change', updateAgentTogglesUI); // Add listener to model select
+    modalModelSelect.addEventListener('change', updateAgentTogglesUI);
     cancelSettingsButton.addEventListener('click', () => settingsModal.classList.remove('active'));
     saveSettingsButton.addEventListener('click', () => {
         saveToLocalStorage(LS_API_KEY, modalApiKeyInput.value);
@@ -345,7 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_MIN_API_INTERVAL, minApiIntervalInput.value);
         saveToLocalStorage(LS_READING_AGE_MIN, readingAgeMinInput.value); 
         saveToLocalStorage(LS_READING_AGE_MAX, readingAgeMaxInput.value);
-        // Save agent toggle states
         saveToLocalStorage(LS_THINKING_AGENT_1_CRAFTER, agent1CrafterToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_2_ELABORATOR, agent2ElaboratorToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_3_REVIEWER, agent3ReviewerToggle.checked.toString());
@@ -353,7 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_THINKING_AGENT_5_CLEANER, agent5CleanerToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_6_TITLER, agent6TitlerToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR, agentCConsolidatorToggle.checked.toString());
-
         updateTargetReadingAgeSliderDOMState(); 
         settingsModal.classList.remove('active');
         showTemporaryToast("Settings saved!", "success");
@@ -453,17 +390,15 @@ document.addEventListener('DOMContentLoaded', () => {
             ADJUSTMENT_MODULES.emotion[selectedEmotion]
         ].filter(Boolean).join('\n');
 
-        // New: Gather agent thinking config
         const agentThinkingConfig = {
-            [AGENT_1_CRAFTER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true',
-            [AGENT_2_ELABORATOR_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true',
-            [AGENT_3_REVIEWER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_3_REVIEWER) ?? 'true') === 'true',
-            [AGENT_4_POLISHER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_4_POLISHER) ?? 'true') === 'true',
-            [AGENT_5_CLEANER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_5_CLEANER) ?? 'false') === 'true',
-            [AGENT_6_TITLER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_6_TITLER) ?? 'false') === 'true',
-            [AGENT_C_CONSOLIDATOR_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR) ?? 'true') === 'true',
+            "Agent 1: Story Crafter": (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true',
+            "Agent 2: Elaborator": (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true',
+            "Agent 3: Reviewer": (loadFromLocalStorage(LS_THINKING_AGENT_3_REVIEWER) ?? 'true') === 'true',
+            "Agent 4: Polisher": (loadFromLocalStorage(LS_THINKING_AGENT_4_POLISHER) ?? 'true') === 'true',
+            "Agent 5: Cleaner": (loadFromLocalStorage(LS_THINKING_AGENT_5_CLEANER) ?? 'false') === 'true',
+            "Agent 6: Titler": (loadFromLocalStorage(LS_THINKING_AGENT_6_TITLER) ?? 'false') === 'true',
+            "Agent C: Consolidator": (loadFromLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR) ?? 'true') === 'true',
         };
-        // Ensure thinking is only enabled for supported models
         const model = AVAILABLE_MODELS[modelId];
         const canThink = model ? model.supportsThinking : false;
         if (!canThink) {
@@ -501,53 +436,8 @@ document.addEventListener('DOMContentLoaded', () => {
             enableConsolidator,
             AUTHOR_STYLE_GUIDE: authorStyleGuideText,
             ADJUSTMENT_MODULES_TEXT: adjustmentModulesText,
-            agentThinkingConfig // New
+            agentThinkingConfig
         };
-    }
-
-    async function runPipeline(pipelineConfig, pipelineData, commonInputs) {
-        let currentPipelineData = { ...pipelineData }; 
-
-        for (const agentDef of pipelineConfig) {
-            updateStatusInStoryOutput(`Step ${agentDef.step}: ${agentDef.name.substring(agentDef.name.indexOf(':') + 2).replace('(Elaboration Cycle)', '').trim().replace('Story ', '')}...\n`);
-            
-            const agentDataObject = {};
-
-            agentDef.dataKeys.forEach(key => {
-                if (commonInputs.hasOwnProperty(key)) {
-                    agentDataObject[key] = commonInputs[key];
-                } else if (currentPipelineData.hasOwnProperty(key)) {
-                    agentDataObject[key] = currentPipelineData[key];
-                } else {
-                    console.warn(`Data key "${key}" for agent "${agentDef.name}" not found in commonInputs or pipelineData. Using empty string.`);
-                    agentDataObject[key] = ''; 
-                }
-            });
-            
-            const currentPrompt = constructAgentPrompt(agentDef.promptTemplate, agentDataObject);
-
-            // Determine if this specific agent should use thinking
-            const enableThinking = commonInputs.agentThinkingConfig[agentDef.name] || false;
-            
-            const agentOutput = await callAgentAPI(
-                currentPrompt, 
-                commonInputs.apiKey, 
-                commonInputs.modelId, 
-                agentDef.name, 
-                0, 
-                appState.lastRunChatLog, 
-                storyOutputDiv, 
-                commonInputs.minApiIntervalMs,
-                enableThinking // Pass the flag to the API call
-            );
-
-            if (agentDef.outputKey) {
-                currentPipelineData[agentDef.outputKey] = agentOutput;
-            } else {
-                currentPipelineData.storyText = agentOutput; 
-            }
-        }
-        return currentPipelineData;
     }
 
     async function handleGenerateStory() {
@@ -589,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentPipelineConfig = getStoryGenerationPipelineConfig(commonInputs.enableConsolidator);
 
         try {
-            const finalData = await runPipeline(currentPipelineConfig, initialPipelineData, commonInputs);
+            const finalData = await runPipeline(currentPipelineConfig, initialPipelineData, commonInputs, storyOutputDiv);
             
             appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
             appState.latestGeneratedStoryTitle = (finalData.titleText || "Untitled Story").trim();
@@ -638,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentPipelineConfig = getElaborationPipelineConfig(commonInputs.enableConsolidator);
 
         try {
-            const finalData = await runPipeline(currentPipelineConfig, initialPipelineData, commonInputs);
+            const finalData = await runPipeline(currentPipelineConfig, initialPipelineData, commonInputs, storyOutputDiv);
             
             appState.latestGeneratedStoryText = (finalData.storyText || "").trim();
             
