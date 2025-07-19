@@ -3,9 +3,9 @@
 // --- Configuration (Constants) ---
 const DEFAULT_GEMINI_MODEL_ID = "gemini-2.5-flash"; 
 const AVAILABLE_MODELS = { 
-    "gemini-2.5-flash": "Gemini-2.5-Flash",
-    "gemini-2.0-flash": "Gemini-2.0-Flash",
-    "gemini-1.5-flash": "Gemini-1.5-Flash"
+    "gemini-2.5-flash": { name: "Gemini-2.5-Flash", supportsThinking: true },
+    "gemini-2.0-flash": { name: "Gemini-2.0-Flash", supportsThinking: false },
+    "gemini-1.5-flash": { name: "Gemini-1.5-Flash", supportsThinking: false }
 };
 const DEFAULT_MIN_API_INTERVAL_S = 5; 
 const DEFAULT_READING_AGE_MIN = 5; 
@@ -23,17 +23,19 @@ import {
     LS_USE_ENGINE_SUGGESTIONS, LS_USER_SUGGESTIONS, LS_MIN_API_INTERVAL, 
     LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, 
     LS_READING_AGE_MIN, LS_READING_AGE_MAX, LS_ENABLE_CONSOLIDATOR,
-    // New LS Keys
     LS_SELECTED_AUTHOR_STYLE, LS_ADJUSTMENT_TONE, LS_ADJUSTMENT_PACING,
     LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION,
+    LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
+    LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
+    LS_THINKING_AGENT_C_CONSOLIDATOR,
     saveToLocalStorage, loadFromLocalStorage 
 } from './localStorage.js';
 
 // --- Imports from Modules ---
 import appState from './appState.js'; 
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
-import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js'; // New Import
-import { ADJUSTMENT_MODULES } from './prompts/adjustment_modules.js'; // New Import
+import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
+import { ADJUSTMENT_MODULES } from './prompts/adjustment_modules.js';
 import {
     READING_AGE_ADJUSTMENT_TEXT_TEMPLATE, 
     PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
@@ -54,12 +56,12 @@ import {
     displayErrorInStoryOutput, 
     showTemporaryToast, 
     updateFrameworkSummaryDisplay, 
-    updateAuthorStyleSummaryDisplay, // New
+    updateAuthorStyleSummaryDisplay,
     updateSuggestionsTextareaStyle,
     disableMainControls, 
     enableMainControls,
     applyStoryFontSize,
-    populateDropdown // New
+    populateDropdown
 } from './ui.js';
 
 // --- Global DOM Element Variables ---
@@ -70,15 +72,15 @@ let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
 let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
 let enableConsolidatorCheckbox;
-// New Elements
 let authorStyleSelect, styleSummaryDiv, adjustmentsButton, adjustmentsModal, cancelAdjustmentsButton, saveAdjustmentsButton;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
+// New Agent Toggle Elements
+let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
 
 // --- Application State for Font Size ---
 let currentStoryFontSizeRem = DEFAULT_STORY_FONT_SIZE_REM;
 
 // --- Agent Definitions (Base) ---
-// Added new dataKeys for style and adjustment modules
 const AGENT_1_CRAFTER_DEF = { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
 const AGENT_2_ELABORATOR_DEF = { name: "Agent 2: Elaborator", promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE, dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
 const AGENT_C_CONSOLIDATOR_DEF = { name: "Agent C: Consolidator", promptTemplate: PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT'], outputKey: 'storyText' };
@@ -142,8 +144,19 @@ function updateTargetReadingAgeSliderDOMState() {
     readingAgeSliderContainer.classList.toggle('disabled', !isEnabled);
 }
 
+// New function to control Agent Thinking Toggles UI
+function updateAgentTogglesUI() {
+    if (!modalModelSelect || !agentTogglesContainer) return;
+    const selectedModelId = modalModelSelect.value;
+    const model = AVAILABLE_MODELS[selectedModelId];
+    const canThink = model ? model.supportsThinking : false;
+
+    agentTogglesContainer.classList.toggle('disabled', !canThink);
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Existing elements
+    // Get existing elements
     modalApiKeyInput = document.getElementById('modalApiKeyInput');
     modalModelSelect = document.getElementById('modalModelSelect');
     minApiIntervalInput = document.getElementById('minApiIntervalInput'); 
@@ -172,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsButton = document.getElementById('settingsButton');
     cancelSettingsButton = document.getElementById('cancelSettingsButton');
     saveSettingsButton = document.getElementById('saveSettingsButton');
-    // New Elements
     authorStyleSelect = document.getElementById('authorStyleSelect');
     styleSummaryDiv = document.getElementById('styleSummary');
     adjustmentsButton = document.getElementById('adjustmentsButton');
@@ -183,9 +195,18 @@ document.addEventListener('DOMContentLoaded', () => {
     pacingSelect = document.getElementById('pacingSelect');
     humorSelect = document.getElementById('humorSelect');
     emotionSelect = document.getElementById('emotionSelect');
+    // Get New Agent Toggle Elements
+    agentTogglesContainer = document.getElementById('agentTogglesContainer');
+    agent1CrafterToggle = document.getElementById('agent1CrafterToggle');
+    agent2ElaboratorToggle = document.getElementById('agent2ElaboratorToggle');
+    agent3ReviewerToggle = document.getElementById('agent3ReviewerToggle');
+    agent4PolisherToggle = document.getElementById('agent4PolisherToggle');
+    agent5CleanerToggle = document.getElementById('agent5CleanerToggle');
+    agent6TitlerToggle = document.getElementById('agent6TitlerToggle');
+    agentCConsolidatorToggle = document.getElementById('agentCConsolidatorToggle');
 
 
-    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !adjustmentsModal) {
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !adjustmentsModal || !agentTogglesContainer) {
         console.error("Critical UI elements are missing. Application may not function correctly.");
         if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
         return;
@@ -220,8 +241,8 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
     });
     
-    // --- New: Populate Author Style Dropdown ---
-    populateDropdown(authorStyleSelect, STORY_STYLE_GUIDES, false); // false = don't capitalize
+    // Populate Author Style Dropdown
+    populateDropdown(authorStyleSelect, STORY_STYLE_GUIDES, false);
     authorStyleSelect.value = loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || "Default (No Specific Style)";
     updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
     authorStyleSelect.addEventListener('change', () => {
@@ -229,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, authorStyleSelect.value);
     });
 
-    // --- New: Populate Adjustment Module Dropdowns ---
+    // Populate Adjustment Module Dropdowns
     populateDropdown(toneSelect, ADJUSTMENT_MODULES.tone);
     populateDropdown(pacingSelect, ADJUSTMENT_MODULES.pacing);
     populateDropdown(humorSelect, ADJUSTMENT_MODULES.humor);
@@ -244,10 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Load other settings from Local Storage ---
     modalModelSelect.innerHTML = ''; 
-    Object.entries(AVAILABLE_MODELS).forEach(([id, name]) => {
+    Object.keys(AVAILABLE_MODELS).forEach(id => {
         const option = document.createElement('option');
         option.value = id;
-        option.textContent = name;
+        option.textContent = AVAILABLE_MODELS[id].name;
         modalModelSelect.appendChild(option);
     });
     modalModelSelect.value = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
@@ -271,6 +292,16 @@ document.addEventListener('DOMContentLoaded', () => {
     enableConsolidatorCheckbox.addEventListener('change', () => {
         saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, enableConsolidatorCheckbox.checked.toString());
     });
+
+    // --- Load Agent Toggle States ---
+    agent1CrafterToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true';
+    agent2ElaboratorToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true';
+    agent3ReviewerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_3_REVIEWER) ?? 'true') === 'true';
+    agent4PolisherToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_4_POLISHER) ?? 'true') === 'true';
+    agent5CleanerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_5_CLEANER) ?? 'false') === 'true';
+    agent6TitlerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_6_TITLER) ?? 'false') === 'true';
+    agentCConsolidatorToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR) ?? 'true') === 'true';
+    updateAgentTogglesUI();
 
 
     // --- Event Listeners ---
@@ -297,13 +328,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Settings Modal
     settingsButton.addEventListener('click', () => {
+        // Load current settings into modal before showing
         modalModelSelect.value = loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_GEMINI_MODEL_ID;
         modalApiKeyInput.value = loadFromLocalStorage(LS_API_KEY) || ''; 
         minApiIntervalInput.value = loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString();
         readingAgeMinInput.value = loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString();
         readingAgeMaxInput.value = loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString();
+        updateAgentTogglesUI(); // Ensure toggles are correctly enabled/disabled when modal opens
         settingsModal.classList.add('active');
     });
+    modalModelSelect.addEventListener('change', updateAgentTogglesUI); // Add listener to model select
     cancelSettingsButton.addEventListener('click', () => settingsModal.classList.remove('active'));
     saveSettingsButton.addEventListener('click', () => {
         saveToLocalStorage(LS_API_KEY, modalApiKeyInput.value);
@@ -311,12 +345,21 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_MIN_API_INTERVAL, minApiIntervalInput.value);
         saveToLocalStorage(LS_READING_AGE_MIN, readingAgeMinInput.value); 
         saveToLocalStorage(LS_READING_AGE_MAX, readingAgeMaxInput.value);
+        // Save agent toggle states
+        saveToLocalStorage(LS_THINKING_AGENT_1_CRAFTER, agent1CrafterToggle.checked.toString());
+        saveToLocalStorage(LS_THINKING_AGENT_2_ELABORATOR, agent2ElaboratorToggle.checked.toString());
+        saveToLocalStorage(LS_THINKING_AGENT_3_REVIEWER, agent3ReviewerToggle.checked.toString());
+        saveToLocalStorage(LS_THINKING_AGENT_4_POLISHER, agent4PolisherToggle.checked.toString());
+        saveToLocalStorage(LS_THINKING_AGENT_5_CLEANER, agent5CleanerToggle.checked.toString());
+        saveToLocalStorage(LS_THINKING_AGENT_6_TITLER, agent6TitlerToggle.checked.toString());
+        saveToLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR, agentCConsolidatorToggle.checked.toString());
+
         updateTargetReadingAgeSliderDOMState(); 
         settingsModal.classList.remove('active');
         showTemporaryToast("Settings saved!", "success");
     });
     
-    // New: Adjustments Modal
+    // Adjustments Modal
     adjustmentsButton.addEventListener('click', () => adjustmentsModal.classList.add('active'));
     cancelAdjustmentsButton.addEventListener('click', () => adjustmentsModal.classList.remove('active'));
     saveAdjustmentsButton.addEventListener('click', () => {
@@ -328,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showTemporaryToast("Style adjustments saved!", "success");
     });
 
-    // Other buttons
+    // Other buttons...
     downloadChatLogButton.addEventListener('click', () => {
         const logData = JSON.stringify(appState.lastRunChatLog, null, 2);
         const blob = new Blob([logData], { type: 'application/json' });
@@ -342,7 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(url);
         showTemporaryToast("Chat log downloaded.", "info");
     });
-
     copyStoryButton.addEventListener('click', () => {
         if (appState.latestGeneratedStoryText) {
             navigator.clipboard.writeText(appState.latestGeneratedStoryText)
@@ -353,7 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     });
-
     saveStoryButton.addEventListener('click', () => {
         if (appState.latestGeneratedStoryText) {
             const title = appState.latestGeneratedStoryTitle || "Untitled Story";
@@ -370,21 +411,15 @@ document.addEventListener('DOMContentLoaded', () => {
             showTemporaryToast("Story saved as .txt file!", "success");
         }
     });
-
     increaseFontButton.addEventListener('click', () => {
         let newSize = currentStoryFontSizeRem + STORY_FONT_SIZE_STEP;
-        if (newSize > MAX_STORY_FONT_SIZE_REM) {
-            newSize = MAX_STORY_FONT_SIZE_REM;
-        }
+        if (newSize > MAX_STORY_FONT_SIZE_REM) newSize = MAX_STORY_FONT_SIZE_REM;
         currentStoryFontSizeRem = newSize;
         applyStoryFontSize(currentStoryFontSizeRem);
     });
-
     decreaseFontButton.addEventListener('click', () => {
         let newSize = currentStoryFontSizeRem - STORY_FONT_SIZE_STEP;
-        if (newSize < MIN_STORY_FONT_SIZE_REM) {
-            newSize = MIN_STORY_FONT_SIZE_REM;
-        }
+        if (newSize < MIN_STORY_FONT_SIZE_REM) newSize = MIN_STORY_FONT_SIZE_REM;
         currentStoryFontSizeRem = newSize;
         applyStoryFontSize(currentStoryFontSizeRem);
     });
@@ -402,8 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const audience = audienceInput.value.trim() || "children";
         const frameworkKey = craftingFrameworkSelect.value;
         const craftGuideText = STORY_CRAFTING_GUIDES[frameworkKey] || ""; 
-
-        // New: Gather Style and Adjustment Module data
+        
         const styleKey = authorStyleSelect.value;
         const authorStyleGuideText = STORY_STYLE_GUIDES[styleKey] || "";
         
@@ -417,7 +451,24 @@ document.addEventListener('DOMContentLoaded', () => {
             ADJUSTMENT_MODULES.pacing[selectedPacing],
             ADJUSTMENT_MODULES.humor[selectedHumor],
             ADJUSTMENT_MODULES.emotion[selectedEmotion]
-        ].filter(Boolean).join('\n'); // Join non-empty strings with a newline
+        ].filter(Boolean).join('\n');
+
+        // New: Gather agent thinking config
+        const agentThinkingConfig = {
+            [AGENT_1_CRAFTER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true',
+            [AGENT_2_ELABORATOR_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true',
+            [AGENT_3_REVIEWER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_3_REVIEWER) ?? 'true') === 'true',
+            [AGENT_4_POLISHER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_4_POLISHER) ?? 'true') === 'true',
+            [AGENT_5_CLEANER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_5_CLEANER) ?? 'false') === 'true',
+            [AGENT_6_TITLER_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_6_TITLER) ?? 'false') === 'true',
+            [AGENT_C_CONSOLIDATOR_DEF.name]: (loadFromLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR) ?? 'true') === 'true',
+        };
+        // Ensure thinking is only enabled for supported models
+        const model = AVAILABLE_MODELS[modelId];
+        const canThink = model ? model.supportsThinking : false;
+        if (!canThink) {
+            Object.keys(agentThinkingConfig).forEach(key => agentThinkingConfig[key] = false);
+        }
 
         let userSuggestionsText = ""; 
         if (useEngineSuggestionsCheckbox.checked) {
@@ -448,9 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
             READING_AGE_NOTE: readingAgeNote, 
             USER_SUGGESTIONS_TEXT: userSuggestionsText,
             enableConsolidator,
-            // New data for the pipeline
             AUTHOR_STYLE_GUIDE: authorStyleGuideText,
-            ADJUSTMENT_MODULES_TEXT: adjustmentModulesText
+            ADJUSTMENT_MODULES_TEXT: adjustmentModulesText,
+            agentThinkingConfig // New
         };
     }
 
@@ -474,6 +525,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             const currentPrompt = constructAgentPrompt(agentDef.promptTemplate, agentDataObject);
+
+            // Determine if this specific agent should use thinking
+            const enableThinking = commonInputs.agentThinkingConfig[agentDef.name] || false;
             
             const agentOutput = await callAgentAPI(
                 currentPrompt, 
@@ -483,7 +537,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 0, 
                 appState.lastRunChatLog, 
                 storyOutputDiv, 
-                commonInputs.minApiIntervalMs
+                commonInputs.minApiIntervalMs,
+                enableThinking // Pass the flag to the API call
             );
 
             if (agentDef.outputKey) {
@@ -515,7 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Save all current settings
         saveToLocalStorage(LS_CHARACTERS, charactersInput.value);
         saveToLocalStorage(LS_AUDIENCE, audienceInput.value);
         saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);

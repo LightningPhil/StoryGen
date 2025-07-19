@@ -227,7 +227,8 @@ body {
     margin-bottom: 4px; /* Reduced */
     margin-top: 3px;
 }
-.controls-panel input[type="checkbox"] {
+.controls-panel input[type="checkbox"],
+.modal-content input[type="checkbox"] {
     width: 1em; 
     height: 1em; 
     margin-right: 8px;
@@ -238,7 +239,8 @@ body {
     flex-shrink: 0; 
     position: relative; 
 }
-.controls-panel label.checkbox-label { 
+.controls-panel label.checkbox-label,
+.modal-content label.checkbox-label { 
     margin: 0; 
     font-family: var(--font-primary); 
     font-weight: normal; 
@@ -614,6 +616,20 @@ button:focus-visible {
     letter-spacing: 0.05em;
     font-weight: 500; 
 }
+
+.agent-toggles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 15px; /* row-gap, column-gap */
+    transition: opacity 0.3s ease;
+}
+
+#agentTogglesContainer.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+}
+
 
 /* Utility Classes */
 .hidden {

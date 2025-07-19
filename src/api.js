@@ -14,7 +14,8 @@ export async function callAgentAPI(
     // This function will directly push log entries to this array.
     currentRunChatLogArray, 
     storyOutputDivRef, // Pass reference to #storyOutput for status updates
-    minApiIntervalMs
+    minApiIntervalMs,
+    enableThinking = false // New parameter to control thinking
 ) {
     if (!currentApiKey) { 
         const errorMsg = `${agentName} Error: API Key missing. Please configure it in settings.`;
@@ -50,18 +51,15 @@ export async function callAgentAPI(
     }
     
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModelId}:generateContent?key=${currentApiKey}`;
-    const MAX_RETRIES = 6; // Increased from 3 to 6 as per original code
-    const RETRY_DELAYS = [5000, 10000, 15000, 20000, 25000, 30000];  // Adjusted delays
+    const MAX_RETRIES = 6;
+    const RETRY_DELAYS = [5000, 10000, 15000, 20000, 25000, 30000];
 
     if (retryAttempt === 0) {
-        // console.log(`Calling ${agentName} with model ${selectedModelId}.`); // Reduced general log
-        // Check if this exact prompt for this agent is already logged
         if (!currentRunChatLogArray.find(log => log.agentName === agentName && log.type === 'prompt' && log.content === prompt)) {
              currentRunChatLogArray.push({ agentName, type: 'prompt', content: prompt, timestamp: new Date().toISOString() });
         }
     } else { 
         console.warn(`Retrying ${agentName} call (Attempt ${retryAttempt + 1}/${MAX_RETRIES}) for model ${selectedModelId}...`);
-        // Log retry attempt
         currentRunChatLogArray.push({ 
             agentName, 
             type: 'retry-attempt', 
@@ -72,18 +70,23 @@ export async function callAgentAPI(
 
     const requestBody = { 
         contents: [{ parts: [{ text: prompt }] }],
-        // Add safety settings if necessary, or ensure defaults are appropriate
-        // "safetySettings": [
-        //   { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
-        //   { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
-        //   { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE" },
-        //   { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" }
-        // ],
         generationConfig: {
-            // "temperature": 0.7, // Example: adjust as needed
-            // "maxOutputTokens": 8192, // Example: adjust as per model limits and needs
+            // "temperature": 0.7,
+            // "maxOutputTokens": 8192,
         } 
     };
+
+    // --- New: Conditionally add thinking/tool configuration ---
+    if (enableThinking) {
+        requestBody.tool_config = {
+            "function_calling_config": {
+                // In Gemini, enabling "thinking" is done by allowing tool/function calls.
+                // "ANY" mode lets the model decide when to "think".
+                "mode": "ANY" 
+            }
+        };
+        console.log(`[API] ${agentName} is running with thinking ENABLED.`);
+    }
 
     try {
         if (retryAttempt === 0) { 
@@ -96,15 +99,14 @@ export async function callAgentAPI(
             body: JSON.stringify(requestBody) 
         });
         
-        // Handle 429 and 503 as retryable server-side issues
-        if (response.status === 503 || response.status === 429) { // 429 Too Many Requests
+        if (response.status === 503 || response.status === 429) {
             if (retryAttempt < MAX_RETRIES) {
                 const delay = RETRY_DELAYS[retryAttempt];
                 const retryMsg = `Model busy or rate limit hit (${response.status}). Retrying ${agentName} in ${delay / 1000}s... (Attempt ${retryAttempt + 1}/${MAX_RETRIES})\n`;
                 console.warn(retryMsg);
                 if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += retryMsg;
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking);
             } else {
                 const overloadErrorMsg = `${agentName} Error: Model is overloaded or rate limits exceeded after ${MAX_RETRIES} retries (Status ${response.status}). Please try again later.`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries', content: overloadErrorMsg, timestamp: new Date().toISOString() });
@@ -114,7 +116,6 @@ export async function callAgentAPI(
 
         const responseData = await response.json();
 
-        // Check for specific error messages indicating overload, even if status isn't 503/429
         if (responseData.error && responseData.error.message && 
             (responseData.error.message.toLowerCase().includes("overload") || responseData.error.message.toLowerCase().includes("busy now"))) {
             if (retryAttempt < MAX_RETRIES) {
@@ -123,7 +124,7 @@ export async function callAgentAPI(
                 console.warn(retryMsg);
                 if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += retryMsg;
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking);
             } else {
                 const busyErrorMsg = `${agentName} Error: Model remained busy after ${MAX_RETRIES} retries. Please try again later. (Original Error: ${responseData.error.message})`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries-busy', content: busyErrorMsg, timestamp: new Date().toISOString() });
@@ -162,21 +163,18 @@ export async function callAgentAPI(
         }
         
         const rawTextOutput = responseData.candidates[0].content.parts[0].text;
-        // Check if this exact response for this agent is already logged
         if (!currentRunChatLogArray.find(log => log.agentName === agentName && log.type === 'response' && log.content === rawTextOutput)) {
              currentRunChatLogArray.push({ agentName, type: 'response', content: rawTextOutput, timestamp: new Date().toISOString() });
         }
         return rawTextOutput;
 
-    } catch (error) { // Catches network errors, JSON parsing errors, and errors thrown above
+    } catch (error) {
         console.error(`Error during API call for ${agentName} (Attempt ${retryAttempt + 1}/${MAX_RETRIES}):`, error.message);
-        // Avoid duplicate logging of the same error message for the same agent
         if (!currentRunChatLogArray.some(log => log.agentName === agentName && 
                                    (log.type.includes('error') || log.type.includes('blocked')) && 
-                                   log.content && log.content.includes(error.message.substring(0,100)))) { // Check substring to catch similar formatted errors
+                                   log.content && log.content.includes(error.message.substring(0,100)))) {
             currentRunChatLogArray.push({ agentName, type: 'general-fetch-error', content: error.message, stack: error.stack, timestamp: new Date().toISOString() });
         }
-        // Re-throw the error to be handled by the calling function in script.js
         throw error; 
     }
 }

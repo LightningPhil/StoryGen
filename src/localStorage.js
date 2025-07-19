@@ -14,12 +14,21 @@ export const LS_READING_AGE_MIN = 'readingAgeMin_storyCircle';
 export const LS_READING_AGE_MAX = 'readingAgeMax_storyCircle'; 
 export const LS_ENABLE_CONSOLIDATOR = 'enableConsolidator_storyCircle';
 
-// --- New Keys for Stylistic Controls ---
+// --- Keys for Stylistic Controls ---
 export const LS_SELECTED_AUTHOR_STYLE = 'storySelectedAuthorStyle_storyCircle';
 export const LS_ADJUSTMENT_TONE = 'storyAdjustmentTone_storyCircle';
 export const LS_ADJUSTMENT_PACING = 'storyAdjustmentPacing_storyCircle';
 export const LS_ADJUSTMENT_HUMOR = 'storyAdjustmentHumor_storyCircle';
 export const LS_ADJUSTMENT_EMOTION = 'storyAdjustmentEmotion_storyCircle';
+
+// --- New Keys for Agent Thinking Toggles ---
+export const LS_THINKING_AGENT_1_CRAFTER = 'thinkingAgent1_storyCircle';
+export const LS_THINKING_AGENT_2_ELABORATOR = 'thinkingAgent2_storyCircle';
+export const LS_THINKING_AGENT_3_REVIEWER = 'thinkingAgent3_storyCircle';
+export const LS_THINKING_AGENT_4_POLISHER = 'thinkingAgent4_storyCircle';
+export const LS_THINKING_AGENT_5_CLEANER = 'thinkingAgent5_storyCircle';
+export const LS_THINKING_AGENT_6_TITLER = 'thinkingAgent6_storyCircle';
+export const LS_THINKING_AGENT_C_CONSOLIDATOR = 'thinkingAgentC_storyCircle';
 
 
 export function saveToLocalStorage(key, value) {
