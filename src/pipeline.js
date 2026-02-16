@@ -1,7 +1,7 @@
 // src/pipeline.js
 
 import { callAgentAPI } from './api.js';
-import { constructAgentPrompt } from './utils.js';
+import { constructAgentPrompt, checkNarrativeVoiceConsistency } from './utils.js';
 import { updateStatusInStoryOutput } from './ui.js';
 import {
     PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
@@ -108,5 +108,20 @@ export async function runPipeline(pipelineConfig, pipelineData, commonInputs, st
             currentPipelineData.storyText = agentOutput; 
         }
     }
+    
+    // Run voice consistency check on final story
+    if (currentPipelineData.storyText) {
+        const voiceWarnings = checkNarrativeVoiceConsistency(currentPipelineData.storyText);
+        if (voiceWarnings.length > 0) {
+            console.warn('Narrative Voice Consistency Warnings:', voiceWarnings);
+            appState.addLogEntry({
+                agentName: 'Voice Validator',
+                type: 'warning',
+                content: `Potential voice consistency issues detected:\n• ${voiceWarnings.join('\n• ')}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+    
     return currentPipelineData;
 }

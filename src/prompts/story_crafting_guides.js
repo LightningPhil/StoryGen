@@ -9,7 +9,31 @@ const UNIVERSAL_CRAFT_STANDARDS = `
 6. Maximum word count guidance for short stories aimed at ages 5‑8: **800–1 200 words**.
 
 ---
-`;
+### 🎭 Narrative Voice Consistency
+
+Your narrator is a CHARACTER with a consistent personality. Maintain this voice throughout:
+
+**Before writing:** Decide your narrator's persona—warm and grandfatherly? Playful and silly? Calm and gentle? Epic and grand? This should align with the chosen authorial style and tone adjustments.
+
+**Throughout the story maintain:**
+- **Vocabulary Level:** If you start with simple words, don't suddenly use "precipitous" or "contemplated."
+- **Sentence Structure:** If you begin with short, punchy sentences, don't shift to long, flowing paragraphs mid-story (unless intentionally pacing down for bedtime).
+- **Direct Address:** If you address the reader ("Dear listener..."), continue occasionally; don't drop it entirely.
+- **Formality Register:** Keep consistent:
+  - *Conversational:* contractions (it's, they're), casual tone
+  - *Storybook:* flowing, slightly formal but warm ("And so it was that...")
+  - *Epic:* elevated language, grander vocabulary
+- **Humor Consistency:** If you start with jokes, don't become suddenly serious without narrative reason.
+
+**Red Flags to Avoid:**
+- ❌ Starting whimsical, ending preachy
+- ❌ Mixing slang with archaic language ("totally cool" + "thou shalt")
+- ❌ Narrator becoming a moral lecturer in the last paragraph
+- ❌ Jokes that clash with emotional beats (silly one-liner during sad moment)
+
+**Self-Check:** After drafting, ask: Could the same person have narrated every paragraph? Does the VOICE feel like one storyteller throughout?
+
+---`;
 
 // --- Original Frameworks ---
 
@@ -380,6 +404,80 @@ const GRIMMS_TRICKSTER_TRIUMPH_GUIDE = `
 - End on a playful wink to the reader.
 `;
 
+// --- Fable Framework (Aesop Style) ---
+const FABLE_GUIDE = `
+## Classical Fable Framework (Aesop Style)
+
+> *A brief, moralistic tale with animal characters embodying human traits. Every element serves the lesson.*
+
+### Structure (4 Beats)
+
+1. **Opening Scene (The Setup)** — 80-120 words
+   - Introduce 1-3 animal characters in a simple, natural setting
+   - Each character represents a clear trait: wisdom, greed, pride, cleverness, humility
+   - Show their contrasting personalities through ONE brief action or statement
+   - Example: "A Crow sat upon a branch, holding cheese. A Fox saw and approached."
+
+2. **The Conflict (The Test)** — 100-150 words
+   - Present a simple problem, challenge, or temptation
+   - The conflict directly tests the characters' defining traits
+   - Stakes are proportionate: food, safety, status—not life or death
+   - Make the test clear and immediate
+
+3. **The Choice & Consequence** — 100-150 words
+   - Characters choose different approaches based on their nature
+   - Show immediate, direct consequences of each choice
+   - Use explicit cause-and-effect: "Because X did Y, Z happened"
+   - The virtuous choice leads to reward; the flawed choice leads to loss
+
+4. **The Resolution & Moral** — 50-100 words
+   - Conclude with clear outcomes for each character
+   - State the moral lesson in final 1-2 sentences
+   - Begin moral with "And so..." or "Thus..." or similar
+   - The moral must feel earned by the preceding action
+
+### Craft Checklist (MUST-FOLLOW)
+
+1. **Target Length:** 400-500 words maximum. Fables must be concise—every sentence earns its place.
+
+2. **Character Naming:** Use species with simple descriptors:
+   - ✓ GOOD: "The Clever Fox", "A Proud Peacock", "The Humble Mouse"
+   - ✗ AVOID: "Fennec the Firetail", "Sir Reginald Fluffington III"
+
+3. **Language Register:**
+   - Use clear, timeless language (no modern slang or references)
+   - Sentence structure: declarative and direct
+   - Dialogue: minimal and purposeful—only when advancing the moral point
+
+4. **Anthropomorphism Balance:**
+   - Animals think and speak like humans but retain physical nature
+   - A mouse can be clever but remains small; an elephant remains strong
+   - Use each animal's natural traits meaningfully (fox = cunning, ant = industrious)
+
+5. **Moral Clarity:**
+   - Lesson must be universal and applicable to children's lives
+   - Themes: sharing, honesty, humility, wisdom, patience, kindness, hard work
+   - Frame positively: "Hard work brings reward" over "Laziness leads to failure"
+
+6. **Binary Outcome:** One character's approach succeeds; another's fails. This contrast reinforces the lesson.
+
+7. **No Excessive Description:** Skip elaborate scenery, weather, or internal monologue. Describe only what advances the moral.
+
+8. **Dialogue Tags:** Use only "said" or no tag when speaker is clear from context.
+
+### Style Notes
+- **Tone:** Earnest, straightforward, gently didactic
+- **Pacing:** Steady and efficient; no meandering
+- **Perspective:** Third-person omniscient narrator
+- **Ending:** Must feel conclusive and satisfying within moral framework
+- **Voice:** Timeless storyteller ("Once, in a faraway meadow...")
+
+### Example Opening
+> "A Crow sat upon a branch, holding a large piece of cheese in her beak. Along came a Fox, and he saw the cheese. 'What a beautiful bird you are,' said the Fox. 'Surely your voice must be as lovely as your feathers.'"
+
+*This opening immediately establishes who, what, where, and the Fox's manipulative nature—all in three sentences.*
+`;
+
 
 export const STORY_CRAFTING_GUIDES = {
     // Original frameworks
@@ -401,8 +499,8 @@ export const STORY_CRAFTING_GUIDES = {
     "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_WISH_MIRROR_GUIDE,
     "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_HIDDEN_BEAST_GUIDE,
     "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_SIBLING_QUEST_GUIDE,
-    "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_TRICKSTER_TRIUMPH_GUIDE,
-};
+    "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_TRICKSTER_TRIUMPH_GUIDE,    // Fable Framework
+    "Fable (Aesop Style)": UNIVERSAL_CRAFT_STANDARDS + FABLE_GUIDE,};
 
 // Updated: Summaries for each framework
 export const STORY_FRAMEWORK_SUMMARIES = {
@@ -424,5 +522,7 @@ export const STORY_FRAMEWORK_SUMMARIES = {
     "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
     "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
     "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
-    "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery."
+"Grimms' Trickster-Triumph Pattern ("Clever Tailor")": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery.",
+    // Fable summary
+    "Fable (Aesop Style)": "A short, moral tale with animal characters (400-500 words). Features a clear conflict and an explicit lesson. Based on classical Aesop tradition."
 };

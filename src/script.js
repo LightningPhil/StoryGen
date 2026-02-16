@@ -1,11 +1,10 @@
 // src/script.js
 
 // --- Configuration (Constants) ---
-const DEFAULT_GEMINI_MODEL_ID = "gemini-2.5-flash"; 
+const DEFAULT_GEMINI_MODEL_ID = "gemini-3-flash-preview"; 
 const AVAILABLE_MODELS = { 
-    "gemini-2.5-flash": { name: "Gemini-2.5-Flash", supportsThinking: true },
-    "gemini-2.0-flash": { name: "Gemini-2.0-Flash", supportsThinking: false },
-    "gemini-1.5-flash": { name: "Gemini-1.5-Flash", supportsThinking: false }
+    "gemini-3-flash-preview": { name: "Gemini-3-Flash-Preview", supportsThinking: true },
+    "gemini-2.5-flash": { name: "Gemini-2.5-Flash", supportsThinking: true }
 };
 const DEFAULT_MIN_API_INTERVAL_S = 5; 
 const DEFAULT_READING_AGE_MIN = 5; 
@@ -32,7 +31,7 @@ import {
 } from './localStorage.js';
 
 // --- Imports from Modules ---
-import appState from './appState.js'; 
+import appState, { BEDTIME_MODE_PRESET } from './appState.js'; 
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
 import { ADJUSTMENT_MODULES } from './prompts/adjustment_modules.js';
@@ -67,6 +66,7 @@ let enableConsolidatorCheckbox;
 let authorStyleSelect, styleSummaryDiv, adjustmentsButton, adjustmentsModal, cancelAdjustmentsButton, saveAdjustmentsButton;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
 let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
+let bedtimeModeToggle;
 
 // --- Application State for Font Size ---
 let currentStoryFontSizeRem = DEFAULT_STORY_FONT_SIZE_REM;
@@ -99,6 +99,63 @@ function updateAgentTogglesUI() {
     const canThink = model ? model.supportsThinking : false;
 
     agentTogglesContainer.classList.toggle('disabled', !canThink);
+}
+
+// Bedtime Mode activation function
+function activateBedtimeMode() {
+    // Apply framework
+    if (craftingFrameworkSelect && STORY_CRAFTING_GUIDES[BEDTIME_MODE_PRESET.framework]) {
+        craftingFrameworkSelect.value = BEDTIME_MODE_PRESET.framework;
+        saveToLocalStorage(LS_SELECTED_FRAMEWORK, BEDTIME_MODE_PRESET.framework);
+        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
+    }
+    
+    // Apply author style
+    if (authorStyleSelect && STORY_STYLE_GUIDES[BEDTIME_MODE_PRESET.authorStyle]) {
+        authorStyleSelect.value = BEDTIME_MODE_PRESET.authorStyle;
+        saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, BEDTIME_MODE_PRESET.authorStyle);
+        updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
+    }
+    
+    // Apply adjustments (tone, pacing, humor, emotion)
+    if (toneSelect) {
+        toneSelect.value = BEDTIME_MODE_PRESET.adjustments.tone;
+        saveToLocalStorage(LS_ADJUSTMENT_TONE, BEDTIME_MODE_PRESET.adjustments.tone);
+    }
+    if (pacingSelect) {
+        pacingSelect.value = BEDTIME_MODE_PRESET.adjustments.pacing;
+        saveToLocalStorage(LS_ADJUSTMENT_PACING, BEDTIME_MODE_PRESET.adjustments.pacing);
+    }
+    if (humorSelect) {
+        humorSelect.value = BEDTIME_MODE_PRESET.adjustments.humor;
+        saveToLocalStorage(LS_ADJUSTMENT_HUMOR, BEDTIME_MODE_PRESET.adjustments.humor);
+    }
+    if (emotionSelect) {
+        emotionSelect.value = BEDTIME_MODE_PRESET.adjustments.emotion;
+        saveToLocalStorage(LS_ADJUSTMENT_EMOTION, BEDTIME_MODE_PRESET.adjustments.emotion);
+    }
+    
+    // Apply consolidator setting
+    if (enableConsolidatorCheckbox) {
+        enableConsolidatorCheckbox.checked = BEDTIME_MODE_PRESET.consolidator;
+        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, BEDTIME_MODE_PRESET.consolidator.toString());
+    }
+    
+    // Apply reading age setting
+    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider) {
+        enableReadingAgeAdjustmentCheckbox.checked = true;
+        saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, 'true');
+        targetReadingAgeSlider.value = BEDTIME_MODE_PRESET.readingAge.toString();
+        saveToLocalStorage(LS_TARGET_READING_AGE, BEDTIME_MODE_PRESET.readingAge.toString());
+        updateTargetReadingAgeSliderDOMState();
+    }
+    
+    // Apply engine suggestions setting
+    if (useEngineSuggestionsCheckbox) {
+        useEngineSuggestionsCheckbox.checked = BEDTIME_MODE_PRESET.useEngineSuggestions;
+        saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, BEDTIME_MODE_PRESET.useEngineSuggestions.toString());
+        updateSuggestionsTextareaStyle(useEngineSuggestionsCheckbox, userSuggestionsTextarea);
+    }
 }
 
 
@@ -151,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     agent5CleanerToggle = document.getElementById('agent5CleanerToggle');
     agent6TitlerToggle = document.getElementById('agent6TitlerToggle');
     agentCConsolidatorToggle = document.getElementById('agentCConsolidatorToggle');
+    bedtimeModeToggle = document.getElementById('bedtimeModeToggle');
 
 
     if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !adjustmentsModal || !agentTogglesContainer) {
@@ -307,6 +365,24 @@ document.addEventListener('DOMContentLoaded', () => {
         adjustmentsModal.classList.remove('active');
         showTemporaryToast("Style adjustments saved!", "success");
     });
+
+    // Bedtime Mode Toggle
+    if (bedtimeModeToggle) {
+        bedtimeModeToggle.addEventListener('click', () => {
+            const isActive = bedtimeModeToggle.getAttribute('aria-pressed') === 'true';
+            
+            if (!isActive) {
+                // Activate Bedtime Mode - apply all preset values
+                activateBedtimeMode();
+                bedtimeModeToggle.setAttribute('aria-pressed', 'true');
+                showTemporaryToast('🌙 Bedtime Mode activated! Settings optimized for calm stories.', 'success');
+            } else {
+                // Deactivate - just toggle the button state, don't reset settings
+                bedtimeModeToggle.setAttribute('aria-pressed', 'false');
+                showTemporaryToast('Bedtime Mode deactivated', 'info');
+            }
+        });
+    }
 
     // Other buttons...
     downloadChatLogButton.addEventListener('click', () => {

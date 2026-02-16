@@ -8,7 +8,47 @@
 export const ADJUSTMENT_MODULES = {
     tone: {
         'none': '',
-        'calm_bedtime': '**Tone: Calm & Bedtime.** Use gentle, soothing language with a lullaby-like rhythm. Focus on cozy, peaceful images (e.g. moonlight, warm blankets). Resolve any conflict with quiet reassurance. The narrative voice should be soft and comforting.',
+        'calm_bedtime': `**Tone: Calm & Bedtime Mode (Enhanced)**
+
+Use gentle, soothing language with a lullaby-like rhythm to help listeners transition toward sleep.
+
+**Linguistic Guidance:**
+- **Soft Consonants:** Favor words with L, M, N, W, R sounds. Minimize hard consonants (K, T, P, D, G).
+  - GOOD: "The little lamb lay down in the meadow, warm and drowsy."
+  - AVOID: "The cat kicked the gate and dashed past the park."
+  
+- **Sentence Flow:** Use longer, flowing sentences that mimic natural breathing patterns. Avoid choppy or staccato rhythm.
+  
+- **Calming Vocabulary:** Emphasize words like: soft, gentle, warm, cozy, quiet, peaceful, safe, snuggle, dream, moonlight, yawn, sleepy, rest, hush, lullaby, slumber.
+
+- **Imagery:** Focus on peaceful, comforting scenes:
+  - Moonlight through windows, stars twinkling
+  - Soft blankets, warm pillows, cozy nests
+  - Gentle night sounds (crickets, distant owls, rain on roof)
+  - Warm drinks (milk, cocoa, honey tea)
+  - Twilight colors, fireflies, gentle breezes
+  
+**Conflict Resolution:**
+- Any conflict must be very mild (a small worry, a gentle misunderstanding)
+- Resolve with kindness, reassurance, and safety
+- NO villains, danger, scary creatures, or loud surprises
+- NO exciting action sequences or suspenseful moments
+
+**Story Arc (Energy De-escalation):**
+- Beginning: Gentle activity or exploration (moderate energy)
+- Middle: A small, solvable challenge or quiet discovery (slightly lower)
+- Ending: Explicit return to safety, comfort, and rest (lowest energy)
+  - Final paragraph MUST include sleepy/rest imagery
+  - End with character settling down, looking at stars, or feeling safe
+  - Consider endings like: "And soon, they drifted off to sleep" or "Everything was just right"
+
+**Narrative Voice:**
+- Speak as a warm, gentle storyteller
+- Use a slower, softer tone in word choice
+- Occasional direct address ("And so, our little friend..." or "Just like you...")
+- Grandfatherly or motherly warmth
+
+**Pacing:** Gradually slow down as story progresses. The final third should feel like winding down, with longer sentences and more pauses.`,
         'whimsical_playful': '**Tone: Whimsical & Playful.** Adopt a lighthearted, fantastical tone filled with wonder and giggles. Use expressive interjections and a narrative voice that is excited and warm.',
         'epic_grand': '**Tone: Epic & Grand.** Use elevated, magical language. The narrative voice should be grand and adventurous, as if narrating a classic myth or fantasy tale, suitable for slightly older children.',
     },

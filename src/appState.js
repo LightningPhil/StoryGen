@@ -1,5 +1,20 @@
 // src/appState.js
 
+// Bedtime Mode Preset - optimal settings for calming sleep-time stories
+export const BEDTIME_MODE_PRESET = {
+    framework: "Dan Harmon's Story Circle", // Circular journey fits bedtime well
+    authorStyle: "Gentle & Reassuring (Kerr/Bond)",
+    adjustments: {
+        tone: "calm_bedtime",
+        pacing: "slow_soothing",
+        humor: "none",
+        emotion: "heartwarming"
+    },
+    consolidator: false, // Keep natural length for pacing
+    readingAge: 5, // Younger audience
+    useEngineSuggestions: true
+};
+
 const appState = {
     _latestGeneratedStoryText: "",
     _latestGeneratedStoryTitle: "",

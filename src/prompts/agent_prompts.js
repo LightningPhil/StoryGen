@@ -95,14 +95,20 @@ export const PROMPT_AGENT_3_REVIEWER_TEMPLATE = `You are an expert in evaluating
 ---
 
 **Review Checklist:**
-1.  **Structural Adherence:** Does the story clearly follow the steps of the chosen **Story Structure Guide**? Are any steps weak or unclear?
-2.  **Stylistic Adherence:** Does the story's voice, tone, and technique successfully emulate the chosen **Authorial Style Guide**?
-3.  **Tonal Consistency:** Does the story maintain the tone, pacing, humor, and emotional journey defined in the **Stylistic & Tonal Directives**?
-4.  **General Craft:**
+1.  **Narrative Voice Consistency:** 
+    *   Identify the narrator's voice in the opening paragraph (warm/playful/calm/epic, simple/flowing/elevated vocabulary).
+    *   Does this voice remain consistent throughout the story in tone, vocabulary level, and personality?
+    *   Flag any paragraphs where the voice shifts unexpectedly (e.g., from playful to preachy, casual to formal).
+    *   Check: Does the ending maintain the same voice, or does it become lecturing/moralistic?
+2.  **Structural Adherence:** Does the story clearly follow the steps of the chosen **Story Structure Guide**? Are any steps weak or unclear?
+3.  **Stylistic Adherence:** Does the story's voice, tone, and technique successfully emulate the chosen **Authorial Style Guide**?
+4.  **Tonal Consistency:** Does the story maintain the tone, pacing, humor, and emotional journey defined in the **Stylistic & Tonal Directives**?
+5.  **General Craft:**
     *   **Emotional Arc:** Is there a clear emotional journey for the protagonist? Is the ending emotionally satisfying (e.g., reassuring, empowering, funny) as intended?
     *   **Sensory Details & Pacing:** Is the story immersive? Does the pacing feel right for the intended mood?
     *   **Characters & Dialogue:** Are the characters distinct? Is the dialogue natural and effective?
-5.  **Integration of Elaborations:** If the story seems long or detailed, are the additions well-integrated or do they feel tacked on?
+    *   **Exclamation Marks:** Are there ≤ 8 exclamation marks? Flag if excessive.
+6.  **Integration of Elaborations:** If the story seems long or detailed, are the additions well-integrated or do they feel tacked on?
 
 Output your feedback as a list of clear, actionable bullet points that a writer can use to improve the story.
 
