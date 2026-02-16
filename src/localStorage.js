@@ -24,6 +24,9 @@ export const LS_ADJUSTMENT_EMOTION = 'storyAdjustmentEmotion_storyCircle';
 // --- Keys for STEM Learning Fable ---
 export const LS_STEM_CONCEPT = 'storyStemConcept_storyCircle';
 
+// --- Keys for Plot Points ---
+export const LS_INCLUDE_PLOT_POINTS = 'storyIncludePlotPoints_storyCircle';
+
 // --- Keys for Narrator Persona ---
 export const LS_NARRATOR_PERSONA = 'storyNarratorPersona_storyCircle';
 

@@ -19,12 +19,12 @@ const DEFAULT_STORY_FONT_SIZE_REM = 1.0;
 // --- Local Storage Keys (Constants) ---
 import { 
     LS_API_KEY, LS_CHARACTERS, LS_AUDIENCE, LS_SELECTED_FRAMEWORK, LS_SELECTED_MODEL,
-    LS_USE_ENGINE_SUGGESTIONS, LS_USER_SUGGESTIONS, LS_MIN_API_INTERVAL, 
+    LS_USER_SUGGESTIONS, LS_MIN_API_INTERVAL, 
     LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, 
     LS_READING_AGE_MIN, LS_READING_AGE_MAX, LS_ENABLE_CONSOLIDATOR,
     LS_SELECTED_AUTHOR_STYLE, LS_ADJUSTMENT_TONE, LS_ADJUSTMENT_PACING,
-    LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION, LS_STEM_CONCEPT,
-    LS_NARRATOR_PERSONA, LS_SENSITIVITY_PRESET,
+    LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION, LS_STEM_CONCEPT, LS_INCLUDE_PLOT_POINTS,
+    LS_SENSITIVITY_PRESET,
     LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
     LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
     LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
@@ -33,11 +33,10 @@ import {
 } from './localStorage.js';
 
 // --- Imports from Modules ---
-import appState, { BEDTIME_MODE_PRESET, MORNING_ENERGIZER_PRESET } from './appState.js'; 
+import appState from './appState.js'; 
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules.js';
-import { NARRATOR_PERSONAS, PERSONA_SUMMARIES, PERSONA_RECOMMENDATIONS } from './prompts/narrator_personas.js';
 import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts.js';
 import { parseCharacters, countWords } from './utils.js'; 
 import { 
@@ -49,7 +48,6 @@ import {
     showTemporaryToast, 
     updateFrameworkSummaryDisplay, 
     updateAuthorStyleSummaryDisplay,
-    updateSuggestionsTextareaStyle,
     disableMainControls, 
     enableMainControls,
     applyStoryFontSize,
@@ -63,15 +61,13 @@ import { campaignManager, CAMPAIGN_ARCS, extractEpisodeSummary, extractKeyEvents
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
 let copyStoryButton, saveStoryButton, elaborateStoryButton, decreaseFontButton, increaseFontButton; 
-let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
+let userSuggestionsTextarea;
 let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
 let enableConsolidatorCheckbox;
 let authorStyleSelect, styleSummaryDiv;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
 let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
-let bedtimeModeToggle, morningModeToggle;
-let narratorPersonaSelect, personaSummaryDiv, personaRecommendationDiv, recommendedPersonasSpan;
 let parentalControlsToggle, parentalControlsContent, sensitivityPresetSelect, customSensitivityControls;
 let conflictSlider, scarySlider, sadnessSlider, complexitySlider;
 let conflictLabel, scaryLabel, sadnessLabel, complexityLabel, sensitivitySummary;
@@ -82,6 +78,11 @@ let continueEpisodeButton, exitCampaignButton;
 let campaignModal, campaignTitleInput, campaignArcSelect, arcDescription, campaignGoalInput;
 let cancelCampaignButton, createCampaignButton;
 let stemConceptSection, stemConceptSelect, stemConceptHint;
+// Framework and Style modal elements
+let frameworkModal, frameworkSelectButton, frameworkSelectedLabel, frameworkOptionsGrid;
+let styleModal, styleSelectButton, styleSelectedLabel, styleOptionsGrid, closeStyleModalButton;
+// Plot points toggle
+let includePlotPointsCheckbox, plotPointsContainer;
 // Theme toggle
 let themeToggle;
 
@@ -249,134 +250,74 @@ function updateAgentTogglesUI() {
     agentTogglesContainer.classList.toggle('disabled', !canThink);
 }
 
-// Bedtime Mode activation function
-function activateBedtimeMode() {
-    // Deactivate morning mode if active
-    if (morningModeToggle) {
-        morningModeToggle.setAttribute('aria-pressed', 'false');
-    }
+// --- Modal Population Functions ---
+function populateFrameworkModal() {
+    if (!frameworkOptionsGrid || !craftingFrameworkSelect) return;
     
-    // Apply framework
-    if (craftingFrameworkSelect && STORY_CRAFTING_GUIDES[BEDTIME_MODE_PRESET.framework]) {
-        craftingFrameworkSelect.value = BEDTIME_MODE_PRESET.framework;
-        saveToLocalStorage(LS_SELECTED_FRAMEWORK, BEDTIME_MODE_PRESET.framework);
-        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
-    }
+    frameworkOptionsGrid.innerHTML = '';
+    const currentValue = craftingFrameworkSelect.value;
     
-    // Apply author style
-    if (authorStyleSelect && STORY_STYLE_GUIDES[BEDTIME_MODE_PRESET.authorStyle]) {
-        authorStyleSelect.value = BEDTIME_MODE_PRESET.authorStyle;
-        saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, BEDTIME_MODE_PRESET.authorStyle);
-        updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
-    }
+    Object.entries(STORY_FRAMEWORK_SUMMARIES).forEach(([key, summary]) => {
+        const card = document.createElement('div');
+        card.className = 'selection-card' + (key === currentValue ? ' selected' : '');
+        card.dataset.value = key;
+        card.innerHTML = `
+            <div class="selection-card-title">${key}</div>
+            <div class="selection-card-description">${summary}</div>
+        `;
+        card.addEventListener('click', () => {
+            // Update the hidden select
+            craftingFrameworkSelect.value = key;
+            craftingFrameworkSelect.dispatchEvent(new Event('change'));
+            
+            // Update visual selection
+            frameworkOptionsGrid.querySelectorAll('.selection-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            // Update button label
+            frameworkSelectedLabel.textContent = key;
+            
+            // Close modal
+            frameworkModal.classList.remove('active');
+        });
+        frameworkOptionsGrid.appendChild(card);
+    });
     
-    // Apply adjustments (tone, pacing, humor, emotion)
-    if (toneSelect) {
-        toneSelect.value = BEDTIME_MODE_PRESET.adjustments.tone;
-        saveToLocalStorage(LS_ADJUSTMENT_TONE, BEDTIME_MODE_PRESET.adjustments.tone);
-    }
-    if (pacingSelect) {
-        pacingSelect.value = BEDTIME_MODE_PRESET.adjustments.pacing;
-        saveToLocalStorage(LS_ADJUSTMENT_PACING, BEDTIME_MODE_PRESET.adjustments.pacing);
-    }
-    if (humorSelect) {
-        humorSelect.value = BEDTIME_MODE_PRESET.adjustments.humor;
-        saveToLocalStorage(LS_ADJUSTMENT_HUMOR, BEDTIME_MODE_PRESET.adjustments.humor);
-    }
-    if (emotionSelect) {
-        emotionSelect.value = BEDTIME_MODE_PRESET.adjustments.emotion;
-        saveToLocalStorage(LS_ADJUSTMENT_EMOTION, BEDTIME_MODE_PRESET.adjustments.emotion);
-    }
-    
-    // Apply consolidator setting
-    if (enableConsolidatorCheckbox) {
-        enableConsolidatorCheckbox.checked = BEDTIME_MODE_PRESET.consolidator;
-        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, BEDTIME_MODE_PRESET.consolidator.toString());
-    }
-    
-    // Apply reading age setting
-    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider) {
-        enableReadingAgeAdjustmentCheckbox.checked = true;
-        saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, 'true');
-        targetReadingAgeSlider.value = BEDTIME_MODE_PRESET.readingAge.toString();
-        saveToLocalStorage(LS_TARGET_READING_AGE, BEDTIME_MODE_PRESET.readingAge.toString());
-        updateTargetReadingAgeSliderDOMState();
-    }
-    
-    // Apply engine suggestions setting
-    if (useEngineSuggestionsCheckbox) {
-        useEngineSuggestionsCheckbox.checked = BEDTIME_MODE_PRESET.useEngineSuggestions;
-        saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, BEDTIME_MODE_PRESET.useEngineSuggestions.toString());
-        updateSuggestionsTextareaStyle(useEngineSuggestionsCheckbox, userSuggestionsTextarea);
-    }
-    
-    // Update persona recommendations for bedtime mode
-    updatePersonaRecommendations('bedtime');
+    // Set initial label
+    frameworkSelectedLabel.textContent = currentValue || 'Select Framework';
 }
 
-// Morning Energizer Mode activation function
-function activateMorningMode() {
-    // Deactivate bedtime mode if active
-    if (bedtimeModeToggle) {
-        bedtimeModeToggle.setAttribute('aria-pressed', 'false');
-    }
+function populateStyleModal() {
+    if (!styleOptionsGrid || !authorStyleSelect) return;
     
-    // Apply framework
-    if (craftingFrameworkSelect && STORY_CRAFTING_GUIDES[MORNING_ENERGIZER_PRESET.framework]) {
-        craftingFrameworkSelect.value = MORNING_ENERGIZER_PRESET.framework;
-        saveToLocalStorage(LS_SELECTED_FRAMEWORK, MORNING_ENERGIZER_PRESET.framework);
-        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
-    }
+    styleOptionsGrid.innerHTML = '';
+    const currentValue = authorStyleSelect.value;
     
-    // Apply author style
-    if (authorStyleSelect && STORY_STYLE_GUIDES[MORNING_ENERGIZER_PRESET.authorStyle]) {
-        authorStyleSelect.value = MORNING_ENERGIZER_PRESET.authorStyle;
-        saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, MORNING_ENERGIZER_PRESET.authorStyle);
-        updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
-    }
+    Object.entries(STORY_STYLE_SUMMARIES).forEach(([key, summary]) => {
+        const card = document.createElement('div');
+        card.className = 'selection-card' + (key === currentValue ? ' selected' : '');
+        card.dataset.value = key;
+        card.innerHTML = `
+            <div class="selection-card-title">${key}</div>
+            <div class="selection-card-description">${summary}</div>
+        `;
+        card.addEventListener('click', () => {
+            // Update the hidden select
+            authorStyleSelect.value = key;
+            authorStyleSelect.dispatchEvent(new Event('change'));
+            
+            // Update visual selection
+            styleOptionsGrid.querySelectorAll('.selection-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            // Update button label
+            styleSelectedLabel.textContent = key;
+        });
+        styleOptionsGrid.appendChild(card);
+    });
     
-    // Apply adjustments (tone, pacing, humor, emotion)
-    if (toneSelect) {
-        toneSelect.value = MORNING_ENERGIZER_PRESET.adjustments.tone;
-        saveToLocalStorage(LS_ADJUSTMENT_TONE, MORNING_ENERGIZER_PRESET.adjustments.tone);
-    }
-    if (pacingSelect) {
-        pacingSelect.value = MORNING_ENERGIZER_PRESET.adjustments.pacing;
-        saveToLocalStorage(LS_ADJUSTMENT_PACING, MORNING_ENERGIZER_PRESET.adjustments.pacing);
-    }
-    if (humorSelect) {
-        humorSelect.value = MORNING_ENERGIZER_PRESET.adjustments.humor;
-        saveToLocalStorage(LS_ADJUSTMENT_HUMOR, MORNING_ENERGIZER_PRESET.adjustments.humor);
-    }
-    if (emotionSelect) {
-        emotionSelect.value = MORNING_ENERGIZER_PRESET.adjustments.emotion;
-        saveToLocalStorage(LS_ADJUSTMENT_EMOTION, MORNING_ENERGIZER_PRESET.adjustments.emotion);
-    }
-    
-    // Apply consolidator setting
-    if (enableConsolidatorCheckbox) {
-        enableConsolidatorCheckbox.checked = MORNING_ENERGIZER_PRESET.consolidator;
-        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, MORNING_ENERGIZER_PRESET.consolidator.toString());
-    }
-    
-    // Apply reading age setting
-    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider) {
-        enableReadingAgeAdjustmentCheckbox.checked = true;
-        saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, 'true');
-        targetReadingAgeSlider.value = MORNING_ENERGIZER_PRESET.readingAge.toString();
-        saveToLocalStorage(LS_TARGET_READING_AGE, MORNING_ENERGIZER_PRESET.readingAge.toString());
-        updateTargetReadingAgeSliderDOMState();
-    }
-    
-    // Apply engine suggestions setting
-    if (useEngineSuggestionsCheckbox) {
-        useEngineSuggestionsCheckbox.checked = MORNING_ENERGIZER_PRESET.useEngineSuggestions;
-        saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, MORNING_ENERGIZER_PRESET.useEngineSuggestions.toString());
-        updateSuggestionsTextareaStyle(useEngineSuggestionsCheckbox, userSuggestionsTextarea);
-    }
-    
-    // Update persona recommendations for morning mode
-    updatePersonaRecommendations('morning');
+    // Set initial label
+    styleSelectedLabel.textContent = currentValue || 'Select Style';
 }
 
 // --- STEM Concept Section Functions ---
@@ -431,43 +372,12 @@ function getSelectedSTEMConcept() {
     };
 }
 
-// --- Narrator Persona Functions ---
-function updatePersonaSummaryDisplay() {
-    if (!narratorPersonaSelect || !personaSummaryDiv) return;
-    
-    const selectedPersona = narratorPersonaSelect.value;
-    const summary = PERSONA_SUMMARIES[selectedPersona] || "";
-    personaSummaryDiv.textContent = summary;
-}
-
-function updatePersonaRecommendations(mode = null) {
-    if (!personaRecommendationDiv || !recommendedPersonasSpan) return;
-    
-    let recommendedList = [];
-    
-    if (mode === 'bedtime') {
-        recommendedList = PERSONA_RECOMMENDATIONS.bedtime;
-    } else if (mode === 'morning') {
-        recommendedList = PERSONA_RECOMMENDATIONS.morning;
-    } else if (craftingFrameworkSelect && craftingFrameworkSelect.value === 'Learning Fable (STEM)') {
-        recommendedList = PERSONA_RECOMMENDATIONS['Learning Fable (STEM)'];
-    }
-    
-    if (recommendedList && recommendedList.length > 0) {
-        recommendedPersonasSpan.textContent = recommendedList.join(', ');
-        personaRecommendationDiv.classList.remove('hidden');
-    } else {
-        personaRecommendationDiv.classList.add('hidden');
-    }
-}
-
 /**
  * Gets the current narrator persona text for inclusion in prompts
- * @returns {string} The persona instructions or empty string
+ * @returns {string} Empty string - narrator persona feature removed
  */
 function getSelectedPersonaText() {
-    if (!narratorPersonaSelect) return "";
-    return NARRATOR_PERSONAS[narratorPersonaSelect.value] || "";
+    return "";
 }
 
 // --- Parental Controls Functions ---
@@ -746,7 +656,6 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadChatLogButton = document.getElementById('downloadChatLogButton');
     charactersInput = document.getElementById('charactersInput');
     audienceInput = document.getElementById('audienceInput');
-    useEngineSuggestionsCheckbox = document.getElementById('useEngineSuggestionsCheckbox');
     userSuggestionsTextarea = document.getElementById('userSuggestionsTextarea');
     enableReadingAgeAdjustmentCheckbox = document.getElementById('enableReadingAgeAdjustmentCheckbox'); 
     targetReadingAgeSlider = document.getElementById('targetReadingAgeSlider'); 
@@ -780,15 +689,9 @@ document.addEventListener('DOMContentLoaded', () => {
     agent5CleanerToggle = document.getElementById('agent5CleanerToggle');
     agent6TitlerToggle = document.getElementById('agent6TitlerToggle');
     agentCConsolidatorToggle = document.getElementById('agentCConsolidatorToggle');
-    bedtimeModeToggle = document.getElementById('bedtimeModeToggle');
-    morningModeToggle = document.getElementById('morningModeToggle');
     stemConceptSection = document.getElementById('stemConceptSection');
     stemConceptSelect = document.getElementById('stemConceptSelect');
     stemConceptHint = document.getElementById('stemConceptHint');
-    narratorPersonaSelect = document.getElementById('narratorPersonaSelect');
-    personaSummaryDiv = document.getElementById('personaSummary');
-    personaRecommendationDiv = document.getElementById('personaRecommendation');
-    recommendedPersonasSpan = document.getElementById('recommendedPersonas');
     
     // Parental Controls DOM elements
     parentalControlsToggle = document.getElementById('parentalControlsToggle');
@@ -829,9 +732,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Theme toggle
     themeToggle = document.getElementById('themeToggle');
+    
+    // Framework and Style modal elements
+    frameworkModal = document.getElementById('frameworkModal');
+    frameworkSelectButton = document.getElementById('frameworkSelectButton');
+    frameworkSelectedLabel = document.getElementById('frameworkSelectedLabel');
+    frameworkOptionsGrid = document.getElementById('frameworkOptionsGrid');
+    styleModal = document.getElementById('styleModal');
+    styleSelectButton = document.getElementById('styleSelectButton');
+    styleSelectedLabel = document.getElementById('styleSelectedLabel');
+    styleOptionsGrid = document.getElementById('styleOptionsGrid');
+    closeStyleModalButton = document.getElementById('closeStyleModalButton');
+    
+    // Plot points toggle
+    includePlotPointsCheckbox = document.getElementById('includePlotPointsCheckbox');
+    plotPointsContainer = document.getElementById('plotPointsContainer');
 
 
-    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !agentTogglesContainer) {
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !agentTogglesContainer) {
         console.error("Critical UI elements are missing. Application may not function correctly.");
         if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
         return;
@@ -840,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initUIElements({ 
         storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton,
         decreaseFontButton, increaseFontButton,
-        craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea,
+        craftingFrameworkSelect, frameworkSummaryDiv, userSuggestionsTextarea,
         authorStyleSelect, styleSummaryDiv
     });
 
@@ -849,7 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme from localStorage or system preference
     initializeTheme();
 
-    if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome! Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
+    if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome to StoryGen!\n\nTo create a story:\n1. Enter your characters in the Characters field\n2. Set your target audience (e.g., "children aged 5-7")\n3. Choose a Story Framework and Authorial Style\n4. Optionally add specific plot points\n5. Click "Generate Story"\n\nFirst time? Configure your Gemini API Key in Settings (⚙️ icon).';
     enableMainControls();
 
     // Populate UI elements
@@ -863,12 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
     populateDropdown(authorStyleSelect, STORY_STYLE_GUIDES, false);
     authorStyleSelect.value = loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || "Default (No Specific Style)";
     updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
-
-    // Populate narrator persona dropdown
-    populateDropdown(narratorPersonaSelect, NARRATOR_PERSONAS, false);
-    narratorPersonaSelect.value = loadFromLocalStorage(LS_NARRATOR_PERSONA) || "Default (No Narrator Persona)";
-    updatePersonaSummaryDisplay();
-    updatePersonaRecommendations();
 
     populateDropdown(toneSelect, ADJUSTMENT_MODULES.tone);
     populateDropdown(pacingSelect, ADJUSTMENT_MODULES.pacing);
@@ -895,9 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
     audienceInput.value = loadFromLocalStorage(LS_AUDIENCE) || 'children aged 5-7';
     minApiIntervalInput.value = loadFromLocalStorage(LS_MIN_API_INTERVAL) || DEFAULT_MIN_API_INTERVAL_S.toString();
     
-    useEngineSuggestionsCheckbox.checked = (loadFromLocalStorage(LS_USE_ENGINE_SUGGESTIONS) === 'true');
     userSuggestionsTextarea.value = loadFromLocalStorage(LS_USER_SUGGESTIONS) || '';
-    updateSuggestionsTextareaStyle();
 
     enableReadingAgeAdjustmentCheckbox.checked = (loadFromLocalStorage(LS_ADJUST_READING_AGE_ENABLED) === 'true');
     readingAgeMinInput.value = loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString();
@@ -1059,15 +969,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, authorStyleSelect.value);
     });
 
-    narratorPersonaSelect.addEventListener('change', () => {
-        updatePersonaSummaryDisplay();
-        saveToLocalStorage(LS_NARRATOR_PERSONA, narratorPersonaSelect.value);
-    });
-
-    useEngineSuggestionsCheckbox.addEventListener('change', () => {
-        updateSuggestionsTextareaStyle();
-        saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, useEngineSuggestionsCheckbox.checked.toString());
-    });
     userSuggestionsTextarea.addEventListener('input', () => saveToLocalStorage(LS_USER_SUGGESTIONS, userSuggestionsTextarea.value));
     
     enableReadingAgeAdjustmentCheckbox.addEventListener('change', () => {
@@ -1130,6 +1031,35 @@ document.addEventListener('DOMContentLoaded', () => {
     humorSelect.addEventListener('change', () => saveToLocalStorage(LS_ADJUSTMENT_HUMOR, humorSelect.value));
     emotionSelect.addEventListener('change', () => saveToLocalStorage(LS_ADJUSTMENT_EMOTION, emotionSelect.value));
     
+    // Framework Modal
+    populateFrameworkModal();
+    frameworkSelectButton.addEventListener('click', () => {
+        frameworkModal.classList.add('active');
+    });
+    
+    // Style Modal  
+    populateStyleModal();
+    styleSelectButton.addEventListener('click', () => {
+        styleModal.classList.add('active');
+    });
+    closeStyleModalButton.addEventListener('click', () => {
+        styleModal.classList.remove('active');
+    });
+    
+    // Plot points toggle
+    if (includePlotPointsCheckbox && plotPointsContainer) {
+        const savedIncludePlotPoints = loadFromLocalStorage(LS_INCLUDE_PLOT_POINTS);
+        if (savedIncludePlotPoints !== null) {
+            includePlotPointsCheckbox.checked = savedIncludePlotPoints === 'true';
+        }
+        plotPointsContainer.style.display = includePlotPointsCheckbox.checked ? 'block' : 'none';
+        
+        includePlotPointsCheckbox.addEventListener('change', () => {
+            plotPointsContainer.style.display = includePlotPointsCheckbox.checked ? 'block' : 'none';
+            saveToLocalStorage(LS_INCLUDE_PLOT_POINTS, includePlotPointsCheckbox.checked.toString());
+        });
+    }
+    
     // Modal close buttons (X buttons in header)
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1146,42 +1076,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    // Bedtime Mode Toggle
-    if (bedtimeModeToggle) {
-        bedtimeModeToggle.addEventListener('click', () => {
-            const isActive = bedtimeModeToggle.getAttribute('aria-pressed') === 'true';
-            
-            if (!isActive) {
-                // Activate Bedtime Mode - apply all preset values
-                activateBedtimeMode();
-                bedtimeModeToggle.setAttribute('aria-pressed', 'true');
-                showTemporaryToast('🌙 Bedtime Mode activated! Settings optimized for calm stories.', 'success');
-            } else {
-                // Deactivate - just toggle the button state, don't reset settings
-                bedtimeModeToggle.setAttribute('aria-pressed', 'false');
-                showTemporaryToast('Bedtime Mode deactivated', 'info');
-            }
-        });
-    }
-
-    // Morning Mode Toggle
-    if (morningModeToggle) {
-        morningModeToggle.addEventListener('click', () => {
-            const isActive = morningModeToggle.getAttribute('aria-pressed') === 'true';
-            
-            if (!isActive) {
-                // Activate Morning Mode - apply all preset values
-                activateMorningMode();
-                morningModeToggle.setAttribute('aria-pressed', 'true');
-                showTemporaryToast('☀️ Morning Mode activated! Settings optimized for exciting stories.', 'success');
-            } else {
-                // Deactivate - just toggle the button state, don't reset settings
-                morningModeToggle.setAttribute('aria-pressed', 'false');
-                showTemporaryToast('Morning Mode deactivated', 'info');
-            }
-        });
-    }
 
     // Other buttons...
     downloadChatLogButton.addEventListener('click', () => {
@@ -1299,15 +1193,9 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
         }
 
         let userSuggestionsText = ""; 
-        if (useEngineSuggestionsCheckbox.checked) {
-            userSuggestionsText = "User has opted for the story engine to decide on specific suggestions if any are needed. Focus on the core request and framework.";
-        } else {
-            const suggestions = userSuggestionsTextarea.value.trim();
-            if (suggestions) {
-                userSuggestionsText = `User Suggestions (please incorporate these if they align with the story framework and goal):\n${suggestions}`;
-            } else {
-                userSuggestionsText = ""; 
-            }
+        const suggestions = userSuggestionsTextarea.value.trim();
+        if (suggestions) {
+            userSuggestionsText = `User Plot Points (please incorporate these if they align with the story framework and goal):\n${suggestions}`;
         }
         
         let readingAgeNote = ""; 

@@ -4,7 +4,7 @@ import appState from './appState.js';
 // --- DOM Element References (initialized by initUIElements) ---
 let storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton;
 let copyStoryButton, saveStoryButton, decreaseFontButton, increaseFontButton;
-let craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea;
+let craftingFrameworkSelect, frameworkSummaryDiv, userSuggestionsTextarea;
 let authorStyleSelect, styleSummaryDiv;
 
 export function initUIElements(elements) {
@@ -18,7 +18,6 @@ export function initUIElements(elements) {
     increaseFontButton = elements.increaseFontButton;
     craftingFrameworkSelect = elements.craftingFrameworkSelect;
     frameworkSummaryDiv = elements.frameworkSummaryDiv;
-    useEngineSuggestionsCheckbox = elements.useEngineSuggestionsCheckbox;
     userSuggestionsTextarea = elements.userSuggestionsTextarea;
 
     // New element references
@@ -124,14 +123,6 @@ export function updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES_DATA) {
     styleSummaryDiv.textContent = summary;
 }
 
-export function updateSuggestionsTextareaStyle() {
-    if (!userSuggestionsTextarea || !useEngineSuggestionsCheckbox) return;
-    const isDisabled = useEngineSuggestionsCheckbox.checked;
-    userSuggestionsTextarea.disabled = isDisabled;
-    userSuggestionsTextarea.classList.toggle('suggestions-used', !isDisabled);
-    userSuggestionsTextarea.classList.toggle('suggestions-not-used', isDisabled);
-}
-
 export function disableMainControls() {
     if (generateButton) generateButton.disabled = true;
     if (elaborateStoryButton) elaborateStoryButton.disabled = true;
@@ -210,13 +201,6 @@ function formatStoryAsHtml(text) {
         
         // Regular paragraph - wrap in <p> tag
         const escapedPara = escapeHtml(para);
-        
-        // Add drop cap to first paragraph
-        if (index === 0 && escapedPara.length > 1) {
-            const firstLetter = escapedPara.charAt(0);
-            const rest = escapedPara.slice(1);
-            return `<p class="story-paragraph story-first-paragraph"><span class="drop-cap">${firstLetter}</span>${rest}</p>`;
-        }
         
         return `<p class="story-paragraph">${escapedPara}</p>`;
     });
