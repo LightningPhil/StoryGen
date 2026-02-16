@@ -5,7 +5,7 @@ import appState from './appState.js';
 let storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton;
 let copyStoryButton, saveStoryButton, decreaseFontButton, increaseFontButton;
 let craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea;
-let authorStyleSelect, styleSummaryDiv, adjustmentsButton; // New UI elements
+let authorStyleSelect, styleSummaryDiv;
 
 export function initUIElements(elements) {
     storyTitleDiv = elements.storyTitleDiv;
@@ -24,7 +24,6 @@ export function initUIElements(elements) {
     // New element references
     authorStyleSelect = elements.authorStyleSelect;
     styleSummaryDiv = elements.styleSummaryDiv;
-    adjustmentsButton = elements.adjustmentsButton;
 
     // Initial state for action buttons (hidden)
     if (copyStoryButton) copyStoryButton.classList.add('hidden');
@@ -61,7 +60,9 @@ export function displayFinalStoryOutput(title, storyText, isElaboration = false)
         storyTitleDiv.classList.remove('placeholder');
     }
     if (storyOutputDiv) {
-        storyOutputDiv.textContent = storyText; 
+        // Format story text as proper paragraphs
+        const formattedHtml = formatStoryAsHtml(storyText);
+        storyOutputDiv.innerHTML = formattedHtml; 
         storyOutputDiv.scrollTop = 0; 
     }
 
@@ -134,13 +135,11 @@ export function updateSuggestionsTextareaStyle() {
 export function disableMainControls() {
     if (generateButton) generateButton.disabled = true;
     if (elaborateStoryButton) elaborateStoryButton.disabled = true;
-    if (adjustmentsButton) adjustmentsButton.disabled = true;
     // Font buttons usability depends on story presence, managed by displayFinalStoryOutput/displayErrorInStoryOutput
 }
 
 export function enableMainControls() {
     if (generateButton) generateButton.disabled = false;
-    if (adjustmentsButton) adjustmentsButton.disabled = false;
     
     if (appState.latestGeneratedStoryText && elaborateStoryButton) {
         elaborateStoryButton.disabled = false;
@@ -173,4 +172,54 @@ export function populateDropdown(selectElement, optionsObject, capitalize = true
         option.textContent = textContent;
         selectElement.appendChild(option);
     }
+}
+
+/**
+ * Formats story text as HTML with proper paragraphs and typography
+ * @param {string} text - Raw story text
+ * @returns {string} HTML formatted story
+ */
+function formatStoryAsHtml(text) {
+    if (!text) return '';
+    
+    // Escape HTML entities for safety
+    const escapeHtml = (str) => {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
+    
+    // Split text into paragraphs (double newlines or single newlines followed by a capital letter paragraph start)
+    const paragraphs = text
+        .split(/\n\n+/)
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+    
+    // Process each paragraph
+    const formattedParagraphs = paragraphs.map((para, index) => {
+        // Handle chapter headers or section breaks (lines starting with # or all caps short lines)
+        if (para.startsWith('#')) {
+            const headerText = escapeHtml(para.replace(/^#+\s*/, ''));
+            return `<h3 class="story-chapter">${headerText}</h3>`;
+        }
+        
+        // Check if it's a scene break indicator
+        if (para === '***' || para === '---' || para === '* * *') {
+            return `<div class="story-break" aria-hidden="true">✦</div>`;
+        }
+        
+        // Regular paragraph - wrap in <p> tag
+        const escapedPara = escapeHtml(para);
+        
+        // Add drop cap to first paragraph
+        if (index === 0 && escapedPara.length > 1) {
+            const firstLetter = escapedPara.charAt(0);
+            const rest = escapedPara.slice(1);
+            return `<p class="story-paragraph story-first-paragraph"><span class="drop-cap">${firstLetter}</span>${rest}</p>`;
+        }
+        
+        return `<p class="story-paragraph">${escapedPara}</p>`;
+    });
+    
+    return formattedParagraphs.join('\n');
 }

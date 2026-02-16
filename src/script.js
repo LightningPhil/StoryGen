@@ -67,7 +67,7 @@ let useEngineSuggestionsCheckbox, userSuggestionsTextarea;
 let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
 let enableConsolidatorCheckbox;
-let authorStyleSelect, styleSummaryDiv, adjustmentsButton, adjustmentsModal, cancelAdjustmentsButton, saveAdjustmentsButton;
+let authorStyleSelect, styleSummaryDiv;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
 let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
 let bedtimeModeToggle, morningModeToggle;
@@ -768,10 +768,6 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSettingsButton = document.getElementById('saveSettingsButton');
     authorStyleSelect = document.getElementById('authorStyleSelect');
     styleSummaryDiv = document.getElementById('styleSummary');
-    adjustmentsButton = document.getElementById('adjustmentsButton');
-    adjustmentsModal = document.getElementById('adjustmentsModal');
-    cancelAdjustmentsButton = document.getElementById('cancelAdjustmentsButton');
-    saveAdjustmentsButton = document.getElementById('saveAdjustmentsButton');
     toneSelect = document.getElementById('toneSelect');
     pacingSelect = document.getElementById('pacingSelect');
     humorSelect = document.getElementById('humorSelect');
@@ -835,7 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggle = document.getElementById('themeToggle');
 
 
-    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !adjustmentsModal || !agentTogglesContainer) {
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !agentTogglesContainer) {
         console.error("Critical UI elements are missing. Application may not function correctly.");
         if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
         return;
@@ -843,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initUIElements({ 
         storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton, copyStoryButton, saveStoryButton,
-        decreaseFontButton, increaseFontButton, adjustmentsButton,
+        decreaseFontButton, increaseFontButton,
         craftingFrameworkSelect, frameworkSummaryDiv, useEngineSuggestionsCheckbox, userSuggestionsTextarea,
         authorStyleSelect, styleSummaryDiv
     });
@@ -922,6 +918,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Event Listeners ---
+    
+    // Tab Navigation
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+            
+            // Update button states
+            tabButtons.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            
+            // Update panel states
+            tabPanels.forEach(panel => {
+                panel.classList.remove('active');
+            });
+            const targetPanel = document.getElementById(`tab-${targetTab}`);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+    
     craftingFrameworkSelect.addEventListener('change', () => {
         updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
         saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
@@ -1100,17 +1124,11 @@ document.addEventListener('DOMContentLoaded', () => {
         showTemporaryToast("Settings saved!", "success");
     });
     
-    // Adjustments Modal
-    adjustmentsButton.addEventListener('click', () => adjustmentsModal.classList.add('active'));
-    cancelAdjustmentsButton.addEventListener('click', () => adjustmentsModal.classList.remove('active'));
-    saveAdjustmentsButton.addEventListener('click', () => {
-        saveToLocalStorage(LS_ADJUSTMENT_TONE, toneSelect.value);
-        saveToLocalStorage(LS_ADJUSTMENT_PACING, pacingSelect.value);
-        saveToLocalStorage(LS_ADJUSTMENT_HUMOR, humorSelect.value);
-        saveToLocalStorage(LS_ADJUSTMENT_EMOTION, emotionSelect.value);
-        adjustmentsModal.classList.remove('active');
-        showTemporaryToast("Style adjustments saved!", "success");
-    });
+    // Style controls (auto-save on change)
+    toneSelect.addEventListener('change', () => saveToLocalStorage(LS_ADJUSTMENT_TONE, toneSelect.value));
+    pacingSelect.addEventListener('change', () => saveToLocalStorage(LS_ADJUSTMENT_PACING, pacingSelect.value));
+    humorSelect.addEventListener('change', () => saveToLocalStorage(LS_ADJUSTMENT_HUMOR, humorSelect.value));
+    emotionSelect.addEventListener('change', () => saveToLocalStorage(LS_ADJUSTMENT_EMOTION, emotionSelect.value));
     
     // Modal close buttons (X buttons in header)
     document.querySelectorAll('.modal-close').forEach(btn => {

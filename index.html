@@ -73,16 +73,222 @@
                     </div>
                 </section>
 
-                <!-- Campaign Section (Collapsible) -->
-                <details class="accordion campaign-accordion">
-                    <summary class="accordion-header">
-                        <span class="accordion-icon">📚</span>
-                        <span class="accordion-title">Multi-Part Campaign</span>
-                        <svg class="accordion-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
+                <!-- Tab Navigation -->
+                <nav class="tabs-nav" role="tablist">
+                    <button class="tab-btn active" data-tab="story" role="tab" aria-selected="true" aria-controls="tab-story">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                         </svg>
-                    </summary>
-                    <div class="accordion-content" id="campaignContent">
+                        Story
+                    </button>
+                    <button class="tab-btn" data-tab="style" role="tab" aria-selected="false" aria-controls="tab-style">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                            <path d="M2 2l7.586 7.586"/>
+                            <circle cx="11" cy="11" r="2"/>
+                        </svg>
+                        Style
+                    </button>
+                    <button class="tab-btn" data-tab="options" role="tab" aria-selected="false" aria-controls="tab-options">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="4" y1="21" x2="4" y2="14"/>
+                            <line x1="4" y1="10" x2="4" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12" y2="3"/>
+                            <line x1="20" y1="21" x2="20" y2="16"/>
+                            <line x1="20" y1="12" x2="20" y2="3"/>
+                            <circle cx="4" cy="12" r="2"/>
+                            <circle cx="12" cy="10" r="2"/>
+                            <circle cx="20" cy="14" r="2"/>
+                        </svg>
+                        Options
+                    </button>
+                    <button class="tab-btn" data-tab="campaign" role="tab" aria-selected="false" aria-controls="tab-campaign">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                        Series
+                    </button>
+                </nav>
+
+                <!-- Tab Panels -->
+                <div class="tabs-content">
+                    <!-- Tab 1: Story Basics -->
+                    <div id="tab-story" class="tab-panel active" role="tabpanel">
+                        <div class="field">
+                            <label for="charactersInput">Characters</label>
+                            <textarea id="charactersInput" rows="2" placeholder="e.g., a curious fox named Felix, a wise owl"></textarea>
+                        </div>
+
+                        <div class="field">
+                            <label for="audienceInput">Target Audience</label>
+                            <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7">
+                        </div>
+
+                        <div class="field">
+                            <label for="craftingFrameworkSelect">Story Framework</label>
+                            <select id="craftingFrameworkSelect"></select>
+                            <div id="frameworkSummary" class="field-hint"></div>
+                        </div>
+
+                        <div class="field">
+                            <label for="authorStyleSelect">Authorial Style</label>
+                            <select id="authorStyleSelect"></select>
+                            <div id="styleSummary" class="field-hint"></div>
+                        </div>
+
+                        <div class="field">
+                            <label for="narratorPersonaSelect">Narrator Persona</label>
+                            <select id="narratorPersonaSelect"></select>
+                            <div id="personaSummary" class="field-hint"></div>
+                            <div id="personaRecommendation" class="field-recommendation hidden">
+                                💡 Suggested: <span id="recommendedPersonas"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Style & Tone -->
+                    <div id="tab-style" class="tab-panel" role="tabpanel">
+                        <div class="field">
+                            <label for="toneSelect">Tone</label>
+                            <select id="toneSelect"></select>
+                        </div>
+
+                        <div class="field">
+                            <label for="pacingSelect">Pacing</label>
+                            <select id="pacingSelect"></select>
+                        </div>
+
+                        <div class="field">
+                            <label for="humorSelect">Humor Style</label>
+                            <select id="humorSelect"></select>
+                        </div>
+
+                        <div class="field">
+                            <label for="emotionSelect">Emotional Journey</label>
+                            <select id="emotionSelect"></select>
+                        </div>
+
+                        <div class="field-divider"></div>
+
+                        <div class="field">
+                            <label for="sensitivityPresetSelect">Content Sensitivity</label>
+                            <select id="sensitivityPresetSelect">
+                                <option value="extra_gentle">Extra Gentle (Ages 3-4)</option>
+                                <option value="gentle">Gentle (Ages 4-6)</option>
+                                <option value="standard" selected>Standard (Ages 6-9)</option>
+                                <option value="adventurous">Adventurous (Ages 9+)</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                            <div id="sensitivitySummary" class="field-hint"></div>
+                        </div>
+
+                        <div id="customSensitivityControls" class="custom-controls hidden">
+                            <div class="sensitivity-row">
+                                <label for="conflictSlider">Conflict Level</label>
+                                <input type="range" id="conflictSlider" min="0" max="3" value="2" class="sensitivity-slider" aria-label="Conflict level">
+                                <span id="conflictLabel" class="sensitivity-value">Standard</span>
+                            </div>
+                            <div class="sensitivity-row">
+                                <label for="scarySlider">Scary Elements</label>
+                                <input type="range" id="scarySlider" min="0" max="3" value="2" class="sensitivity-slider" aria-label="Scary elements level">
+                                <span id="scaryLabel" class="sensitivity-value">Gentle</span>
+                            </div>
+                            <div class="sensitivity-row">
+                                <label for="sadnessSlider">Sad Moments</label>
+                                <input type="range" id="sadnessSlider" min="0" max="3" value="2" class="sensitivity-slider" aria-label="Sadness level">
+                                <span id="sadnessLabel" class="sensitivity-value">Gentle</span>
+                            </div>
+                            <div class="sensitivity-row">
+                                <label for="complexitySlider">Story Complexity</label>
+                                <input type="range" id="complexitySlider" min="0" max="3" value="2" class="sensitivity-slider" aria-label="Complexity level">
+                                <span id="complexityLabel" class="sensitivity-value">Standard</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Generation Options -->
+                    <div id="tab-options" class="tab-panel" role="tabpanel">
+                        <!-- STEM Concept (conditional) -->
+                        <div id="stemConceptSection" class="field conditional hidden">
+                            <label for="stemConceptSelect">STEM Concept to Teach</label>
+                            <select id="stemConceptSelect">
+                                <option value="">-- Select a concept --</option>
+                                <optgroup label="Physics">
+                                    <option value="displacement">Displacement (Crow & Pitcher)</option>
+                                    <option value="leverage">Leverage & Simple Machines</option>
+                                    <option value="momentum">Momentum & Mass</option>
+                                    <option value="buoyancy">Buoyancy & Floating</option>
+                                    <option value="friction">Friction & Movement</option>
+                                    <option value="aerodynamics">Aerodynamics & Flight</option>
+                                </optgroup>
+                                <optgroup label="Mathematics">
+                                    <option value="counting">Counting & Division</option>
+                                    <option value="patterns">Patterns & Sequences</option>
+                                    <option value="geometry">Shapes & Geometry</option>
+                                    <option value="estimation">Estimation & Measurement</option>
+                                </optgroup>
+                                <optgroup label="Biology & Nature">
+                                    <option value="metamorphosis">Metamorphosis & Change</option>
+                                    <option value="camouflage">Camouflage & Adaptation</option>
+                                    <option value="ecosystems">Ecosystems & Interdependence</option>
+                                    <option value="lifecycles">Life Cycles</option>
+                                    <option value="echolocation">Sound Waves & Echolocation</option>
+                                </optgroup>
+                                <optgroup label="Engineering & Logic">
+                                    <option value="problem_solving">Iterative Problem Solving</option>
+                                    <option value="materials">Material Properties</option>
+                                    <option value="structures">Strong Structures</option>
+                                </optgroup>
+                            </select>
+                            <div id="stemConceptHint" class="field-hint"></div>
+                        </div>
+
+                        <div class="field">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="useEngineSuggestionsCheckbox">
+                                <span>Let AI suggest plot points</span>
+                            </label>
+                        </div>
+
+                        <div class="field">
+                            <label for="userSuggestionsTextarea">Custom Plot Points</label>
+                            <textarea id="userSuggestionsTextarea" rows="3" placeholder="Enter your own plot points, scene ideas, or story directions..."></textarea>
+                        </div>
+
+                        <div class="field-divider"></div>
+
+                        <div class="field">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="enableReadingAgeAdjustmentCheckbox">
+                                <span>Adjust vocabulary for reading age</span>
+                            </label>
+                        </div>
+
+                        <div id="readingAgeSliderContainer" class="slider-container">
+                            <div class="slider-row">
+                                <span class="slider-min">Simple (5)</span>
+                                <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7" aria-label="Target reading age">
+                                <span class="slider-max">Advanced (12)</span>
+                            </div>
+                        </div>
+
+                        <div class="field-divider"></div>
+
+                        <div class="field">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="enableConsolidatorCheckbox">
+                                <span>Consolidate for conciseness</span>
+                            </label>
+                            <div class="field-hint">Runs an extra pass to tighten the story and remove redundancy.</div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Campaign -->
+                    <div id="tab-campaign" class="tab-panel" role="tabpanel">
                         <div id="activeCampaignInfo" class="campaign-active hidden">
                             <div class="campaign-meta">
                                 <span id="campaignTitle" class="campaign-name"></span>
@@ -96,196 +302,15 @@
                         </div>
                         <div id="noCampaignInfo" class="campaign-empty">
                             <p>Create a multi-episode story arc with recurring characters and a continuing plot.</p>
-                            <button id="newCampaignButton" class="btn btn-secondary">Start New Campaign</button>
+                            <button id="newCampaignButton" class="btn btn-secondary btn-block">Start New Campaign</button>
                             <div id="existingCampaigns" class="campaign-existing hidden">
                                 <span class="divider-text">or continue existing</span>
-                                <select id="existingCampaignSelect"></select>
+                                <select id="existingCampaignSelect" title="Select existing campaign"></select>
                                 <button id="loadCampaignButton" class="btn btn-sm btn-ghost">Load</button>
                             </div>
                         </div>
                     </div>
-                </details>
-
-                <!-- Core Story Settings -->
-                <section class="form-section">
-                    <h2 class="section-title">Story Setup</h2>
-                    
-                    <div class="field">
-                        <label for="charactersInput">Characters</label>
-                        <textarea id="charactersInput" rows="2" placeholder="e.g., a curious fox named Felix, a wise owl"></textarea>
-                    </div>
-
-                    <div class="field">
-                        <label for="audienceInput">Target Audience</label>
-                        <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7">
-                    </div>
-
-                    <div class="field">
-                        <label for="craftingFrameworkSelect">Story Framework</label>
-                        <select id="craftingFrameworkSelect"></select>
-                        <div id="frameworkSummary" class="field-hint"></div>
-                    </div>
-
-                    <!-- STEM Concept (conditional) -->
-                    <div id="stemConceptSection" class="field conditional hidden">
-                        <label for="stemConceptSelect">STEM Concept to Teach</label>
-                        <select id="stemConceptSelect">
-                            <option value="">-- Select a concept --</option>
-                            <optgroup label="Physics">
-                                <option value="displacement">Displacement (Crow & Pitcher)</option>
-                                <option value="leverage">Leverage & Simple Machines</option>
-                                <option value="momentum">Momentum & Mass</option>
-                                <option value="buoyancy">Buoyancy & Floating</option>
-                                <option value="friction">Friction & Movement</option>
-                                <option value="aerodynamics">Aerodynamics & Flight</option>
-                            </optgroup>
-                            <optgroup label="Mathematics">
-                                <option value="counting">Counting & Division</option>
-                                <option value="patterns">Patterns & Sequences</option>
-                                <option value="geometry">Shapes & Geometry</option>
-                                <option value="estimation">Estimation & Measurement</option>
-                            </optgroup>
-                            <optgroup label="Biology & Nature">
-                                <option value="metamorphosis">Metamorphosis & Change</option>
-                                <option value="camouflage">Camouflage & Adaptation</option>
-                                <option value="ecosystems">Ecosystems & Interdependence</option>
-                                <option value="lifecycles">Life Cycles</option>
-                                <option value="echolocation">Sound Waves & Echolocation</option>
-                            </optgroup>
-                            <optgroup label="Engineering & Logic">
-                                <option value="problem_solving">Iterative Problem Solving</option>
-                                <option value="materials">Material Properties</option>
-                                <option value="structures">Strong Structures</option>
-                            </optgroup>
-                        </select>
-                        <div id="stemConceptHint" class="field-hint"></div>
-                    </div>
-                </section>
-
-                <!-- Style & Voice -->
-                <section class="form-section">
-                    <h2 class="section-title">Style & Voice</h2>
-
-                    <div class="field">
-                        <label for="authorStyleSelect">Authorial Style</label>
-                        <select id="authorStyleSelect"></select>
-                        <div id="styleSummary" class="field-hint"></div>
-                    </div>
-
-                    <div class="field">
-                        <label for="narratorPersonaSelect">Narrator Persona</label>
-                        <select id="narratorPersonaSelect"></select>
-                        <div id="personaSummary" class="field-hint"></div>
-                        <div id="personaRecommendation" class="field-recommendation hidden">
-                            💡 Suggested: <span id="recommendedPersonas"></span>
-                        </div>
-                    </div>
-
-                    <button id="adjustmentsButton" class="btn btn-secondary btn-block">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="4" y1="21" x2="4" y2="14"/>
-                            <line x1="4" y1="10" x2="4" y2="3"/>
-                            <line x1="12" y1="21" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12" y2="3"/>
-                            <line x1="20" y1="21" x2="20" y2="16"/>
-                            <line x1="20" y1="12" x2="20" y2="3"/>
-                            <circle cx="4" cy="12" r="2"/>
-                            <circle cx="12" cy="10" r="2"/>
-                            <circle cx="20" cy="14" r="2"/>
-                        </svg>
-                        Adjust Tone & Style
-                    </button>
-                </section>
-
-                <!-- Advanced Options (Collapsible) -->
-                <details class="accordion">
-                    <summary class="accordion-header">
-                        <span class="accordion-title">Advanced Options</span>
-                        <svg class="accordion-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </summary>
-                    <div class="accordion-content">
-                        <div class="option-row">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="useEngineSuggestionsCheckbox">
-                                <span>Let AI suggest plot points</span>
-                            </label>
-                        </div>
-                        <div class="field">
-                            <textarea id="userSuggestionsTextarea" rows="2" placeholder="Or enter your own plot points, scene ideas..."></textarea>
-                        </div>
-
-                        <div class="option-row">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="enableReadingAgeAdjustmentCheckbox">
-                                <span>Adjust reading age</span>
-                            </label>
-                        </div>
-                        <div id="readingAgeSliderContainer" class="slider-container">
-                            <div class="slider-row">
-                                <span class="slider-min">Simple</span>
-                                <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7" aria-label="Target reading age">
-                                <span class="slider-max">Advanced</span>
-                            </div>
-                        </div>
-
-                        <div class="option-row">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="enableConsolidatorCheckbox">
-                                <span>Consolidate for conciseness</span>
-                            </label>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- Parental Controls (Collapsible) -->
-                <details class="accordion parental-accordion">
-                    <summary class="accordion-header">
-                        <span class="accordion-icon">🛡️</span>
-                        <span class="accordion-title">Parental Controls</span>
-                        <svg class="accordion-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </summary>
-                    <div class="accordion-content" id="parentalControlsContent">
-                        <div class="field">
-                            <label for="sensitivityPresetSelect">Content Preset</label>
-                            <select id="sensitivityPresetSelect">
-                                <option value="extra_gentle">Extra Gentle (Ages 3-4)</option>
-                                <option value="gentle">Gentle (Ages 4-6)</option>
-                                <option value="standard" selected>Standard (Ages 6-9)</option>
-                                <option value="adventurous">Adventurous (Ages 9+)</option>
-                                <option value="custom">Custom...</option>
-                            </select>
-                        </div>
-                        
-                        <div id="customSensitivityControls" class="custom-controls hidden">
-                            <div class="sensitivity-row">
-                                <label for="conflictSlider">Conflict Level</label>
-                                <input type="range" id="conflictSlider" min="0" max="3" value="2" class="sensitivity-slider">
-                                <span id="conflictLabel" class="sensitivity-value">Standard</span>
-                            </div>
-                            <div class="sensitivity-row">
-                                <label for="scarySlider">Scary Elements</label>
-                                <input type="range" id="scarySlider" min="0" max="3" value="2" class="sensitivity-slider">
-                                <span id="scaryLabel" class="sensitivity-value">Gentle</span>
-                            </div>
-                            <div class="sensitivity-row">
-                                <label for="sadnessSlider">Sad Moments</label>
-                                <input type="range" id="sadnessSlider" min="0" max="3" value="2" class="sensitivity-slider">
-                                <span id="sadnessLabel" class="sensitivity-value">Gentle</span>
-                            </div>
-                            <div class="sensitivity-row">
-                                <label for="complexitySlider">Story Complexity</label>
-                                <input type="range" id="complexitySlider" min="0" max="3" value="2" class="sensitivity-slider">
-                                <span id="complexityLabel" class="sensitivity-value">Standard</span>
-                            </div>
-                        </div>
-                        
-                        <div id="sensitivitySummary" class="field-hint"></div>
-                    </div>
-                </details>
+                </div>
             </div>
 
             <!-- Fixed Generate Button -->
@@ -359,40 +384,6 @@
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- MODALS                                                               -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
-
-    <!-- Adjustments Modal -->
-    <div id="adjustmentsModal" class="modal">
-        <div class="modal-content">
-            <header class="modal-header">
-                <h2>Stylistic Adjustments</h2>
-                <button class="modal-close" aria-label="Close modal">&times;</button>
-            </header>
-            <div class="modal-body">
-                <div class="modal-grid">
-                    <div class="field">
-                        <label for="toneSelect">Tone</label>
-                        <select id="toneSelect"></select>
-                    </div>
-                    <div class="field">
-                        <label for="pacingSelect">Pacing & Cadence</label>
-                        <select id="pacingSelect"></select>
-                    </div>
-                    <div class="field">
-                        <label for="humorSelect">Humor Style</label>
-                        <select id="humorSelect"></select>
-                    </div>
-                    <div class="field">
-                        <label for="emotionSelect">Emotional Journey</label>
-                        <select id="emotionSelect"></select>
-                    </div>
-                </div>
-            </div>
-            <footer class="modal-footer">
-                <button id="cancelAdjustmentsButton" class="btn btn-ghost">Cancel</button>
-                <button id="saveAdjustmentsButton" class="btn btn-primary">Save & Close</button>
-            </footer>
-        </div>
-    </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
