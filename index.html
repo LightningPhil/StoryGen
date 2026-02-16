@@ -42,6 +42,13 @@
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                         </svg>
                     </button>
+                    <button id="helpButton" class="icon-button" aria-label="Help" title="Help">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </button>
                 </div>
             </header>
 
@@ -69,13 +76,6 @@
                             <circle cx="20" cy="14" r="2"/>
                         </svg>
                         Options
-                    </button>
-                    <button class="tab-btn" data-tab="campaign" role="tab" aria-selected="false" aria-controls="tab-campaign">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                        </svg>
-                        Series
                     </button>
                 </nav>
 
@@ -226,30 +226,6 @@
                                 <span>Consolidate for conciseness</span>
                             </label>
                             <div class="field-hint">Runs an extra pass to tighten the story and remove redundancy.</div>
-                        </div>
-                    </div>
-
-                    <!-- Tab 3: Campaign -->
-                    <div id="tab-campaign" class="tab-panel" role="tabpanel">
-                        <div id="activeCampaignInfo" class="campaign-active hidden">
-                            <div class="campaign-meta">
-                                <span id="campaignTitle" class="campaign-name"></span>
-                                <span id="campaignProgress" class="campaign-badge"></span>
-                            </div>
-                            <p id="episodeInfo" class="campaign-episode"></p>
-                            <div class="campaign-buttons">
-                                <button id="continueEpisodeButton" class="btn btn-sm btn-primary">Continue Episode</button>
-                                <button id="exitCampaignButton" class="btn btn-sm btn-ghost">Exit</button>
-                            </div>
-                        </div>
-                        <div id="noCampaignInfo" class="campaign-empty">
-                            <p>Create a multi-episode story arc with recurring characters and a continuing plot.</p>
-                            <button id="newCampaignButton" class="btn btn-secondary btn-block">Start New Campaign</button>
-                            <div id="existingCampaigns" class="campaign-existing hidden">
-                                <span class="divider-text">or continue existing</span>
-                                <select id="existingCampaignSelect" title="Select existing campaign"></select>
-                                <button id="loadCampaignButton" class="btn btn-sm btn-ghost">Load</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,6 +401,31 @@
         </div>
     </div>
 
+    <!-- Help Wiki Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content modal-xl">
+            <header class="modal-header">
+                <h2>Help & Documentation</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body modal-body-split help-modal-body">
+                <nav class="modal-column modal-column-left help-topics-nav">
+                    <ul id="helpTopicsList" class="help-topics-list">
+                        <!-- Topics populated by JavaScript -->
+                    </ul>
+                </nav>
+                <article class="modal-column modal-column-right help-content-area">
+                    <div id="helpContentDisplay" class="help-content-display">
+                        <!-- Content populated by JavaScript -->
+                    </div>
+                </article>
+            </div>
+            <footer class="modal-footer">
+                <button id="closeHelpModalButton" class="btn btn-primary">Close</button>
+            </footer>
+        </div>
+    </div>
+
     <!-- Authorial Style Selection Modal -->
     <div id="styleModal" class="modal">
         <div class="modal-content modal-xl">
@@ -432,75 +433,40 @@
                 <h2>Select Authorial Style</h2>
                 <button class="modal-close" aria-label="Close modal">&times;</button>
             </header>
-            <div class="modal-body">
-                <p class="modal-description">Choose a style that influences the tone and voice of your story.</p>
-                <div id="styleOptionsGrid" class="selection-grid">
-                    <!-- Options populated by JavaScript -->
+            <div class="modal-body modal-body-split">
+                <div class="modal-column modal-column-left">
+                    <p class="modal-description">Choose a style that influences the tone and voice of your story.</p>
+                    <div id="styleOptionsGrid" class="selection-grid">
+                        <!-- Options populated by JavaScript -->
+                    </div>
                 </div>
                 
-                <div class="modal-section">
-                    <h3>Fine-tune the Style</h3>
-                    <div class="style-adjustments-grid">
-                        <div class="field">
-                            <label for="toneSelect">Tone</label>
-                            <select id="toneSelect"></select>
-                        </div>
-                        <div class="field">
-                            <label for="pacingSelect">Pacing</label>
-                            <select id="pacingSelect"></select>
-                        </div>
-                        <div class="field">
-                            <label for="humorSelect">Humor Style</label>
-                            <select id="humorSelect"></select>
-                        </div>
-                        <div class="field">
-                            <label for="emotionSelect">Emotional Journey</label>
-                            <select id="emotionSelect"></select>
+                <div class="modal-column modal-column-right">
+                    <div class="modal-section modal-section-compact">
+                        <h3>Fine-tune the Style</h3>
+                        <div class="style-adjustments-stack">
+                            <div class="field">
+                                <label for="toneSelect">Tone</label>
+                                <select id="toneSelect"></select>
+                            </div>
+                            <div class="field">
+                                <label for="pacingSelect">Pacing</label>
+                                <select id="pacingSelect"></select>
+                            </div>
+                            <div class="field">
+                                <label for="humorSelect">Humor Style</label>
+                                <select id="humorSelect"></select>
+                            </div>
+                            <div class="field">
+                                <label for="emotionSelect">Emotional Journey</label>
+                                <select id="emotionSelect"></select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <footer class="modal-footer">
                 <button id="closeStyleModalButton" class="btn btn-primary">Done</button>
-            </footer>
-        </div>
-    </div>
-
-    <!-- Campaign Creation Modal -->
-    <div id="campaignModal" class="modal">
-        <div class="modal-content">
-            <header class="modal-header">
-                <h2>Create New Campaign</h2>
-                <button class="modal-close" aria-label="Close modal">&times;</button>
-            </header>
-            <div class="modal-body">
-                <div class="field">
-                    <label for="campaignTitleInput">Campaign Title</label>
-                    <input type="text" id="campaignTitleInput" placeholder='e.g., "The Adventures of Pip the Panda"'>
-                </div>
-                
-                <div class="field">
-                    <label for="campaignArcSelect">Story Arc</label>
-                    <select id="campaignArcSelect">
-                        <option value="three_part">3-Part Mini-Series (Quick)</option>
-                        <option value="five_part" selected>5-Part Adventure (Recommended)</option>
-                        <option value="seven_part">7-Night Epic Journey</option>
-                    </select>
-                    <div id="arcDescription" class="field-hint"></div>
-                </div>
-                
-                <div class="field">
-                    <label for="campaignGoalInput">Overarching Goal (Optional)</label>
-                    <textarea id="campaignGoalInput" rows="2" placeholder='e.g., "Find the lost treasure of Rainbow Mountain"'></textarea>
-                </div>
-                
-                <div class="info-box">
-                    <strong>Note:</strong> The characters you've entered in the main form will be used for this campaign.
-                </div>
-            </div>
-            <footer class="modal-footer">
-                <button id="cancelCampaignButton" class="btn btn-ghost">Cancel</button>
-                <button id="createCampaignButton" class="btn btn-primary">Create Campaign</button>
             </footer>
         </div>
     </div>

@@ -66,3 +66,37 @@ export function loadFromLocalStorage(key) {
         return null;
     }
 }
+
+export function removeFromLocalStorage(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (e) {
+        console.warn("Could not remove from local storage:", e);
+    }
+}
+
+/**
+ * Clear all StoryGen app data from localStorage
+ * Keeps the API key by default (pass true to clear it too)
+ */
+export function clearAllAppData(includeApiKey = false) {
+    const allKeys = [
+        LS_CHARACTERS, LS_AUDIENCE, LS_SELECTED_FRAMEWORK, LS_SELECTED_MODEL,
+        LS_USE_ENGINE_SUGGESTIONS, LS_USER_SUGGESTIONS, LS_MIN_API_INTERVAL,
+        LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, LS_READING_AGE_MIN, LS_READING_AGE_MAX,
+        LS_ENABLE_CONSOLIDATOR, LS_SELECTED_AUTHOR_STYLE,
+        LS_ADJUSTMENT_TONE, LS_ADJUSTMENT_PACING, LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION,
+        LS_STEM_CONCEPT, LS_INCLUDE_PLOT_POINTS, LS_NARRATOR_PERSONA,
+        LS_SENSITIVITY_PRESET, LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
+        LS_THEME,
+        LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
+        LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
+        LS_THINKING_AGENT_C_CONSOLIDATOR
+    ];
+    
+    if (includeApiKey) {
+        allKeys.push(LS_API_KEY);
+    }
+    
+    allKeys.forEach(key => removeFromLocalStorage(key));
+}

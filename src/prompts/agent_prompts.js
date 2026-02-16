@@ -27,8 +27,6 @@ You MUST adopt the following tone and style for the story.
 
 \${SENSITIVITY_GUIDANCE_TEXT}
 
-\${CAMPAIGN_GUIDANCE_TEXT}
-
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
 
@@ -62,8 +60,6 @@ Your elaborations MUST adhere to the original style.
 \${NARRATOR_PERSONA_TEXT}
 
 \${SENSITIVITY_GUIDANCE_TEXT}
-
-\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
@@ -102,8 +98,6 @@ export const PROMPT_AGENT_3_REVIEWER_TEMPLATE = `You are an expert in evaluating
 \${NARRATOR_PERSONA_TEXT}
 
 \${SENSITIVITY_GUIDANCE_TEXT}
-
-\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
@@ -145,8 +139,6 @@ export const PROMPT_AGENT_4_POLISHER_TEMPLATE = `You are a talented story editor
 \${NARRATOR_PERSONA_TEXT}
 
 \${SENSITIVITY_GUIDANCE_TEXT}
-
-\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
@@ -210,8 +202,6 @@ Your task is to review the following story text and consolidate it. Your goal is
 \${NARRATOR_PERSONA_TEXT}
 
 \${SENSITIVITY_GUIDANCE_TEXT}
-
-\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}

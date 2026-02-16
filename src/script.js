@@ -29,7 +29,7 @@ import {
     LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
     LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
     LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME,
-    saveToLocalStorage, loadFromLocalStorage 
+    saveToLocalStorage, loadFromLocalStorage, clearAllAppData 
 } from './localStorage.js';
 
 // --- Imports from Modules ---
@@ -38,6 +38,7 @@ import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/stor
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules.js';
 import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts.js';
+import { HELP_TOPICS, HELP_TOPIC_ORDER } from './prompts/help_content.js';
 import { parseCharacters, countWords } from './utils.js'; 
 import { 
     initUIElements,
@@ -55,7 +56,6 @@ import {
 } from './ui.js';
 // --- New Pipeline Module Import ---
 import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline.js';
-import { campaignManager, CAMPAIGN_ARCS, extractEpisodeSummary, extractKeyEvents, detectCliffhanger } from './campaign.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
@@ -71,16 +71,12 @@ let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3Re
 let parentalControlsToggle, parentalControlsContent, sensitivityPresetSelect, customSensitivityControls;
 let conflictSlider, scarySlider, sadnessSlider, complexitySlider;
 let conflictLabel, scaryLabel, sadnessLabel, complexityLabel, sensitivitySummary;
-// Campaign DOM elements
-let campaignToggle, campaignContent, activeCampaignInfo, campaignTitleSpan, campaignProgress, episodeInfo;
-let noCampaignInfo, newCampaignButton, existingCampaigns, existingCampaignSelect, loadCampaignButton;
-let continueEpisodeButton, exitCampaignButton;
-let campaignModal, campaignTitleInput, campaignArcSelect, arcDescription, campaignGoalInput;
-let cancelCampaignButton, createCampaignButton;
 let stemConceptSection, stemConceptSelect, stemConceptHint;
 // Framework and Style modal elements
 let frameworkModal, frameworkSelectButton, frameworkSelectedLabel, frameworkOptionsGrid;
 let styleModal, styleSelectButton, styleSelectedLabel, styleOptionsGrid, closeStyleModalButton;
+// Help modal elements
+let helpModal, helpButton, helpTopicsList, helpContentDisplay, closeHelpModalButton;
 // Plot points toggle
 let includePlotPointsCheckbox, plotPointsContainer;
 // Theme toggle
@@ -320,6 +316,52 @@ function populateStyleModal() {
     styleSelectedLabel.textContent = currentValue || 'Select Style';
 }
 
+// --- Help Modal Functions ---
+let currentHelpTopic = null;
+
+function populateHelpTopics() {
+    if (!helpTopicsList) return;
+    
+    helpTopicsList.innerHTML = '';
+    
+    HELP_TOPIC_ORDER.forEach((topicKey, index) => {
+        const topic = HELP_TOPICS[topicKey];
+        if (!topic) return;
+        
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.className = 'help-topic-btn' + (index === 0 ? ' active' : '');
+        btn.textContent = topic.title;
+        btn.dataset.topic = topicKey;
+        
+        btn.addEventListener('click', () => {
+            selectHelpTopic(topicKey);
+        });
+        
+        li.appendChild(btn);
+        helpTopicsList.appendChild(li);
+    });
+    
+    // Load first topic by default
+    if (HELP_TOPIC_ORDER.length > 0) {
+        selectHelpTopic(HELP_TOPIC_ORDER[0]);
+    }
+}
+
+function selectHelpTopic(topicKey) {
+    if (!helpContentDisplay || !HELP_TOPICS[topicKey]) return;
+    
+    currentHelpTopic = topicKey;
+    
+    // Update active state on buttons
+    helpTopicsList.querySelectorAll('.help-topic-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.topic === topicKey);
+    });
+    
+    // Display the content
+    helpContentDisplay.innerHTML = HELP_TOPICS[topicKey].content;
+}
+
 // --- STEM Concept Section Functions ---
 function updateSTEMSectionVisibility() {
     if (!stemConceptSection || !craftingFrameworkSelect) return;
@@ -495,155 +537,6 @@ function getCurrentSensitivitySettings() {
     };
 }
 
-// --- Campaign Functions ---
-function updateCampaignUI() {
-    const activeCampaign = campaignManager.getActiveCampaign();
-    
-    if (activeCampaign) {
-        // Show active campaign info
-        if (activeCampaignInfo) activeCampaignInfo.classList.remove('hidden');
-        if (noCampaignInfo) noCampaignInfo.classList.add('hidden');
-        
-        if (campaignTitleSpan) campaignTitleSpan.textContent = activeCampaign.title;
-        if (campaignProgress) {
-            const progress = campaignManager.getCampaignProgress(activeCampaign.id);
-            campaignProgress.textContent = `Episode ${activeCampaign.currentEpisode}/${activeCampaign.totalEpisodes}`;
-        }
-        
-        if (episodeInfo) {
-            const epInfo = campaignManager.getCurrentEpisodeInfo(activeCampaign.id);
-            if (epInfo) {
-                episodeInfo.innerHTML = `<strong>Focus:</strong> ${epInfo.focus}`;
-            }
-        }
-    } else {
-        // Show no campaign info
-        if (activeCampaignInfo) activeCampaignInfo.classList.add('hidden');
-        if (noCampaignInfo) noCampaignInfo.classList.remove('hidden');
-        
-        // Show existing campaigns if any
-        const campaigns = campaignManager.getAllCampaigns();
-        if (existingCampaigns && existingCampaignSelect) {
-            if (campaigns.length > 0) {
-                existingCampaigns.classList.remove('hidden');
-                existingCampaignSelect.innerHTML = campaigns.map(c => 
-                    `<option value="${c.id}">${c.title} (Ep ${c.currentEpisode}/${c.totalEpisodes})</option>`
-                ).join('');
-            } else {
-                existingCampaigns.classList.add('hidden');
-            }
-        }
-    }
-}
-
-function updateArcDescription() {
-    if (!campaignArcSelect || !arcDescription) return;
-    
-    const arcKey = campaignArcSelect.value;
-    const arc = CAMPAIGN_ARCS[arcKey];
-    if (arc) {
-        arcDescription.textContent = `${arc.episodes} episodes: ${arc.structure.map(s => s.focus).slice(0, 3).join(' → ')}${arc.episodes > 3 ? '...' : ''}`;
-    }
-}
-
-function openCampaignModal() {
-    if (!campaignModal) return;
-    campaignModal.classList.add('active');
-    if (campaignTitleInput) campaignTitleInput.focus();
-    updateArcDescription();
-}
-
-function closeCampaignModal() {
-    if (!campaignModal) return;
-    campaignModal.classList.remove('active');
-}
-
-function handleCreateCampaign() {
-    const title = campaignTitleInput?.value.trim() || 'Untitled Adventure';
-    const arcType = campaignArcSelect?.value || 'five_part';
-    const goal = campaignGoalInput?.value.trim() || '';
-    const characters = charactersInput?.value.trim() || '';
-    
-    try {
-        const campaign = campaignManager.createCampaign({
-            title,
-            arcType,
-            characters,
-            overarchingGoal: goal
-        });
-        
-        campaignManager.setActiveCampaign(campaign.id);
-        closeCampaignModal();
-        updateCampaignUI();
-        
-        showTemporaryToast(`📚 Campaign "${title}" created! Episode 1 ready.`);
-    } catch (e) {
-        console.error('Failed to create campaign:', e);
-        showTemporaryToast('Failed to create campaign');
-    }
-}
-
-function handleLoadCampaign() {
-    if (!existingCampaignSelect) return;
-    const campaignId = existingCampaignSelect.value;
-    if (campaignId) {
-        campaignManager.setActiveCampaign(campaignId);
-        updateCampaignUI();
-        showTemporaryToast('📚 Campaign loaded!');
-    }
-}
-
-function handleExitCampaign() {
-    campaignManager.clearActiveCampaign();
-    updateCampaignUI();
-    showTemporaryToast('Campaign paused. Your progress is saved.');
-}
-
-/**
- * Gets campaign prompt guidance if a campaign is active
- * @returns {string} Campaign guidance for prompts or empty string
- */
-function getCampaignPromptGuidance() {
-    const activeCampaign = campaignManager.getActiveCampaign();
-    if (!activeCampaign) return '';
-    
-    return campaignManager.generateEpisodePromptGuidance(activeCampaign.id);
-}
-
-/**
- * Process story completion for campaigns
- * @param {string} storyText - The completed story text
- * @param {string} storyTitle - The story title
- */
-function processCampaignEpisodeCompletion(storyText, storyTitle) {
-    const activeCampaign = campaignManager.getActiveCampaign();
-    if (!activeCampaign) return;
-    
-    const summary = extractEpisodeSummary(storyText);
-    const keyEvents = extractKeyEvents(storyText);
-    const cliffhanger = detectCliffhanger(storyText);
-    
-    campaignManager.completeEpisode(activeCampaign.id, {
-        title: storyTitle,
-        summary,
-        fullText: storyText,
-        keyEvents,
-        cliffhanger
-    });
-    
-    updateCampaignUI();
-    
-    // Show completion message
-    const updatedCampaign = campaignManager.getActiveCampaign();
-    if (updatedCampaign) {
-        if (campaignManager.isCampaignComplete(updatedCampaign.id)) {
-            showTemporaryToast(`🎉 "${updatedCampaign.title}" complete! All episodes finished.`);
-        } else {
-            showTemporaryToast(`✅ Episode saved! Next: Episode ${updatedCampaign.currentEpisode}`);
-        }
-    }
-}
-
 
 // --- Main Application Logic ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -708,28 +601,6 @@ document.addEventListener('DOMContentLoaded', () => {
     complexityLabel = document.getElementById('complexityLabel');
     sensitivitySummary = document.getElementById('sensitivitySummary');
     
-    // Campaign DOM elements
-    campaignToggle = document.getElementById('campaignToggle');
-    campaignContent = document.getElementById('campaignContent');
-    activeCampaignInfo = document.getElementById('activeCampaignInfo');
-    campaignTitleSpan = document.getElementById('campaignTitle');
-    campaignProgress = document.getElementById('campaignProgress');
-    episodeInfo = document.getElementById('episodeInfo');
-    noCampaignInfo = document.getElementById('noCampaignInfo');
-    newCampaignButton = document.getElementById('newCampaignButton');
-    existingCampaigns = document.getElementById('existingCampaigns');
-    existingCampaignSelect = document.getElementById('existingCampaignSelect');
-    loadCampaignButton = document.getElementById('loadCampaignButton');
-    continueEpisodeButton = document.getElementById('continueEpisodeButton');
-    exitCampaignButton = document.getElementById('exitCampaignButton');
-    campaignModal = document.getElementById('campaignModal');
-    campaignTitleInput = document.getElementById('campaignTitleInput');
-    campaignArcSelect = document.getElementById('campaignArcSelect');
-    arcDescription = document.getElementById('arcDescription');
-    campaignGoalInput = document.getElementById('campaignGoalInput');
-    cancelCampaignButton = document.getElementById('cancelCampaignButton');
-    createCampaignButton = document.getElementById('createCampaignButton');
-    
     // Theme toggle
     themeToggle = document.getElementById('themeToggle');
     
@@ -747,6 +618,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Plot points toggle
     includePlotPointsCheckbox = document.getElementById('includePlotPointsCheckbox');
     plotPointsContainer = document.getElementById('plotPointsContainer');
+    
+    // Help modal elements
+    helpModal = document.getElementById('helpModal');
+    helpButton = document.getElementById('helpButton');
+    helpTopicsList = document.getElementById('helpTopicsList');
+    helpContentDisplay = document.getElementById('helpContentDisplay');
+    closeHelpModalButton = document.getElementById('closeHelpModalButton');
 
 
     if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !agentTogglesContainer) {
@@ -916,53 +794,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
-    
-    // Initialize Campaign UI
-    updateCampaignUI();
-    
-    // Campaign event listeners
-    // Note: <details> element handles accordion toggle natively
-    
-    if (newCampaignButton) {
-        newCampaignButton.addEventListener('click', openCampaignModal);
-    }
-    
-    if (loadCampaignButton) {
-        loadCampaignButton.addEventListener('click', handleLoadCampaign);
-    }
-    
-    if (exitCampaignButton) {
-        exitCampaignButton.addEventListener('click', handleExitCampaign);
-    }
-    
-    if (continueEpisodeButton) {
-        continueEpisodeButton.addEventListener('click', () => {
-            // Close the campaign accordion (it's a <details> element)
-            const campaignDetails = campaignContent?.closest('details');
-            if (campaignDetails) campaignDetails.open = false;
-            // Trigger story generation
-            generateButton.click();
-        });
-    }
-    
-    if (cancelCampaignButton) {
-        cancelCampaignButton.addEventListener('click', closeCampaignModal);
-    }
-    
-    if (createCampaignButton) {
-        createCampaignButton.addEventListener('click', handleCreateCampaign);
-    }
-    
-    if (campaignArcSelect) {
-        campaignArcSelect.addEventListener('change', updateArcDescription);
-    }
-    
-    // Close campaign modal when clicking outside
-    if (campaignModal) {
-        campaignModal.addEventListener('click', (e) => {
-            if (e.target === campaignModal) closeCampaignModal();
-        });
-    }
 
     authorStyleSelect.addEventListener('change', () => {
         updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
@@ -1045,6 +876,19 @@ document.addEventListener('DOMContentLoaded', () => {
     closeStyleModalButton.addEventListener('click', () => {
         styleModal.classList.remove('active');
     });
+    
+    // Help Modal
+    populateHelpTopics();
+    if (helpButton && helpModal) {
+        helpButton.addEventListener('click', () => {
+            helpModal.classList.add('active');
+        });
+    }
+    if (closeHelpModalButton && helpModal) {
+        closeHelpModalButton.addEventListener('click', () => {
+            helpModal.classList.remove('active');
+        });
+    }
     
     // Plot points toggle
     if (includePlotPointsCheckbox && plotPointsContainer) {
@@ -1212,9 +1056,6 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
         // Get sensitivity guidance
         const sensitivitySettings = getCurrentSensitivitySettings();
         const sensitivityGuidanceText = sensitivitySettings ? getSensitivityGuidance(sensitivitySettings) : '';
-        
-        // Get campaign guidance
-        const campaignGuidanceText = getCampaignPromptGuidance();
 
         return { 
             apiKey, 
@@ -1229,7 +1070,6 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
             ADJUSTMENT_MODULES_TEXT: adjustmentModulesText,
             NARRATOR_PERSONA_TEXT: narratorPersonaText,
             SENSITIVITY_GUIDANCE_TEXT: sensitivityGuidanceText,
-            CAMPAIGN_GUIDANCE_TEXT: campaignGuidanceText,
             agentThinkingConfig
         };
     }
@@ -1283,9 +1123,6 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
 
             updateStatusInStoryOutput("Story generation complete!\n"); 
             displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText);
-            
-            // Process campaign episode completion if a campaign is active
-            processCampaignEpisodeCompletion(appState.latestGeneratedStoryText, appState.latestGeneratedStoryTitle);
 
         } catch (error) {
             console.error("Error in handleGenerateStory:", error);
@@ -1345,4 +1182,17 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
 
     if (generateButton) generateButton.addEventListener('click', handleGenerateStory);
     if (elaborateStoryButton) elaborateStoryButton.addEventListener('click', handleElaborateStory);
+    
+    // Global keyboard shortcut: Ctrl+Shift+R to reset all data
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'r') {
+            e.preventDefault(); // Prevent browser refresh
+            
+            if (confirm('Reset all StoryGen data? This will clear:\n- All story settings\n- Plot points\n- Style choices\n\nYour API key will be preserved.\n\nContinue?')) {
+                clearAllAppData(false); // Keep API key
+                showTemporaryToast('All data reset. Reloading...', 'info');
+                setTimeout(() => window.location.reload(), 500);
+            }
+        }
+    });
 });
