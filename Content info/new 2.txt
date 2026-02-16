@@ -1,0 +1,53 @@
+I would like you to generate a dataset (one JSON record for each) of artists and their styles. Use the following artists with their name used to populate the name field. In all cases, the category is "Artist". Pass the number too which will be used for the index. It doesn't have to start with 0 and if they get that wrong, it doesn't matter.
+
+1. **Leonardo da Vinci** – Italian Renaissance polymath
+2. **Michelangelo Buonarroti** – Italian sculptor and painter
+3. **Raphael** – High Renaissance master
+4. **Sandro Botticelli** – Early Renaissance painter
+5. **Albrecht Dürer** – German Renaissance engraver and painter
+6. **Hieronymus Bosch** – Dutch painter of fantastical imagery
+7. **Caravaggio** – Italian Baroque master of chiaroscuro
+8. **Peter Paul Rubens** – Flemish Baroque artist
+9. **Rembrandt van Rijn** – Dutch master of portraiture and light
+10. **Johannes Vermeer** – Dutch painter of intimate domestic scenes
+11. **Francisco Goya** – Spanish romantic painter
+12. **Eugène Delacroix** – French Romantic painter
+13. **J.M.W. Turner** – British master of light and atmosphere
+14. **Jean-Auguste-Dominique Ingres** – Neoclassical French painter
+15. **Gustave Courbet** – Pioneer of the Realist movement
+16. **Édouard Manet** – Bridge between Realism and Impressionism
+17. **Claude Monet** – Founder of French Impressionism
+18. **Pierre-Auguste Renoir** – Joyful scenes of French life
+19. **Edgar Degas** – Ballerinas and modern urban scenes
+20. **Paul Cézanne** – Proto-Cubist structure in painting
+21. **Henri Toulouse-Lautrec** – Chronicler of Parisian nightlife
+22. **Vincent van Gogh** – Post-Impressionist icon
+23. **Paul Gauguin** – Bold color and Polynesian themes
+24. **Henri Rousseau** – Naïve style jungle scenes
+25. **Pablo Picasso** – Cubism, prolific, legendary
+26. **Georges Braque** – Co-founder of Cubism
+27. **Henri Matisse** – Fauvism and color mastery
+28. **Wassily Kandinsky** – Abstract pioneer
+29. **Piet Mondrian** – De Stijl and geometric abstraction
+30. **Marc Chagall** – Dreamlike, folkloric painter
+31. **Salvador Dalí** – Surrealist with a flair for the bizarre
+32. **René Magritte** – Belgian surrealist icon
+33. **Joan Miró** – Surrealism and abstraction
+34. **Jackson Pollock** – American abstract expressionist
+35. **Mark Rothko** – Emotional color field paintings
+36. **Frida Kahlo** – Mexican painter of pain and identity
+37. **Diego Rivera** – Mexican muralist and social realist
+38. **Andy Warhol** – Pop Art revolutionary
+39. **Roy Lichtenstein** – Comic-style Pop artist
+40. **Keith Haring** – Bold lines and activism
+41. **Jean-Michel Basquiat** – Neo-expressionist street-to-gallery icon
+42. **Georgia O’Keeffe** – Mother of American modernism
+43. **Lucian Freud** – Psychological portraiture
+44. **David Hockney** – British Pop/modernist still active
+45. **Yayoi Kusama** – Infinity mirrors and polka dots
+46. **Damien Hirst** – Provocative conceptual artist
+47. **Ai Weiwei** – Chinese activist and installation artist
+48. **Banksy** – Anonymous street art provocateur
+49. **Takashi Murakami** – Japanese Superflat style
+50. **Ralph Steadman** - British illustrator and caricaturist, best known for his wild, ink-splattered style and iconic collaborations with Hunter S. Thompson (e.g., *Fear and Loathing in Las Vegas*). Though less known than some above, his influence is deep and distinct.
+
