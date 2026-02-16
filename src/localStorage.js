@@ -21,6 +21,22 @@ export const LS_ADJUSTMENT_PACING = 'storyAdjustmentPacing_storyCircle';
 export const LS_ADJUSTMENT_HUMOR = 'storyAdjustmentHumor_storyCircle';
 export const LS_ADJUSTMENT_EMOTION = 'storyAdjustmentEmotion_storyCircle';
 
+// --- Keys for STEM Learning Fable ---
+export const LS_STEM_CONCEPT = 'storyStemConcept_storyCircle';
+
+// --- Keys for Narrator Persona ---
+export const LS_NARRATOR_PERSONA = 'storyNarratorPersona_storyCircle';
+
+// --- Keys for Parental Controls ---
+export const LS_SENSITIVITY_PRESET = 'storySensitivityPreset_storyCircle';
+export const LS_SENSITIVITY_CONFLICT = 'storySensitivityConflict_storyCircle';
+export const LS_SENSITIVITY_SCARY = 'storySensitivityScary_storyCircle';
+export const LS_SENSITIVITY_SADNESS = 'storySensitivitySadness_storyCircle';
+export const LS_SENSITIVITY_COMPLEXITY = 'storySensitivityComplexity_storyCircle';
+
+// --- Theme ---
+export const LS_THEME = 'storyTheme_storyCircle';
+
 // --- New Keys for Agent Thinking Toggles ---
 export const LS_THINKING_AGENT_1_CRAFTER = 'thinkingAgent1_storyCircle';
 export const LS_THINKING_AGENT_2_ELABORATOR = 'thinkingAgent2_storyCircle';

@@ -23,18 +23,21 @@ import {
     LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, 
     LS_READING_AGE_MIN, LS_READING_AGE_MAX, LS_ENABLE_CONSOLIDATOR,
     LS_SELECTED_AUTHOR_STYLE, LS_ADJUSTMENT_TONE, LS_ADJUSTMENT_PACING,
-    LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION,
+    LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION, LS_STEM_CONCEPT,
+    LS_NARRATOR_PERSONA, LS_SENSITIVITY_PRESET,
+    LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
     LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
     LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
-    LS_THINKING_AGENT_C_CONSOLIDATOR,
+    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME,
     saveToLocalStorage, loadFromLocalStorage 
 } from './localStorage.js';
 
 // --- Imports from Modules ---
-import appState, { BEDTIME_MODE_PRESET } from './appState.js'; 
+import appState, { BEDTIME_MODE_PRESET, MORNING_ENERGIZER_PRESET } from './appState.js'; 
 import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
-import { ADJUSTMENT_MODULES } from './prompts/adjustment_modules.js';
+import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules.js';
+import { NARRATOR_PERSONAS, PERSONA_SUMMARIES, PERSONA_RECOMMENDATIONS } from './prompts/narrator_personas.js';
 import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts.js';
 import { parseCharacters, countWords } from './utils.js'; 
 import { 
@@ -54,6 +57,7 @@ import {
 } from './ui.js';
 // --- New Pipeline Module Import ---
 import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline.js';
+import { campaignManager, CAMPAIGN_ARCS, extractEpisodeSummary, extractKeyEvents, detectCliffhanger } from './campaign.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
@@ -66,10 +70,154 @@ let enableConsolidatorCheckbox;
 let authorStyleSelect, styleSummaryDiv, adjustmentsButton, adjustmentsModal, cancelAdjustmentsButton, saveAdjustmentsButton;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
 let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
-let bedtimeModeToggle;
+let bedtimeModeToggle, morningModeToggle;
+let narratorPersonaSelect, personaSummaryDiv, personaRecommendationDiv, recommendedPersonasSpan;
+let parentalControlsToggle, parentalControlsContent, sensitivityPresetSelect, customSensitivityControls;
+let conflictSlider, scarySlider, sadnessSlider, complexitySlider;
+let conflictLabel, scaryLabel, sadnessLabel, complexityLabel, sensitivitySummary;
+// Campaign DOM elements
+let campaignToggle, campaignContent, activeCampaignInfo, campaignTitleSpan, campaignProgress, episodeInfo;
+let noCampaignInfo, newCampaignButton, existingCampaigns, existingCampaignSelect, loadCampaignButton;
+let continueEpisodeButton, exitCampaignButton;
+let campaignModal, campaignTitleInput, campaignArcSelect, arcDescription, campaignGoalInput;
+let cancelCampaignButton, createCampaignButton;
+let stemConceptSection, stemConceptSelect, stemConceptHint;
+// Theme toggle
+let themeToggle;
+
+// STEM Concept data for hints
+const STEM_CONCEPT_DATA = {
+    displacement: {
+        hint: "When you put something in water, it pushes the water out of the way—making the water level rise.",
+        example: "Crow drops pebbles into pitcher to raise water level",
+        animal: "Crow, Beaver"
+    },
+    leverage: {
+        hint: "A lever helps you lift heavy things with less effort—the longer the lever, the easier it gets!",
+        example: "Ant uses a stick to move a heavy rock",
+        animal: "Ant, Monkey"
+    },
+    momentum: {
+        hint: "Heavy things moving fast are hard to stop. Light things are easy to stop!",
+        example: "Tortoise vs hare—the ball keeps rolling",
+        animal: "Tortoise, Elephant"
+    },
+    buoyancy: {
+        hint: "Some things float because they're lighter than water—or shaped to trap air inside.",
+        example: "Duck teaches mouse to float using a leaf boat",
+        animal: "Duck, Otter"
+    },
+    friction: {
+        hint: "Rough surfaces slow things down, smooth surfaces let them slide easily.",
+        example: "Snake learns different ways to move on different surfaces",
+        animal: "Snake, Snail"
+    },
+    aerodynamics: {
+        hint: "The shape of something changes how air moves around it—pointy shapes cut through air better.",
+        example: "Bird teaches squirrel about gliding shapes",
+        animal: "Bird, Flying Squirrel"
+    },
+    counting: {
+        hint: "Counting helps us know exactly how many we have—and share fairly!",
+        example: "Squirrel divides acorns among friends",
+        animal: "Squirrel, Ant colony"
+    },
+    patterns: {
+        hint: "Patterns repeat in a special order—once you spot the pattern, you can guess what comes next!",
+        example: "Spider weaves a web using repeating patterns",
+        animal: "Spider, Bee"
+    },
+    geometry: {
+        hint: "Shapes have special properties—triangles are strong, hexagons fit together perfectly.",
+        example: "Bees explain why honeycombs are hexagons",
+        animal: "Bee, Spider"
+    },
+    estimation: {
+        hint: "We can make good guesses about how big, how far, or how many—without counting every single one.",
+        example: "Ant estimates if the food will fit through the tunnel",
+        animal: "Ant"
+    },
+    metamorphosis: {
+        hint: "Some creatures completely change their bodies as they grow—like magic, but it's science!",
+        example: "Caterpillar's journey to becoming a butterfly",
+        animal: "Caterpillar/Butterfly, Tadpole/Frog"
+    },
+    camouflage: {
+        hint: "Animals hide by looking like their surroundings—some can even change colors!",
+        example: "Chameleon teaches moth about blending in",
+        animal: "Chameleon, Moth, Octopus"
+    },
+    ecosystems: {
+        hint: "Every living thing is connected—when one thing changes, it affects everything else.",
+        example: "Forest animals discover how they all depend on each other",
+        animal: "Multiple forest animals"
+    },
+    lifecycles: {
+        hint: "Living things go through stages: born, grow, have babies, and pass on—a circle that keeps going.",
+        example: "Salmon's incredible journey",
+        animal: "Salmon, Butterfly"
+    },
+    echolocation: {
+        hint: "Some animals 'see' with sound—they make a noise and listen for the echo bouncing back!",
+        example: "Bat teaches a lost bird to navigate in darkness",
+        animal: "Bat, Dolphin"
+    },
+    problem_solving: {
+        hint: "When something doesn't work, try a different way! Good inventors try many times before succeeding.",
+        example: "Beaver builds and rebuilds dam until it holds",
+        animal: "Beaver, Crow"
+    },
+    materials: {
+        hint: "Different materials have different strengths—straw is light, sticks are stronger, bricks are strongest!",
+        example: "Three little pigs engineering edition",
+        animal: "Pig, Beaver"
+    },
+    structures: {
+        hint: "The way you arrange things matters—triangles and arches make things extra strong.",
+        example: "Ants discover arch structures for their tunnels",
+        animal: "Ant, Beaver, Spider"
+    }
+};
+
+// Sensitivity level labels
+const SENSITIVITY_LABELS = ['None', 'Gentle', 'Standard', 'Adventurous'];
+
+// Sensitivity presets
+const SENSITIVITY_PRESETS = {
+    extra_gentle: { conflict: 0, scary: 0, sadness: 0, complexity: 0 },
+    gentle: { conflict: 1, scary: 1, sadness: 1, complexity: 1 },
+    standard: { conflict: 2, scary: 2, sadness: 2, complexity: 2 },
+    adventurous: { conflict: 3, scary: 3, sadness: 3, complexity: 3 }
+};
 
 // --- Application State for Font Size ---
 let currentStoryFontSizeRem = DEFAULT_STORY_FONT_SIZE_REM;
+
+
+// --- Theme Functions ---
+/**
+ * Initialize theme from localStorage or system preference
+ */
+function initializeTheme() {
+    const savedTheme = loadFromLocalStorage(LS_THEME);
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+        // Check system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+}
+
+/**
+ * Toggle between light and dark themes
+ */
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    saveToLocalStorage(LS_THEME, newTheme);
+}
 
 
 // --- UI Helper Functions ---
@@ -103,6 +251,11 @@ function updateAgentTogglesUI() {
 
 // Bedtime Mode activation function
 function activateBedtimeMode() {
+    // Deactivate morning mode if active
+    if (morningModeToggle) {
+        morningModeToggle.setAttribute('aria-pressed', 'false');
+    }
+    
     // Apply framework
     if (craftingFrameworkSelect && STORY_CRAFTING_GUIDES[BEDTIME_MODE_PRESET.framework]) {
         craftingFrameworkSelect.value = BEDTIME_MODE_PRESET.framework;
@@ -155,6 +308,429 @@ function activateBedtimeMode() {
         useEngineSuggestionsCheckbox.checked = BEDTIME_MODE_PRESET.useEngineSuggestions;
         saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, BEDTIME_MODE_PRESET.useEngineSuggestions.toString());
         updateSuggestionsTextareaStyle(useEngineSuggestionsCheckbox, userSuggestionsTextarea);
+    }
+    
+    // Update persona recommendations for bedtime mode
+    updatePersonaRecommendations('bedtime');
+}
+
+// Morning Energizer Mode activation function
+function activateMorningMode() {
+    // Deactivate bedtime mode if active
+    if (bedtimeModeToggle) {
+        bedtimeModeToggle.setAttribute('aria-pressed', 'false');
+    }
+    
+    // Apply framework
+    if (craftingFrameworkSelect && STORY_CRAFTING_GUIDES[MORNING_ENERGIZER_PRESET.framework]) {
+        craftingFrameworkSelect.value = MORNING_ENERGIZER_PRESET.framework;
+        saveToLocalStorage(LS_SELECTED_FRAMEWORK, MORNING_ENERGIZER_PRESET.framework);
+        updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
+    }
+    
+    // Apply author style
+    if (authorStyleSelect && STORY_STYLE_GUIDES[MORNING_ENERGIZER_PRESET.authorStyle]) {
+        authorStyleSelect.value = MORNING_ENERGIZER_PRESET.authorStyle;
+        saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, MORNING_ENERGIZER_PRESET.authorStyle);
+        updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
+    }
+    
+    // Apply adjustments (tone, pacing, humor, emotion)
+    if (toneSelect) {
+        toneSelect.value = MORNING_ENERGIZER_PRESET.adjustments.tone;
+        saveToLocalStorage(LS_ADJUSTMENT_TONE, MORNING_ENERGIZER_PRESET.adjustments.tone);
+    }
+    if (pacingSelect) {
+        pacingSelect.value = MORNING_ENERGIZER_PRESET.adjustments.pacing;
+        saveToLocalStorage(LS_ADJUSTMENT_PACING, MORNING_ENERGIZER_PRESET.adjustments.pacing);
+    }
+    if (humorSelect) {
+        humorSelect.value = MORNING_ENERGIZER_PRESET.adjustments.humor;
+        saveToLocalStorage(LS_ADJUSTMENT_HUMOR, MORNING_ENERGIZER_PRESET.adjustments.humor);
+    }
+    if (emotionSelect) {
+        emotionSelect.value = MORNING_ENERGIZER_PRESET.adjustments.emotion;
+        saveToLocalStorage(LS_ADJUSTMENT_EMOTION, MORNING_ENERGIZER_PRESET.adjustments.emotion);
+    }
+    
+    // Apply consolidator setting
+    if (enableConsolidatorCheckbox) {
+        enableConsolidatorCheckbox.checked = MORNING_ENERGIZER_PRESET.consolidator;
+        saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, MORNING_ENERGIZER_PRESET.consolidator.toString());
+    }
+    
+    // Apply reading age setting
+    if (enableReadingAgeAdjustmentCheckbox && targetReadingAgeSlider) {
+        enableReadingAgeAdjustmentCheckbox.checked = true;
+        saveToLocalStorage(LS_ADJUST_READING_AGE_ENABLED, 'true');
+        targetReadingAgeSlider.value = MORNING_ENERGIZER_PRESET.readingAge.toString();
+        saveToLocalStorage(LS_TARGET_READING_AGE, MORNING_ENERGIZER_PRESET.readingAge.toString());
+        updateTargetReadingAgeSliderDOMState();
+    }
+    
+    // Apply engine suggestions setting
+    if (useEngineSuggestionsCheckbox) {
+        useEngineSuggestionsCheckbox.checked = MORNING_ENERGIZER_PRESET.useEngineSuggestions;
+        saveToLocalStorage(LS_USE_ENGINE_SUGGESTIONS, MORNING_ENERGIZER_PRESET.useEngineSuggestions.toString());
+        updateSuggestionsTextareaStyle(useEngineSuggestionsCheckbox, userSuggestionsTextarea);
+    }
+    
+    // Update persona recommendations for morning mode
+    updatePersonaRecommendations('morning');
+}
+
+// --- STEM Concept Section Functions ---
+function updateSTEMSectionVisibility() {
+    if (!stemConceptSection || !craftingFrameworkSelect) return;
+    
+    const selectedFramework = craftingFrameworkSelect.value;
+    const isLearningFable = selectedFramework === 'Learning Fable (STEM)';
+    
+    if (isLearningFable) {
+        stemConceptSection.classList.remove('hidden');
+        stemConceptSection.classList.add('show');
+    } else {
+        stemConceptSection.classList.add('hidden');
+        stemConceptSection.classList.remove('show');
+    }
+}
+
+function updateSTEMConceptHint(conceptKey) {
+    if (!stemConceptHint) return;
+    
+    const conceptData = STEM_CONCEPT_DATA[conceptKey];
+    if (conceptData) {
+        stemConceptHint.innerHTML = `
+            <strong>💡 Concept:</strong> ${conceptData.hint}<br>
+            <strong>🎬 Example:</strong> ${conceptData.example}<br>
+            <strong>🐾 Suggested Animals:</strong> ${conceptData.animal}
+        `;
+        stemConceptHint.classList.remove('hidden');
+    } else {
+        stemConceptHint.innerHTML = '';
+        stemConceptHint.classList.add('hidden');
+    }
+}
+
+/**
+ * Gets the current STEM concept for inclusion in prompts
+ * @returns {Object|null} The concept data or null if not using Learning Fable
+ */
+function getSelectedSTEMConcept() {
+    if (!craftingFrameworkSelect || !stemConceptSelect) return null;
+    
+    const selectedFramework = craftingFrameworkSelect.value;
+    if (selectedFramework !== 'Learning Fable (STEM)') return null;
+    
+    const conceptKey = stemConceptSelect.value;
+    if (!conceptKey || !STEM_CONCEPT_DATA[conceptKey]) return null;
+    
+    return {
+        key: conceptKey,
+        ...STEM_CONCEPT_DATA[conceptKey]
+    };
+}
+
+// --- Narrator Persona Functions ---
+function updatePersonaSummaryDisplay() {
+    if (!narratorPersonaSelect || !personaSummaryDiv) return;
+    
+    const selectedPersona = narratorPersonaSelect.value;
+    const summary = PERSONA_SUMMARIES[selectedPersona] || "";
+    personaSummaryDiv.textContent = summary;
+}
+
+function updatePersonaRecommendations(mode = null) {
+    if (!personaRecommendationDiv || !recommendedPersonasSpan) return;
+    
+    let recommendedList = [];
+    
+    if (mode === 'bedtime') {
+        recommendedList = PERSONA_RECOMMENDATIONS.bedtime;
+    } else if (mode === 'morning') {
+        recommendedList = PERSONA_RECOMMENDATIONS.morning;
+    } else if (craftingFrameworkSelect && craftingFrameworkSelect.value === 'Learning Fable (STEM)') {
+        recommendedList = PERSONA_RECOMMENDATIONS['Learning Fable (STEM)'];
+    }
+    
+    if (recommendedList && recommendedList.length > 0) {
+        recommendedPersonasSpan.textContent = recommendedList.join(', ');
+        personaRecommendationDiv.classList.remove('hidden');
+    } else {
+        personaRecommendationDiv.classList.add('hidden');
+    }
+}
+
+/**
+ * Gets the current narrator persona text for inclusion in prompts
+ * @returns {string} The persona instructions or empty string
+ */
+function getSelectedPersonaText() {
+    if (!narratorPersonaSelect) return "";
+    return NARRATOR_PERSONAS[narratorPersonaSelect.value] || "";
+}
+
+// --- Parental Controls Functions ---
+function updateSensitivitySliderLabels() {
+    if (conflictSlider && conflictLabel) {
+        conflictLabel.textContent = SENSITIVITY_LABELS[parseInt(conflictSlider.value)];
+    }
+    if (scarySlider && scaryLabel) {
+        scaryLabel.textContent = SENSITIVITY_LABELS[parseInt(scarySlider.value)];
+    }
+    if (sadnessSlider && sadnessLabel) {
+        sadnessLabel.textContent = SENSITIVITY_LABELS[parseInt(sadnessSlider.value)];
+    }
+    if (complexitySlider && complexityLabel) {
+        complexityLabel.textContent = SENSITIVITY_LABELS[parseInt(complexitySlider.value)];
+    }
+}
+
+function applySensitivityPreset(presetKey) {
+    const preset = SENSITIVITY_PRESETS[presetKey];
+    if (!preset) return;
+    
+    if (conflictSlider) conflictSlider.value = preset.conflict;
+    if (scarySlider) scarySlider.value = preset.scary;
+    if (sadnessSlider) sadnessSlider.value = preset.sadness;
+    if (complexitySlider) complexitySlider.value = preset.complexity;
+    
+    updateSensitivitySliderLabels();
+    saveSensitivitySettings();
+    updateSensitivitySummary();
+}
+
+function saveSensitivitySettings() {
+    if (sensitivityPresetSelect) {
+        saveToLocalStorage(LS_SENSITIVITY_PRESET, sensitivityPresetSelect.value);
+    }
+    if (conflictSlider) {
+        saveToLocalStorage(LS_SENSITIVITY_CONFLICT, conflictSlider.value);
+    }
+    if (scarySlider) {
+        saveToLocalStorage(LS_SENSITIVITY_SCARY, scarySlider.value);
+    }
+    if (sadnessSlider) {
+        saveToLocalStorage(LS_SENSITIVITY_SADNESS, sadnessSlider.value);
+    }
+    if (complexitySlider) {
+        saveToLocalStorage(LS_SENSITIVITY_COMPLEXITY, complexitySlider.value);
+    }
+}
+
+function loadSensitivitySettings() {
+    const preset = loadFromLocalStorage(LS_SENSITIVITY_PRESET) || 'standard';
+    if (sensitivityPresetSelect) {
+        sensitivityPresetSelect.value = preset;
+    }
+    
+    if (preset === 'custom') {
+        if (conflictSlider) conflictSlider.value = loadFromLocalStorage(LS_SENSITIVITY_CONFLICT) || '2';
+        if (scarySlider) scarySlider.value = loadFromLocalStorage(LS_SENSITIVITY_SCARY) || '2';
+        if (sadnessSlider) sadnessSlider.value = loadFromLocalStorage(LS_SENSITIVITY_SADNESS) || '2';
+        if (complexitySlider) complexitySlider.value = loadFromLocalStorage(LS_SENSITIVITY_COMPLEXITY) || '2';
+        if (customSensitivityControls) customSensitivityControls.classList.remove('hidden');
+    } else {
+        applySensitivityPreset(preset);
+    }
+    
+    updateSensitivitySliderLabels();
+    updateSensitivitySummary();
+}
+
+function updateSensitivitySummary() {
+    if (!sensitivitySummary) return;
+    
+    const preset = sensitivityPresetSelect ? sensitivityPresetSelect.value : 'standard';
+    
+    if (preset !== 'custom') {
+        const summaries = {
+            extra_gentle: "🌸 Extra gentle mode: No conflict, scary elements, or sad moments. Very simple stories.",
+            gentle: "🌼 Gentle mode: Minimal challenges with quick resolutions. Easy, comforting stories.",
+            standard: "🌻 Standard mode: Age-appropriate content with traditional story elements.",
+            adventurous: "🌟 Adventurous mode: Fuller exploration of themes with more complex narratives."
+        };
+        sensitivitySummary.textContent = summaries[preset] || '';
+    } else {
+        const conflict = parseInt(conflictSlider?.value || '2');
+        const scary = parseInt(scarySlider?.value || '2');
+        const sadness = parseInt(sadnessSlider?.value || '2');
+        const complexity = parseInt(complexitySlider?.value || '2');
+        
+        sensitivitySummary.textContent = `Custom settings: Conflict ${SENSITIVITY_LABELS[conflict]}, Scary ${SENSITIVITY_LABELS[scary]}, Sadness ${SENSITIVITY_LABELS[sadness]}, Complexity ${SENSITIVITY_LABELS[complexity]}`;
+    }
+}
+
+/**
+ * Gets the current sensitivity settings for inclusion in prompts
+ * @returns {Object|null} The sensitivity settings object or null if using standard
+ */
+function getCurrentSensitivitySettings() {
+    const preset = sensitivityPresetSelect ? sensitivityPresetSelect.value : 'standard';
+    
+    if (preset === 'standard') {
+        return null; // Standard settings, no additional guidance needed
+    }
+    
+    if (preset !== 'custom') {
+        return SENSITIVITY_PRESETS[preset];
+    }
+    
+    // Custom settings
+    return {
+        conflict: parseInt(conflictSlider?.value || '2'),
+        scary: parseInt(scarySlider?.value || '2'),
+        sadness: parseInt(sadnessSlider?.value || '2'),
+        complexity: parseInt(complexitySlider?.value || '2')
+    };
+}
+
+// --- Campaign Functions ---
+function updateCampaignUI() {
+    const activeCampaign = campaignManager.getActiveCampaign();
+    
+    if (activeCampaign) {
+        // Show active campaign info
+        if (activeCampaignInfo) activeCampaignInfo.classList.remove('hidden');
+        if (noCampaignInfo) noCampaignInfo.classList.add('hidden');
+        
+        if (campaignTitleSpan) campaignTitleSpan.textContent = activeCampaign.title;
+        if (campaignProgress) {
+            const progress = campaignManager.getCampaignProgress(activeCampaign.id);
+            campaignProgress.textContent = `Episode ${activeCampaign.currentEpisode}/${activeCampaign.totalEpisodes}`;
+        }
+        
+        if (episodeInfo) {
+            const epInfo = campaignManager.getCurrentEpisodeInfo(activeCampaign.id);
+            if (epInfo) {
+                episodeInfo.innerHTML = `<strong>Focus:</strong> ${epInfo.focus}`;
+            }
+        }
+    } else {
+        // Show no campaign info
+        if (activeCampaignInfo) activeCampaignInfo.classList.add('hidden');
+        if (noCampaignInfo) noCampaignInfo.classList.remove('hidden');
+        
+        // Show existing campaigns if any
+        const campaigns = campaignManager.getAllCampaigns();
+        if (existingCampaigns && existingCampaignSelect) {
+            if (campaigns.length > 0) {
+                existingCampaigns.classList.remove('hidden');
+                existingCampaignSelect.innerHTML = campaigns.map(c => 
+                    `<option value="${c.id}">${c.title} (Ep ${c.currentEpisode}/${c.totalEpisodes})</option>`
+                ).join('');
+            } else {
+                existingCampaigns.classList.add('hidden');
+            }
+        }
+    }
+}
+
+function updateArcDescription() {
+    if (!campaignArcSelect || !arcDescription) return;
+    
+    const arcKey = campaignArcSelect.value;
+    const arc = CAMPAIGN_ARCS[arcKey];
+    if (arc) {
+        arcDescription.textContent = `${arc.episodes} episodes: ${arc.structure.map(s => s.focus).slice(0, 3).join(' → ')}${arc.episodes > 3 ? '...' : ''}`;
+    }
+}
+
+function openCampaignModal() {
+    if (!campaignModal) return;
+    campaignModal.classList.add('active');
+    if (campaignTitleInput) campaignTitleInput.focus();
+    updateArcDescription();
+}
+
+function closeCampaignModal() {
+    if (!campaignModal) return;
+    campaignModal.classList.remove('active');
+}
+
+function handleCreateCampaign() {
+    const title = campaignTitleInput?.value.trim() || 'Untitled Adventure';
+    const arcType = campaignArcSelect?.value || 'five_part';
+    const goal = campaignGoalInput?.value.trim() || '';
+    const characters = charactersInput?.value.trim() || '';
+    
+    try {
+        const campaign = campaignManager.createCampaign({
+            title,
+            arcType,
+            characters,
+            overarchingGoal: goal
+        });
+        
+        campaignManager.setActiveCampaign(campaign.id);
+        closeCampaignModal();
+        updateCampaignUI();
+        
+        showTemporaryToast(`📚 Campaign "${title}" created! Episode 1 ready.`);
+    } catch (e) {
+        console.error('Failed to create campaign:', e);
+        showTemporaryToast('Failed to create campaign');
+    }
+}
+
+function handleLoadCampaign() {
+    if (!existingCampaignSelect) return;
+    const campaignId = existingCampaignSelect.value;
+    if (campaignId) {
+        campaignManager.setActiveCampaign(campaignId);
+        updateCampaignUI();
+        showTemporaryToast('📚 Campaign loaded!');
+    }
+}
+
+function handleExitCampaign() {
+    campaignManager.clearActiveCampaign();
+    updateCampaignUI();
+    showTemporaryToast('Campaign paused. Your progress is saved.');
+}
+
+/**
+ * Gets campaign prompt guidance if a campaign is active
+ * @returns {string} Campaign guidance for prompts or empty string
+ */
+function getCampaignPromptGuidance() {
+    const activeCampaign = campaignManager.getActiveCampaign();
+    if (!activeCampaign) return '';
+    
+    return campaignManager.generateEpisodePromptGuidance(activeCampaign.id);
+}
+
+/**
+ * Process story completion for campaigns
+ * @param {string} storyText - The completed story text
+ * @param {string} storyTitle - The story title
+ */
+function processCampaignEpisodeCompletion(storyText, storyTitle) {
+    const activeCampaign = campaignManager.getActiveCampaign();
+    if (!activeCampaign) return;
+    
+    const summary = extractEpisodeSummary(storyText);
+    const keyEvents = extractKeyEvents(storyText);
+    const cliffhanger = detectCliffhanger(storyText);
+    
+    campaignManager.completeEpisode(activeCampaign.id, {
+        title: storyTitle,
+        summary,
+        fullText: storyText,
+        keyEvents,
+        cliffhanger
+    });
+    
+    updateCampaignUI();
+    
+    // Show completion message
+    const updatedCampaign = campaignManager.getActiveCampaign();
+    if (updatedCampaign) {
+        if (campaignManager.isCampaignComplete(updatedCampaign.id)) {
+            showTemporaryToast(`🎉 "${updatedCampaign.title}" complete! All episodes finished.`);
+        } else {
+            showTemporaryToast(`✅ Episode saved! Next: Episode ${updatedCampaign.currentEpisode}`);
+        }
     }
 }
 
@@ -209,6 +785,54 @@ document.addEventListener('DOMContentLoaded', () => {
     agent6TitlerToggle = document.getElementById('agent6TitlerToggle');
     agentCConsolidatorToggle = document.getElementById('agentCConsolidatorToggle');
     bedtimeModeToggle = document.getElementById('bedtimeModeToggle');
+    morningModeToggle = document.getElementById('morningModeToggle');
+    stemConceptSection = document.getElementById('stemConceptSection');
+    stemConceptSelect = document.getElementById('stemConceptSelect');
+    stemConceptHint = document.getElementById('stemConceptHint');
+    narratorPersonaSelect = document.getElementById('narratorPersonaSelect');
+    personaSummaryDiv = document.getElementById('personaSummary');
+    personaRecommendationDiv = document.getElementById('personaRecommendation');
+    recommendedPersonasSpan = document.getElementById('recommendedPersonas');
+    
+    // Parental Controls DOM elements
+    parentalControlsToggle = document.getElementById('parentalControlsToggle');
+    parentalControlsContent = document.getElementById('parentalControlsContent');
+    sensitivityPresetSelect = document.getElementById('sensitivityPresetSelect');
+    customSensitivityControls = document.getElementById('customSensitivityControls');
+    conflictSlider = document.getElementById('conflictSlider');
+    scarySlider = document.getElementById('scarySlider');
+    sadnessSlider = document.getElementById('sadnessSlider');
+    complexitySlider = document.getElementById('complexitySlider');
+    conflictLabel = document.getElementById('conflictLabel');
+    scaryLabel = document.getElementById('scaryLabel');
+    sadnessLabel = document.getElementById('sadnessLabel');
+    complexityLabel = document.getElementById('complexityLabel');
+    sensitivitySummary = document.getElementById('sensitivitySummary');
+    
+    // Campaign DOM elements
+    campaignToggle = document.getElementById('campaignToggle');
+    campaignContent = document.getElementById('campaignContent');
+    activeCampaignInfo = document.getElementById('activeCampaignInfo');
+    campaignTitleSpan = document.getElementById('campaignTitle');
+    campaignProgress = document.getElementById('campaignProgress');
+    episodeInfo = document.getElementById('episodeInfo');
+    noCampaignInfo = document.getElementById('noCampaignInfo');
+    newCampaignButton = document.getElementById('newCampaignButton');
+    existingCampaigns = document.getElementById('existingCampaigns');
+    existingCampaignSelect = document.getElementById('existingCampaignSelect');
+    loadCampaignButton = document.getElementById('loadCampaignButton');
+    continueEpisodeButton = document.getElementById('continueEpisodeButton');
+    exitCampaignButton = document.getElementById('exitCampaignButton');
+    campaignModal = document.getElementById('campaignModal');
+    campaignTitleInput = document.getElementById('campaignTitleInput');
+    campaignArcSelect = document.getElementById('campaignArcSelect');
+    arcDescription = document.getElementById('arcDescription');
+    campaignGoalInput = document.getElementById('campaignGoalInput');
+    cancelCampaignButton = document.getElementById('cancelCampaignButton');
+    createCampaignButton = document.getElementById('createCampaignButton');
+    
+    // Theme toggle
+    themeToggle = document.getElementById('themeToggle');
 
 
     if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !useEngineSuggestionsCheckbox || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !adjustmentsModal || !agentTogglesContainer) {
@@ -225,6 +849,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     applyStoryFontSize(currentStoryFontSizeRem);
+    
+    // Initialize theme from localStorage or system preference
+    initializeTheme();
 
     if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome! Describe your characters, choose an audience and a story framework, then click "Generate Story".\n\nConfigure your Gemini API Key and Model in Settings (⚙️ icon in the top right).';
     enableMainControls();
@@ -240,6 +867,12 @@ document.addEventListener('DOMContentLoaded', () => {
     populateDropdown(authorStyleSelect, STORY_STYLE_GUIDES, false);
     authorStyleSelect.value = loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || "Default (No Specific Style)";
     updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
+
+    // Populate narrator persona dropdown
+    populateDropdown(narratorPersonaSelect, NARRATOR_PERSONAS, false);
+    narratorPersonaSelect.value = loadFromLocalStorage(LS_NARRATOR_PERSONA) || "Default (No Narrator Persona)";
+    updatePersonaSummaryDisplay();
+    updatePersonaRecommendations();
 
     populateDropdown(toneSelect, ADJUSTMENT_MODULES.tone);
     populateDropdown(pacingSelect, ADJUSTMENT_MODULES.pacing);
@@ -292,11 +925,119 @@ document.addEventListener('DOMContentLoaded', () => {
     craftingFrameworkSelect.addEventListener('change', () => {
         updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
         saveToLocalStorage(LS_SELECTED_FRAMEWORK, craftingFrameworkSelect.value);
+        updateSTEMSectionVisibility();
     });
+
+    // STEM Concept selector
+    if (stemConceptSelect) {
+        stemConceptSelect.addEventListener('change', () => {
+            const conceptKey = stemConceptSelect.value;
+            saveToLocalStorage(LS_STEM_CONCEPT, conceptKey);
+            updateSTEMConceptHint(conceptKey);
+        });
+        
+        // Load saved STEM concept
+        const savedConcept = loadFromLocalStorage(LS_STEM_CONCEPT);
+        if (savedConcept) {
+            stemConceptSelect.value = savedConcept;
+            updateSTEMConceptHint(savedConcept);
+        }
+    }
+    
+    // Initialize STEM section visibility
+    updateSTEMSectionVisibility();
+    
+    // Initialize Parental Controls
+    loadSensitivitySettings();
+    
+    // Parental Controls event listeners
+    // Note: <details> element handles accordion toggle natively
+    
+    if (sensitivityPresetSelect) {
+        sensitivityPresetSelect.addEventListener('change', () => {
+            const preset = sensitivityPresetSelect.value;
+            if (preset === 'custom') {
+                customSensitivityControls.classList.remove('hidden');
+            } else {
+                customSensitivityControls.classList.add('hidden');
+                applySensitivityPreset(preset);
+            }
+            saveSensitivitySettings();
+            updateSensitivitySummary();
+        });
+    }
+    
+    // Slider event listeners
+    [conflictSlider, scarySlider, sadnessSlider, complexitySlider].forEach(slider => {
+        if (slider) {
+            slider.addEventListener('input', () => {
+                updateSensitivitySliderLabels();
+                // Auto-switch to custom if sliders are changed
+                if (sensitivityPresetSelect.value !== 'custom') {
+                    sensitivityPresetSelect.value = 'custom';
+                    customSensitivityControls.classList.remove('hidden');
+                }
+                saveSensitivitySettings();
+                updateSensitivitySummary();
+            });
+        }
+    });
+    
+    // Initialize Campaign UI
+    updateCampaignUI();
+    
+    // Campaign event listeners
+    // Note: <details> element handles accordion toggle natively
+    
+    if (newCampaignButton) {
+        newCampaignButton.addEventListener('click', openCampaignModal);
+    }
+    
+    if (loadCampaignButton) {
+        loadCampaignButton.addEventListener('click', handleLoadCampaign);
+    }
+    
+    if (exitCampaignButton) {
+        exitCampaignButton.addEventListener('click', handleExitCampaign);
+    }
+    
+    if (continueEpisodeButton) {
+        continueEpisodeButton.addEventListener('click', () => {
+            // Close the campaign accordion (it's a <details> element)
+            const campaignDetails = campaignContent?.closest('details');
+            if (campaignDetails) campaignDetails.open = false;
+            // Trigger story generation
+            generateButton.click();
+        });
+    }
+    
+    if (cancelCampaignButton) {
+        cancelCampaignButton.addEventListener('click', closeCampaignModal);
+    }
+    
+    if (createCampaignButton) {
+        createCampaignButton.addEventListener('click', handleCreateCampaign);
+    }
+    
+    if (campaignArcSelect) {
+        campaignArcSelect.addEventListener('change', updateArcDescription);
+    }
+    
+    // Close campaign modal when clicking outside
+    if (campaignModal) {
+        campaignModal.addEventListener('click', (e) => {
+            if (e.target === campaignModal) closeCampaignModal();
+        });
+    }
 
     authorStyleSelect.addEventListener('change', () => {
         updateAuthorStyleSummaryDisplay(STORY_STYLE_SUMMARIES);
         saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, authorStyleSelect.value);
+    });
+
+    narratorPersonaSelect.addEventListener('change', () => {
+        updatePersonaSummaryDisplay();
+        saveToLocalStorage(LS_NARRATOR_PERSONA, narratorPersonaSelect.value);
     });
 
     useEngineSuggestionsCheckbox.addEventListener('change', () => {
@@ -323,6 +1064,11 @@ document.addEventListener('DOMContentLoaded', () => {
     enableConsolidatorCheckbox.addEventListener('change', () => {
         saveToLocalStorage(LS_ENABLE_CONSOLIDATOR, enableConsolidatorCheckbox.checked.toString());
     });
+
+    // Theme Toggle
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
 
     // Settings Modal
     settingsButton.addEventListener('click', () => {
@@ -365,6 +1111,23 @@ document.addEventListener('DOMContentLoaded', () => {
         adjustmentsModal.classList.remove('active');
         showTemporaryToast("Style adjustments saved!", "success");
     });
+    
+    // Modal close buttons (X buttons in header)
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modal = btn.closest('.modal');
+            if (modal) modal.classList.remove('active');
+        });
+    });
+    
+    // Close modal when clicking backdrop
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
 
     // Bedtime Mode Toggle
     if (bedtimeModeToggle) {
@@ -380,6 +1143,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Deactivate - just toggle the button state, don't reset settings
                 bedtimeModeToggle.setAttribute('aria-pressed', 'false');
                 showTemporaryToast('Bedtime Mode deactivated', 'info');
+            }
+        });
+    }
+
+    // Morning Mode Toggle
+    if (morningModeToggle) {
+        morningModeToggle.addEventListener('click', () => {
+            const isActive = morningModeToggle.getAttribute('aria-pressed') === 'true';
+            
+            if (!isActive) {
+                // Activate Morning Mode - apply all preset values
+                activateMorningMode();
+                morningModeToggle.setAttribute('aria-pressed', 'true');
+                showTemporaryToast('☀️ Morning Mode activated! Settings optimized for exciting stories.', 'success');
+            } else {
+                // Deactivate - just toggle the button state, don't reset settings
+                morningModeToggle.setAttribute('aria-pressed', 'false');
+                showTemporaryToast('Morning Mode deactivated', 'info');
             }
         });
     }
@@ -449,7 +1230,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const audience = audienceInput.value.trim() || "children";
         const frameworkKey = craftingFrameworkSelect.value;
-        const craftGuideText = STORY_CRAFTING_GUIDES[frameworkKey] || ""; 
+        let craftGuideText = STORY_CRAFTING_GUIDES[frameworkKey] || ""; 
+        
+        // Append STEM concept information for Learning Fable framework
+        const stemConcept = getSelectedSTEMConcept();
+        if (stemConcept && frameworkKey === 'Learning Fable (STEM)') {
+            craftGuideText += `\n\n## 📚 SELECTED STEM CONCEPT: ${stemConcept.key.toUpperCase().replace('_', ' ')}
+
+**Core Concept Explanation:** ${stemConcept.hint}
+
+**Example Application:** ${stemConcept.example}
+
+**Suggested Animal Characters:** ${stemConcept.animal}
+
+IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of this fable should be the STEM concept explained above. 
+- Introduce the concept naturally through the story's conflict and resolution
+- Use concrete, child-friendly examples that demonstrate the concept
+- The characters should discover and apply this principle to solve their problem
+- End with a clear understanding of the concept that the child reader can take away`;
+        } 
         
         const styleKey = authorStyleSelect.value;
         const authorStyleGuideText = STORY_STYLE_GUIDES[styleKey] || "";
@@ -500,6 +1299,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const enableConsolidator = enableConsolidatorCheckbox.checked;
+        
+        // Get narrator persona text
+        const narratorPersonaText = getSelectedPersonaText();
+        
+        // Get sensitivity guidance
+        const sensitivitySettings = getCurrentSensitivitySettings();
+        const sensitivityGuidanceText = sensitivitySettings ? getSensitivityGuidance(sensitivitySettings) : '';
+        
+        // Get campaign guidance
+        const campaignGuidanceText = getCampaignPromptGuidance();
 
         return { 
             apiKey, 
@@ -512,6 +1321,9 @@ document.addEventListener('DOMContentLoaded', () => {
             enableConsolidator,
             AUTHOR_STYLE_GUIDE: authorStyleGuideText,
             ADJUSTMENT_MODULES_TEXT: adjustmentModulesText,
+            NARRATOR_PERSONA_TEXT: narratorPersonaText,
+            SENSITIVITY_GUIDANCE_TEXT: sensitivityGuidanceText,
+            CAMPAIGN_GUIDANCE_TEXT: campaignGuidanceText,
             agentThinkingConfig
         };
     }
@@ -564,7 +1376,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`Final word count = ${wordCount}`);
 
             updateStatusInStoryOutput("Story generation complete!\n"); 
-            displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText); 
+            displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText);
+            
+            // Process campaign episode completion if a campaign is active
+            processCampaignEpisodeCompletion(appState.latestGeneratedStoryText, appState.latestGeneratedStoryTitle);
 
         } catch (error) {
             console.error("Error in handleGenerateStory:", error);

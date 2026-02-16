@@ -907,22 +907,65 @@ For a developer picking up this TODO for the first time:
 - [x] Integrated into pipeline (logs warnings after story generation)
 - [x] Reviewer agent enhanced with voice consistency checklist
 
+### Phase 6: Morning Energizer Mode ✅ COMPLETE
+- [x] `MORNING_ENERGIZER_PRESET` defined in `appState.js`
+- [x] `energetic_morning` tone module added to `adjustment_modules.js`
+- [x] `fast_dynamic` pacing module added to `adjustment_modules.js`
+- [x] Morning Mode UI toggle added alongside Bedtime Mode in `index.html`
+- [x] Morning Mode button styling added to `style.css`
+- [x] Morning Mode logic implemented in `script.js` with mutual exclusivity
+- [x] Persona auto-recommendation for Morning Mode (The Adventurer)
+
+### Phase 7: Learning Fable Sub-Mode ✅ COMPLETE
+- [x] `LEARNING_FABLE_GUIDE` framework added to `story_crafting_guides.js`
+- [x] STEM concept selector UI added to `index.html`
+- [x] Concept data with physics, math, engineering, and biology categories
+- [x] STEM concept guidance integrated into pipeline
+- [x] Conditional visibility based on framework selection
+
+### Phase 8: Narrator Personas ✅ COMPLETE
+- [x] `narrator_personas.js` created with 5 personas (Grandfather, Adventurer, Silly Friend, Wise Owl, Epic Bard)
+- [x] Persona selector UI added to `index.html`
+- [x] Persona summaries display on selection
+- [x] Mode-based persona recommendations (Bedtime → Grandfather, Morning → Adventurer)
+- [x] Persona guidance integrated into all agent prompts via pipeline
+
+### Phase 9: Parental Controls ✅ COMPLETE
+- [x] `getSensitivityGuidance()` function added to `adjustment_modules.js`
+- [x] 4 sensitivity categories (conflict, scary, sadness, complexity) with 4 levels each
+- [x] Parental controls UI with preset dropdown and custom sliders in `index.html`
+- [x] Collapsible parental controls section with styling in `style.css`
+- [x] Sensitivity presets (Gentle, Standard, Adventurous) with auto-apply
+- [x] Sensitivity guidance integrated into all agent prompts via pipeline
+- [x] Settings persistence in localStorage
+
+### Phase 10: Multi-Part Story Campaigns ✅ COMPLETE
+- [x] `campaign.js` created with `CampaignManager` class
+- [x] Campaign arc templates (3-part, 5-part, 7-part) with episode-specific guidance
+- [x] Campaign UI section with active campaign display in `index.html`
+- [x] Campaign creation modal with title, arc selection, and goal input
+- [x] Episode tracking with progress display
+- [x] Continuity management with previous episode summaries
+- [x] Campaign guidance integrated into all agent prompts via pipeline
+- [x] Campaign data persistence in localStorage
+- [x] Episode completion processing with summary extraction
+
 ---
 
 ## 🎯 Vision & Long-Term Goals
 
-These three features represent a strategic enhancement toward making StoryGen the definitive AI storytelling tool for families:
+These features represent a strategic enhancement toward making StoryGen the definitive AI storytelling tool for families:
 
-1. **Fable Framework** → Expands genre coverage, appeals to educators
-2. **Bedtime Story Mode** → Solves a specific, high-value use case (parents' nightly routine)
-3. **Narrative Voice Consistency** → Raises overall quality, differentiates from generic AI story tools
+1. **Fable Framework** → Expands genre coverage, appeals to educators ✅
+2. **Bedtime Story Mode** → Solves a specific, high-value use case (parents' nightly routine) ✅
+3. **Narrative Voice Consistency** → Raises overall quality, differentiates from generic AI story tools ✅
 
-**Future Expansions (Now Scheduled for Implementation):**
-- "Morning Energizer" mode (opposite of bedtime—exciting wakeup stories) → **Phase 6**
-- "Learning Fable" sub-mode (STEM concepts taught via fable structure) → **Phase 7**
-- Voice consistency "personality presets" (choose from 5 narrator personas) → **Phase 8**
-- Parental controls for content sensitivity → **Phase 9**
-- Multi-part story campaigns (serialized bedtime tales) → **Phase 10**
+**Expansion Features (All Implemented):**
+- "Morning Energizer" mode (opposite of bedtime—exciting wakeup stories) → **Phase 6** ✅
+- "Learning Fable" sub-mode (STEM concepts taught via fable structure) → **Phase 7** ✅
+- Voice consistency "personality presets" (choose from 5 narrator personas) → **Phase 8** ✅
+- Parental controls for content sensitivity → **Phase 9** ✅
+- Multi-part story campaigns (serialized bedtime tales) → **Phase 10** ✅
 
 ---
 

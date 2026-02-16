@@ -478,6 +478,93 @@ const FABLE_GUIDE = `
 *This opening immediately establishes who, what, where, and the Fox's manipulative nature—all in three sentences.*
 `;
 
+// Learning Fable Framework - STEM concepts through fable structure
+const LEARNING_FABLE_GUIDE = `
+## Learning Fable Framework (STEM Education)
+
+> A **hybrid framework** combining classical fable structure with STEM education. The "moral" is a scientific or mathematical principle.
+
+### Structure (4 Beats)
+
+1. **The Setup (Introduce the Problem):** (80-120 words)
+   - Introduce 1-2 animal characters facing a practical challenge
+   - The challenge MUST be solvable using a specific STEM concept
+   - Show initial failed attempts that don't use the concept
+   - Make the stakes clear: food, shelter, safety, helping a friend
+
+2. **The Discovery (Introduce the Concept):** (100-150 words)
+   - Character observes something in nature or tries a new approach
+   - The STEM concept is DEMONSTRATED through action, not explained
+   - Use sensory, concrete details: "The water ROSE as each pebble dropped"
+   - Character notices the pattern or principle
+
+3. **The Application (Using the Knowledge):** (100-150 words)
+   - Character applies the discovered principle to solve the original problem
+   - Show cause-and-effect clearly
+   - Celebrate the success with appropriate excitement
+   - Other characters may react with wonder: "How did you do that?"
+
+4. **The Lesson (Naming the Principle):** (50-80 words)
+   - Character (or wise elder) names the principle in simple terms
+   - Connect it to the broader world: "This is why [real-world example]..."
+   - End with curiosity invitation: "I wonder what else works this way?"
+
+### Craft Guide (MUST-FOLLOW)
+
+1. **Target Length:** 400-550 words (slightly longer than pure fable for explanation)
+
+2. **STEM Accuracy:** The science/math MUST be correct. Simplify, but don't falsify.
+
+3. **Concept Introduction:**
+   - SHOW before you TELL
+   - Use animal's natural abilities to demonstrate (crow's beak, ant's strength, spider's web)
+   - Avoid textbook language; use action and observation
+
+4. **Age-Appropriate Vocabulary:**
+   - Ages 4-6: Use analogies and comparisons ("as heavy as...")
+   - Ages 7-9: Introduce one technical term with immediate context
+   - Ages 10+: Can use more precise terminology
+
+5. **The "Aha" Moment:**
+   - There MUST be a clear moment where character (and listener) "gets it"
+   - Use language like: "Suddenly, [Character] understood!" or "That's when it clicked."
+
+6. **Avoid:**
+   - Lecture-style explanations
+   - Characters who already know the answer
+   - Concepts that require prior knowledge
+   - Incorrect or misleading science
+
+7. **Ending:** Unlike behavioral fables, Learning Fables end with CURIOSITY, not conclusion.
+   - "And [Character] couldn't wait to discover what else the world could teach."
+   - "What other secrets were hiding in plain sight?"
+
+### STEM Concept-to-Animal Matching
+
+| Concept | Best Animal Match | Why |
+|---------|------------------|-----|
+| Leverage/Levers | Ant, Monkey | Lifting, swinging |
+| Displacement | Crow, Beaver | Water interaction |
+| Aerodynamics | Bird, Bat, Flying Squirrel | Flight |
+| Geometry | Spider, Bee | Web patterns, hive structure |
+| Counting/Math | Squirrel, Ant | Storing, organizing |
+| Camouflage | Chameleon, Octopus, Moth | Adaptation |
+| Buoyancy | Duck, Otter | Floating |
+| Magnetism | Migratory Bird | Navigation |
+| Sound Waves | Bat, Dolphin | Echolocation |
+| Friction | Snake, Snail | Movement |
+
+### Example Opening
+> "Crow was thirsty. So, so thirsty. She found a tall pitcher with water at the bottom, but her beak couldn't reach. She tried tipping it—too heavy. She tried breaking it—too hard. Then she noticed the pebbles by the road..."
+
+*This sets up the problem (thirst), shows failed attempts, and hints at the solution (displacement).*
+
+### Style Notes
+- **Tone:** Wonder-filled, curious, gently educational
+- **Pacing:** Allow moments for discovery and realization
+- **Ending:** Opens doors to more learning, not closure
+`;
+
 
 export const STORY_CRAFTING_GUIDES = {
     // Original frameworks
@@ -500,7 +587,10 @@ export const STORY_CRAFTING_GUIDES = {
     "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_HIDDEN_BEAST_GUIDE,
     "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_SIBLING_QUEST_GUIDE,
     "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": UNIVERSAL_CRAFT_STANDARDS + GRIMMS_TRICKSTER_TRIUMPH_GUIDE,    // Fable Framework
-    "Fable (Aesop Style)": UNIVERSAL_CRAFT_STANDARDS + FABLE_GUIDE,};
+    "Fable (Aesop Style)": UNIVERSAL_CRAFT_STANDARDS + FABLE_GUIDE,
+    // Learning Fable Framework (STEM)
+    "Learning Fable (STEM)": UNIVERSAL_CRAFT_STANDARDS + LEARNING_FABLE_GUIDE,
+};
 
 // Updated: Summaries for each framework
 export const STORY_FRAMEWORK_SUMMARIES = {
@@ -518,11 +608,13 @@ export const STORY_FRAMEWORK_SUMMARIES = {
     "Seven-Point Story Structure": "A plot structure focusing on two major turning points (Plot Points) and two pressure points (Pinches) that frame the story's Midpoint.",
     "Snowflake Method (Iterative Expansion)": "A design process for writing stories where you start with a single sentence and build it out into a full narrative through ten iterative passes.",
     "Fichtean Curve (“Crisis Ladder”)": "A plot structure that begins in the middle of the action and follows a character through a series of escalating crises, with brief moments of reflection, leading to a climax.",
-    "Grimms’ Fairy-Tale Pattern (“Forest Path”)": "A classic fairy-tale template following a protagonist through hardship, a series of three trials, and a magical resolution, often with a clear moral.",
-    "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
-    "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
-    "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
-"Grimms' Trickster-Triumph Pattern ("Clever Tailor")": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery.",
+    "Grimms' Fairy-Tale Pattern (\"Forest Path\")": "A classic fairy-tale template following a protagonist through hardship, a series of three trials, and a magical resolution, often with a clear moral.",
+    "Grimms' Wish-Mirror Pattern (\"Rippled Lake\")": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
+    "Grimms' Hidden-Beast Pattern (\"Animal Bridegroom\")": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
+    "Grimms' Sibling-Quest Pattern (\"Swans & Stars\")": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
+    "Grimms' Trickster-Triumph Pattern (\"Clever Tailor\")": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery.",
     // Fable summary
-    "Fable (Aesop Style)": "A short, moral tale with animal characters (400-500 words). Features a clear conflict and an explicit lesson. Based on classical Aesop tradition."
+    "Fable (Aesop Style)": "A short, moral tale with animal characters (400-500 words). Features a clear conflict and an explicit lesson. Based on classical Aesop tradition.",
+    // Learning Fable summary
+    "Learning Fable (STEM)": "A fable where the 'moral' is a science or math concept. Animal characters discover and apply STEM principles through experimentation. (~400-550 words)"
 };

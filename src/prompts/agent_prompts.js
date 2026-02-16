@@ -23,6 +23,12 @@ First and foremost, you must follow the specific stylistic and structural guides
 You MUST adopt the following tone and style for the story.
 \${ADJUSTMENT_MODULES_TEXT}
 
+\${NARRATOR_PERSONA_TEXT}
+
+\${SENSITIVITY_GUIDANCE_TEXT}
+
+\${CAMPAIGN_GUIDANCE_TEXT}
+
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
 
@@ -52,6 +58,12 @@ export const PROMPT_AGENT_2_ELABORATOR_TEMPLATE = `You are a creative writer ski
 **Stylistic & Tonal Directives**
 Your elaborations MUST adhere to the original style.
 \${ADJUSTMENT_MODULES_TEXT}
+
+\${NARRATOR_PERSONA_TEXT}
+
+\${SENSITIVITY_GUIDANCE_TEXT}
+
+\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
@@ -86,6 +98,12 @@ export const PROMPT_AGENT_3_REVIEWER_TEMPLATE = `You are an expert in evaluating
 
 ### Stylistic & Tonal Directives
 \${ADJUSTMENT_MODULES_TEXT}
+
+\${NARRATOR_PERSONA_TEXT}
+
+\${SENSITIVITY_GUIDANCE_TEXT}
+
+\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
@@ -123,6 +141,12 @@ export const PROMPT_AGENT_4_POLISHER_TEMPLATE = `You are a talented story editor
 ---
 **Stylistic & Tonal Directives**
 \${ADJUSTMENT_MODULES_TEXT}
+
+\${NARRATOR_PERSONA_TEXT}
+
+\${SENSITIVITY_GUIDANCE_TEXT}
+
+\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
@@ -182,6 +206,12 @@ Your task is to review the following story text and consolidate it. Your goal is
 ---
 **Stylistic & Tonal Directives**
 \${ADJUSTMENT_MODULES_TEXT}
+
+\${NARRATOR_PERSONA_TEXT}
+
+\${SENSITIVITY_GUIDANCE_TEXT}
+
+\${CAMPAIGN_GUIDANCE_TEXT}
 
 ### Authorial Style Guide
 \${AUTHOR_STYLE_GUIDE}
