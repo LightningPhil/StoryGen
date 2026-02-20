@@ -30,6 +30,24 @@ export function countWords(text) {
 }
 
 /**
+ * Normalizes a vocabulary word for stable local storage keys.
+ * Keeps letters, apostrophes, and hyphens; lowercases everything.
+ */
+export function normalizeVocabularyWord(word) {
+    if (!word || typeof word !== 'string') {
+        return '';
+    }
+
+    return word
+        .normalize('NFKC')
+        .toLowerCase()
+        .replace(/[’]/g, "'")
+        .replace(/[^\p{L}'-]+/gu, '')
+        .replace(/^['-]+|['-]+$/g, '')
+        .trim();
+}
+
+/**
  * Analyzes a story for potential narrative voice consistency issues.
  * Returns an array of warnings (empty if no issues detected).
  * 

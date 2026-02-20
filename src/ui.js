@@ -1,5 +1,6 @@
 // src/ui.js
 import appState from './appState.js'; 
+import { normalizeVocabularyWord } from './utils.js';
 
 // --- DOM Element References (initialized by initUIElements) ---
 let storyTitleDiv, storyOutputDiv, generateButton, elaborateStoryButton;
@@ -106,6 +107,23 @@ export function displayErrorInStoryOutput(errorMessage) {
 
 export function showTemporaryToast(message, type = 'info', duration = 3000) {
     console.log(`[UI Toast - ${type.toUpperCase()}]: ${message}`);
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    // Trigger entrance animation on next frame
+    requestAnimationFrame(() => toast.classList.add('toast-visible'));
+
+    setTimeout(() => {
+        toast.classList.remove('toast-visible');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        // Fallback removal if transitionend doesn't fire
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 500);
+    }, duration);
 }
 
 export function updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES_DATA) {
@@ -172,14 +190,7 @@ export function populateDropdown(selectElement, optionsObject, capitalize = true
  */
 function formatStoryAsHtml(text) {
     if (!text) return '';
-    
-    // Escape HTML entities for safety
-    const escapeHtml = (str) => {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    };
-    
+
     // Split text into paragraphs (double newlines or single newlines followed by a capital letter paragraph start)
     const paragraphs = text
         .split(/\n\n+/)
@@ -190,7 +201,7 @@ function formatStoryAsHtml(text) {
     const formattedParagraphs = paragraphs.map((para, index) => {
         // Handle chapter headers or section breaks (lines starting with # or all caps short lines)
         if (para.startsWith('#')) {
-            const headerText = escapeHtml(para.replace(/^#+\s*/, ''));
+            const headerText = formatParagraphForAssist(para.replace(/^#+\s*/, ''));
             return `<h3 class="story-chapter">${headerText}</h3>`;
         }
         
@@ -200,10 +211,44 @@ function formatStoryAsHtml(text) {
         }
         
         // Regular paragraph - wrap in <p> tag
-        const escapedPara = escapeHtml(para);
+        const escapedPara = formatParagraphForAssist(para);
         
         return `<p class="story-paragraph">${escapedPara}</p>`;
     });
     
     return formattedParagraphs.join('\n');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function formatParagraphForAssist(paragraphText) {
+    const WORD_TOKEN_REGEX = /\p{L}+(?:[’'-]\p{L}+)*/gu;
+    let html = '';
+    let cursor = 0;
+
+    for (const match of paragraphText.matchAll(WORD_TOKEN_REGEX)) {
+        const word = match[0];
+        const start = match.index ?? 0;
+
+        if (start > cursor) {
+            html += escapeHtml(paragraphText.slice(cursor, start));
+        }
+
+        const normalizedWord = normalizeVocabularyWord(word);
+        const escapedWord = escapeHtml(word);
+        const escapedNormalizedWord = escapeHtml(normalizedWord);
+        html += `<span class="story-word" data-story-word="${escapedWord}" data-word-normalized="${escapedNormalizedWord}">${escapedWord}</span>`;
+
+        cursor = start + word.length;
+    }
+
+    if (cursor < paragraphText.length) {
+        html += escapeHtml(paragraphText.slice(cursor));
+    }
+
+    return html;
 }

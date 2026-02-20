@@ -15,7 +15,8 @@ export async function callAgentAPI(
     currentRunChatLogArray, 
     storyOutputDivRef, // Pass reference to #storyOutput for status updates
     minApiIntervalMs,
-    enableThinking = false // New parameter to control thinking
+    enableThinking = false, // New parameter to control thinking
+    responseMimeType = '' // Optional response mime type for structured output (e.g. JSON)
 ) {
     if (!currentApiKey) { 
         const errorMsg = `${agentName} Error: API Key missing. Please configure it in settings.`;
@@ -70,11 +71,12 @@ export async function callAgentAPI(
 
     const requestBody = { 
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-            // "temperature": 0.7,
-            // "maxOutputTokens": 8192,
-        } 
+        generationConfig: {} 
     };
+
+    if (responseMimeType) {
+        requestBody.generationConfig.responseMimeType = responseMimeType;
+    }
 
     // --- New: Conditionally add thinking/tool configuration ---
     if (enableThinking) {
@@ -106,7 +108,7 @@ export async function callAgentAPI(
                 console.warn(retryMsg);
                 if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += retryMsg;
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking, responseMimeType);
             } else {
                 const overloadErrorMsg = `${agentName} Error: Model is overloaded or rate limits exceeded after ${MAX_RETRIES} retries (Status ${response.status}). Please try again later.`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries', content: overloadErrorMsg, timestamp: new Date().toISOString() });
@@ -124,7 +126,7 @@ export async function callAgentAPI(
                 console.warn(retryMsg);
                 if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += retryMsg;
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking, responseMimeType);
             } else {
                 const busyErrorMsg = `${agentName} Error: Model remained busy after ${MAX_RETRIES} retries. Please try again later. (Original Error: ${responseData.error.message})`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries-busy', content: busyErrorMsg, timestamp: new Date().toISOString() });

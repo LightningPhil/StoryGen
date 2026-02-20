@@ -28,8 +28,9 @@ import {
     LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
     LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
     LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
-    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME,
-    saveToLocalStorage, loadFromLocalStorage, clearAllAppData 
+    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME, LS_VOCAB_LOOKUPS, LS_TTS_VOICE, LS_TTS_GENDER,
+    saveToLocalStorage, loadFromLocalStorage, clearAllAppData, trackVocabularyLookup,
+    loadVocabularyLookupData, removeFromLocalStorage
 } from './localStorage.js';
 
 // --- Imports from Modules ---
@@ -39,7 +40,7 @@ import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styl
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules.js';
 import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts.js';
 import { HELP_TOPICS, HELP_TOPIC_ORDER } from './prompts/help_content.js';
-import { parseCharacters, countWords } from './utils.js'; 
+import { parseCharacters, countWords, normalizeVocabularyWord } from './utils.js'; 
 import { 
     initUIElements,
     updateStatusInStoryOutput, 
@@ -56,6 +57,7 @@ import {
 } from './ui.js';
 // --- New Pipeline Module Import ---
 import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline.js';
+import { lookupWord } from './wiktionary.js';
 
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
@@ -81,6 +83,24 @@ let helpModal, helpButton, helpTopicsList, helpContentDisplay, closeHelpModalBut
 let includePlotPointsCheckbox, plotPointsContainer;
 // Theme toggle
 let themeToggle;
+// Assist tab and settings export controls
+let assistTabButton, exportVocabularyButton, clearVocabularyButton;
+let assistEmptyState, assistWordState, assistWordHeading, assistDefinitions, assistSynonyms, assistAntonyms, assistIpa;
+let assistSpeakButton, assistLoadingState, assistErrorState, assistSource, assistLookupCount;
+let loadSampleStoryButton;
+let ttsVoiceSelect, ttsGenderSelect;
+
+// Shared tab state
+let tabButtons = [];
+let tabPanels = [];
+
+// Assist interaction state
+let selectedStoryWordElement = null;
+let selectedAssistWord = "";
+let selectedAssistWordNormalized = "";
+let assistLookupRequestToken = 0;
+let currentAssistAudioUrl = '';
+let currentAssistAudio = null;
 
 // STEM Concept data for hints
 const STEM_CONCEPT_DATA = {
@@ -179,6 +199,49 @@ const STEM_CONCEPT_DATA = {
 // Sensitivity level labels
 const SENSITIVITY_LABELS = ['None', 'Gentle', 'Standard', 'Adventurous'];
 
+// --- Sample Story for Testing ---
+const SAMPLE_STORY_TEXT = `In a cottage where the roof was thatched with thick bundles of dried lavender and the chimney puffed out violet smoke, lived Mistress Mumble-Wick. She was a witch of quiet, comfortable habits. Every morning, she used a long wooden spoon to stir the heavy morning clouds until they rained just enough to water her spice-bushels. Beside her, perched on a fence post made of twisted pearwood, sat Skitter. Skitter was a sparrow with feathers the color of a toasted marshmallow and a chest that puffed out with pride whenever he began his morning chores.
+
+Their life followed the happy rhythm of tea and tunes. Mistress Mumble-Wick owned a collection of copper kettles that whistled different melodies depending on the breeze. One hummed like a cello when the wind blew from the north, and another sang like a flute during a southern gust. Skitter would match their pitch, weaving a bright, looping melody into the air, while Mumble-Wick hummed along. Her voice sounded like the crackle of a cozy hearth on a winter night. She was his whole world, and the sturdy stone wall of the garden was the only boundary he ever needed.
+
+One Tuesday, while the sun sat high and the bees were heavy and drowsy with nectar, a cold wind hissed through the iron gate. A shadow-thief, known as the Silence-Snatcher, slid across the grass. It had no face, only a hood made of swirling soot and a hunger for things that made noise. With a sudden, jagged movement, it reached out and plucked the sound right from Mumble-Wick\u2019s throat. The witch gasped, her mouth opening wide, but no sound came out. The Snatcher stuffed the silver thread of her voice into a jar of frozen smoke and vanished toward the Iron-Thorn Woods.
+
+Mumble-Wick\u2019s face turned the color of dry parchment. She pointed a trembling finger at the sun, which was beginning its slow, heavy slide toward the horizon. Then she pointed at the woods. Skitter understood the silent warning. If her voice was not returned to her throat before the final sliver of the sun vanished, the silence would settle into her bones like a deep winter frost, turning her into a garden statue of cold, grey stone.
+
+Skitter\u2019s tiny claws dug deep into the pearwood fence until the bark nipped at his skin. A tremor rippled through his wings, making his flight feathers rattle like dry leaves. This is terror, he realized. His heart drummed against his ribs like a moth beating its wings against a glass windowpane. \u201CI am a speck of dust in a world of giants,\u201D he thought, looking at the jagged trees beyond the safety of the wall. \u201CThe shadows will swallow me before I even find the path.\u201D
+
+But the clock on the cottage mantle struck four, its chimes sounding dull and thudding, as if the clock itself was losing its spirit. Time was a falling leaf, and he had to catch it. With a sharp, desperate breath, Skitter launched himself into the air.
+
+The Iron-Thorn Woods were not like the garden. As he crossed the threshold, the wind roared like a bruised beast, the air bit with the sharp tang of rusted metal, and the jagged bark of the trees scraped his belly like dragon scales. The forest tried to shove him back, its branches acting as long, tangled fingers. Skitter struggled, his wings aching, until he remembered the North-Wind kettle. He closed his eyes for a heartbeat and shaped his throat to mimic that low, cello-like drone. By matching the vibration of the gale, he found he could slide through the wind\u2019s resistance as if he were part of the storm itself.
+
+High above, a Great Horned Owl drifted across the purple sky. Its shadow was a vast, dark blanket that draped over the trees, making Skitter feel smaller than a single pine needle. He pulled his wings tight to his body and huddled on a swaying, thorny branch, freezing as the owl\u2019s golden eyes scanned the brush. For a long minute, he watched the garden wall in the distance. It looked so warm and golden. \u201CI could go back,\u201D he whispered to the wind. \u201CI am too small for a forest this big.\u201D
+
+Then he remembered the look in Mumble-Wick\u2019s eyes\u2014the way she had shared her cinnamon biscuits and stirred the clouds just for him. He took a deep breath of the pine-scented air, pushed off the branch, and dived deeper into the heart of the woods, using his new understanding of the forest\u2019s rhythm to dodge the snapping twigs.
+
+He found the Silence-Snatcher in the belly of a hollow oak tree. The creature sat on a pile of stolen echoes, clutching the jar of frozen smoke. Inside, the silver thread shimmered with a soft, pulsing light, shivering with the trapped music of Mumble-Wick\u2019s voice.
+
+\u201CGive it back,\u201D Skitter tried to scream, but the words felt heavy in his beak.
+
+The Snatcher looked up, its soot-cloak swirling like ink dropped in a bucket of water. It was a creature of the void, and it wanted the one thing it could never possess: beauty. It leaned close to Skitter, and its breath smelled of burnt matches and stale winter. The creature gestured to the sparrow\u2019s throat and then to the jar. It was a trade. The witch\u2019s voice for the sparrow\u2019s song.
+
+Skitter hesitated. His song was his pride. It was how he greeted the morning and how he told the world he was alive. If he gave it away, he would be just another quiet bird in the brush. \u201CIf I lose my music, will I still be Skitter?\u201D he wondered. The doubt felt like a cold stone in his belly. He looked at the Snatcher\u2019s empty, dark hood, felt the gritty texture of the ash on the floor, and heard the frantic, high-pitched hum of the trapped voice.
+
+He saw the orange sun dipping lower through the tree-hollow and he nodded. He opened his beak and let out one final, magnificent trill. It was a sound of summer mornings, honey-soaked biscuits, and the smell of rain on dry grass. As the last note drifted away, a cold, hollowing ache settled behind his beak, as if a silver string had been unspooled from his very heart. He felt lighter, but emptier, a vessel with the liquid poured out. The sensation was a sharp, phantom itch where his music used to live.
+
+The Snatcher caught the melody in a net of shadows, its soot-fingers twitching with delight. The jar of frozen smoke shattered with a sound like a thousand mirrors breaking at once. The silver thread leaped out, winding itself around Skitter\u2019s leg like a ribbon of living starlight.
+
+Skitter did not wait for the Snatcher to change its mind. He flew. He could no longer sing to keep his spirits up, and his throat felt dry and tight, as if he had swallowed a heavy river pebble. He flew until his muscles burned and his lungs ached for air. The sun was a thin, bleeding sliver of orange on the edge of the world when he finally burst through the garden gate.
+
+Mistress Mumble-Wick was sitting on the porch steps. Her skin was already turning a dull, flat grey, and her fingers were stiff like river rocks. Skitter landed on her shoulder, his chest heaving, and pressed his leg against the cold skin of her neck. The silver thread recognized its home. It slid from his feathers and dived back into the witch\u2019s throat.
+
+Mumble-Wick took a deep, refreshing breath. The grey faded, replaced by the warm glow of life. \u201COh, my brave little spark,\u201D she whispered, her voice returning like a flood of warm honey.
+
+Skitter tried to answer with his usual bell-like melody. He wanted to tell her about the wind and the owl and the dark oak. Instead, a small, gravelly \u201Ccrrr-ak\u201D came out. It was a rough, dry sound, like two stones rubbing together. He tucked his head under his wing, ashamed of the raspy noise.
+
+Mumble-Wick lifted him gently in her soft, flour-dusted hands. She did not look disappointed. Her eyes shone like wet pebbles in a mountain brook. \u201CYour song is gone, Skitter,\u201D she said softly, \u201Cbut your heart has grown loud enough for the whole forest to hear.\u201D
+
+That night, the Great Horned Owl flew over the garden again, its shadow silent and heavy against the white moon. In the past, Skitter would have hidden under a lavender leaf, shivering until the dawn. Instead, he hopped onto the very highest chimney pot, right where the violet smoke curled into the air. He looked at the stars, felt the cool night breeze ruffle his toasted-marshmallow feathers, and let out a bold, raspy chirp. The owl kept flying, and Skitter stayed exactly where he was, a small bird standing tall against the endless, sparkling sky.`;
+
 // Sensitivity presets
 const SENSITIVITY_PRESETS = {
     extra_gentle: { conflict: 0, scary: 0, sadness: 0, complexity: 0 },
@@ -244,6 +307,406 @@ function updateAgentTogglesUI() {
     const canThink = model ? model.supportsThinking : false;
 
     agentTogglesContainer.classList.toggle('disabled', !canThink);
+}
+
+function initializeTabSystem() {
+    tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+    tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            setActiveTab(btn.dataset.tab || '');
+        });
+    });
+}
+
+function setActiveTab(targetTab) {
+    if (!targetTab) return false;
+    const targetButton = tabButtons.find(btn => btn.dataset.tab === targetTab);
+    if (!targetButton || targetButton.disabled) return false;
+
+    tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+    });
+    targetButton.classList.add('active');
+    targetButton.setAttribute('aria-selected', 'true');
+
+    tabPanels.forEach(panel => panel.classList.remove('active'));
+    const targetPanel = document.getElementById(`tab-${targetTab}`);
+    if (targetPanel) {
+        targetPanel.classList.add('active');
+    }
+
+    return true;
+}
+
+function setAssistTabEnabled(isEnabled) {
+    if (!assistTabButton) return;
+
+    assistTabButton.disabled = !isEnabled;
+    assistTabButton.setAttribute('aria-disabled', (!isEnabled).toString());
+
+    if (!isEnabled && assistTabButton.classList.contains('active')) {
+        setActiveTab('story');
+    }
+}
+
+function clearSelectedStoryWordHighlight() {
+    if (!selectedStoryWordElement) return;
+    selectedStoryWordElement.classList.remove('is-selected');
+    selectedStoryWordElement = null;
+}
+
+function resetAssistPanelToEmptyState() {
+    if (assistErrorState) {
+        assistErrorState.classList.add('hidden');
+        assistErrorState.textContent = '';
+    }
+    if (assistLoadingState) {
+        assistLoadingState.classList.add('hidden');
+    }
+    if (assistWordHeading) assistWordHeading.textContent = '';
+    if (assistDefinitions) assistDefinitions.innerHTML = '';
+    if (assistSynonyms) assistSynonyms.innerHTML = '';
+    if (assistAntonyms) assistAntonyms.innerHTML = '';
+    if (assistIpa) assistIpa.textContent = '';
+    if (assistSource) assistSource.textContent = '';
+    if (assistLookupCount) { assistLookupCount.textContent = ''; assistLookupCount.classList.add('hidden'); }
+    if (assistWordState) assistWordState.classList.add('hidden');
+    if (assistEmptyState) assistEmptyState.classList.remove('hidden');
+    if (assistSpeakButton) assistSpeakButton.disabled = true;
+    currentAssistAudioUrl = '';
+}
+
+function setAssistLoadingState(isLoading) {
+    if (!assistLoadingState) return;
+    assistLoadingState.classList.toggle('hidden', !isLoading);
+}
+
+function setAssistErrorState(message) {
+    if (!assistErrorState) return;
+    if (message) {
+        assistErrorState.textContent = message;
+        assistErrorState.classList.remove('hidden');
+    } else {
+        assistErrorState.textContent = '';
+        assistErrorState.classList.add('hidden');
+    }
+}
+
+function prepareAssistPanelForWord(word) {
+    if (assistEmptyState) assistEmptyState.classList.add('hidden');
+    if (assistWordState) assistWordState.classList.remove('hidden');
+    if (assistWordHeading) assistWordHeading.textContent = word;
+    if (assistDefinitions) assistDefinitions.innerHTML = '';
+    if (assistSynonyms) assistSynonyms.innerHTML = '';
+    if (assistAntonyms) assistAntonyms.innerHTML = '';
+    if (assistIpa) assistIpa.textContent = '';
+    if (assistSource) assistSource.textContent = '';
+    if (assistLookupCount) { assistLookupCount.textContent = ''; assistLookupCount.classList.add('hidden'); }
+    if (assistSpeakButton) assistSpeakButton.disabled = true;
+    currentAssistAudioUrl = '';
+    setAssistErrorState('');
+    setAssistLoadingState(true);
+}
+
+function renderAssistResult(assistData) {
+    // Definitions grouped by part of speech
+    if (assistDefinitions) {
+        assistDefinitions.innerHTML = '';
+        if (assistData.definitions && assistData.definitions.length > 0) {
+            for (const group of assistData.definitions) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'assist-definitions-group';
+                const posLabel = document.createElement('div');
+                posLabel.className = 'assist-definitions-pos';
+                posLabel.textContent = group.partOfSpeech;
+                groupDiv.appendChild(posLabel);
+                const ol = document.createElement('ol');
+                ol.className = 'assist-definitions-list';
+                for (const gloss of group.glosses) {
+                    const li = document.createElement('li');
+                    li.textContent = gloss;
+                    ol.appendChild(li);
+                }
+                groupDiv.appendChild(ol);
+                assistDefinitions.appendChild(groupDiv);
+            }
+        } else {
+            assistDefinitions.innerHTML = '<p class="assist-none">No definition found.</p>';
+        }
+    }
+
+    // Synonyms as clickable chips
+    renderWordChips(assistSynonyms, assistData.synonyms);
+
+    // Antonyms as clickable chips
+    renderWordChips(assistAntonyms, assistData.antonyms);
+
+    // IPA
+    if (assistIpa) {
+        assistIpa.textContent = assistData.ipa || '';
+    }
+
+    // Audio URL
+    currentAssistAudioUrl = (assistData.audioUrl && assistData.audioUrl.startsWith('http')) ? assistData.audioUrl : '';
+    if (assistSpeakButton) {
+        assistSpeakButton.disabled = !selectedAssistWord || (!currentAssistAudioUrl && !('speechSynthesis' in window));
+    }
+
+    // Source attribution
+    if (assistSource) {
+        const sourceNames = { freedict: 'Free Dictionary', wiktionary: 'Wiktionary', cache: 'Cached' };
+        assistSource.textContent = assistData.source ? `Source: ${sourceNames[assistData.source] || assistData.source}` : '';
+    }
+
+    // Lookup count badge
+    updateLookupCountBadge(selectedAssistWordNormalized);
+
+    setAssistLoadingState(false);
+}
+
+function renderWordChips(container, words) {
+    if (!container) return;
+    container.innerHTML = '';
+    if (!words || words.length === 0) {
+        container.innerHTML = '<span class="assist-none">None found</span>';
+        return;
+    }
+    for (const word of words) {
+        const chip = document.createElement('span');
+        chip.className = 'assist-word-chip';
+        chip.dataset.word = word;
+        chip.textContent = word;
+        container.appendChild(chip);
+    }
+}
+
+function updateLookupCountBadge(normalizedWord) {
+    if (!assistLookupCount) return;
+    const vocabData = loadVocabularyLookupData();
+    const entry = vocabData[normalizedWord];
+    if (entry && entry.lookupCount > 1) {
+        assistLookupCount.textContent = `You've looked this up ${entry.lookupCount} times`;
+        assistLookupCount.classList.remove('hidden');
+    } else {
+        assistLookupCount.textContent = '';
+        assistLookupCount.classList.add('hidden');
+    }
+}
+
+function cancelAssistSpeech() {
+    if (currentAssistAudio) {
+        currentAssistAudio.pause();
+        currentAssistAudio.currentTime = 0;
+        currentAssistAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+
+function getSelectedTTSVoice() {
+    if (!('speechSynthesis' in window)) return null;
+    const savedVoiceName = loadFromLocalStorage(LS_TTS_VOICE);
+    if (!savedVoiceName) return null;
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find(v => v.name === savedVoiceName) || null;
+}
+
+// Heuristic gender classification for TTS voices
+function classifyVoiceGender(voice) {
+    const name = voice.name.toLowerCase();
+    const femalePatterns = /\b(female|woman|girl|zira|hazel|susan|jenny|linda|aria|sara|elsa|jenny|catherine|heera|tracy|irina|paulina|sabina|helena|monica|lucia|ayumi|hanhan|huihui|yaoyao|zhiwei|miren|hedda)\b/;
+    const malePatterns = /\b(male|man|boy|david|mark|james|george|richard|daniel|sean|ravi|frank|cosimo|pablo|ivan|naayf|tolga|bengt|andika|hemant|filip)\b/;
+    if (femalePatterns.test(name)) return 'female';
+    if (malePatterns.test(name)) return 'male';
+    // Default guess: voices with higher-pitched-sounding names tend to be female
+    return 'female';
+}
+
+function populateTTSVoiceDropdown() {
+    if (!ttsVoiceSelect || !ttsGenderSelect || !('speechSynthesis' in window)) return;
+
+    const voices = window.speechSynthesis.getVoices();
+    const selectedGender = ttsGenderSelect.value || 'female';
+    const savedVoiceName = loadFromLocalStorage(LS_TTS_VOICE);
+
+    // Filter to English voices matching selected gender
+    const englishVoices = voices
+        .filter(v => v.lang.startsWith('en'))
+        .filter(v => classifyVoiceGender(v) === selectedGender)
+        .sort((a, b) => {
+            // Prefer local voices, then sort alphabetically
+            if (a.localService !== b.localService) return a.localService ? -1 : 1;
+            return a.name.localeCompare(b.name);
+        });
+
+    ttsVoiceSelect.innerHTML = '<option value="">Auto (best available)</option>';
+    for (const voice of englishVoices) {
+        const opt = document.createElement('option');
+        opt.value = voice.name;
+        opt.textContent = `${voice.name}${voice.localService ? '' : ' (online)'}`;
+        if (voice.name === savedVoiceName) opt.selected = true;
+        ttsVoiceSelect.appendChild(opt);
+    }
+
+    // If no English voices match the gender, show all English voices
+    if (englishVoices.length === 0) {
+        const allEnglish = voices.filter(v => v.lang.startsWith('en'));
+        for (const voice of allEnglish) {
+            const opt = document.createElement('option');
+            opt.value = voice.name;
+            opt.textContent = `${voice.name}${voice.localService ? '' : ' (online)'}`;
+            if (voice.name === savedVoiceName) opt.selected = true;
+            ttsVoiceSelect.appendChild(opt);
+        }
+    }
+}
+
+function speakWithTTS(word) {
+    if (!('speechSynthesis' in window)) return;
+    const utterance = new SpeechSynthesisUtterance(word);
+    const voice = getSelectedTTSVoice();
+    if (voice) utterance.voice = voice;
+    utterance.rate = 0.92;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+}
+
+// Prime the TTS audio pipeline with a near-silent utterance so the first
+// real pronunciation isn't swallowed or played at reduced volume.
+let ttsPrimed = false;
+function primeTTSAudio() {
+    if (ttsPrimed || !('speechSynthesis' in window)) return;
+    ttsPrimed = true;
+    const primer = new SpeechSynthesisUtterance('.');
+    primer.volume = 0.01; // barely audible
+    primer.rate = 2;
+    const voice = getSelectedTTSVoice();
+    if (voice) primer.voice = voice;
+    window.speechSynthesis.speak(primer);
+}
+
+function speakSelectedAssistWord() {
+    if (!selectedAssistWord) return;
+    cancelAssistSpeech();
+
+    // Try recorded dictionary audio first
+    if (currentAssistAudioUrl) {
+        currentAssistAudio = new Audio(currentAssistAudioUrl);
+        currentAssistAudio.play().catch(() => {
+            currentAssistAudio = null;
+            speakWithTTS(selectedAssistWord);
+        });
+        return;
+    }
+
+    // Fall back to browser TTS
+    speakWithTTS(selectedAssistWord);
+}
+
+function resetAssistSelectionForNewStory() {
+    assistLookupRequestToken += 1;
+    clearSelectedStoryWordHighlight();
+    selectedAssistWord = "";
+    selectedAssistWordNormalized = "";
+    cancelAssistSpeech();
+    resetAssistPanelToEmptyState();
+}
+
+async function lookupAssistDataForWord(selectedWord, normalizedWord) {
+    const requestToken = ++assistLookupRequestToken;
+
+    try {
+        const result = await lookupWord(selectedWord);
+
+        // Guard against stale responses from rapid clicking
+        if (requestToken !== assistLookupRequestToken ||
+            normalizedWord !== selectedAssistWordNormalized) return;
+
+        if (!result) {
+            setAssistLoadingState(false);
+            setAssistErrorState(`"${selectedWord}" isn't in the dictionary \u2014 it might be a name or a made-up word from the story!`);
+            // Still allow TTS even if no dictionary entry
+            if (assistSpeakButton) {
+                assistSpeakButton.disabled = !selectedAssistWord || !('speechSynthesis' in window);
+            }
+            return;
+        }
+
+        renderAssistResult(result);
+    } catch (error) {
+        if (requestToken !== assistLookupRequestToken ||
+            normalizedWord !== selectedAssistWordNormalized) return;
+        setAssistLoadingState(false);
+        setAssistErrorState("Couldn\u2019t load help for this word. Try another.");
+    }
+}
+
+function handleStoryWordClick(event) {
+    const wordElement = event.target.closest('.story-word');
+    if (!wordElement || !storyOutputDiv || !storyOutputDiv.contains(wordElement)) {
+        return;
+    }
+
+    // Keep drag-select/copy behavior smooth by ignoring clicks while a text selection exists.
+    const browserSelection = window.getSelection();
+    if (browserSelection && !browserSelection.isCollapsed && browserSelection.toString().trim()) {
+        return;
+    }
+
+    const clickedWord = (wordElement.dataset.storyWord || wordElement.textContent || '').trim();
+    const normalizedWord = normalizeVocabularyWord(wordElement.dataset.wordNormalized || clickedWord);
+    if (!clickedWord || !normalizedWord) {
+        return;
+    }
+
+    clearSelectedStoryWordHighlight();
+    selectedStoryWordElement = wordElement;
+    selectedStoryWordElement.classList.add('is-selected');
+
+    selectedAssistWord = clickedWord;
+    selectedAssistWordNormalized = normalizedWord;
+    cancelAssistSpeech();
+    primeTTSAudio();
+
+    trackVocabularyLookup(normalizedWord);
+    setAssistTabEnabled(true);
+    setActiveTab('assist');
+    prepareAssistPanelForWord(clickedWord);
+    lookupAssistDataForWord(clickedWord, normalizedWord);
+}
+
+function handleAssistChipClick(event) {
+    const chip = event.target.closest('.assist-word-chip');
+    if (!chip) return;
+    const word = chip.dataset.word;
+    if (!word) return;
+
+    selectedAssistWord = word;
+    selectedAssistWordNormalized = normalizeVocabularyWord(word);
+    cancelAssistSpeech();
+    clearSelectedStoryWordHighlight();
+
+    trackVocabularyLookup(selectedAssistWordNormalized);
+    prepareAssistPanelForWord(word);
+    lookupAssistDataForWord(word, selectedAssistWordNormalized);
+}
+
+function downloadJsonFile(data, filename) {
+    const serialized = JSON.stringify(data, null, 2);
+    const blob = new Blob([serialized], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
 }
 
 // --- Modal Population Functions ---
@@ -547,6 +1010,8 @@ document.addEventListener('DOMContentLoaded', () => {
     readingAgeMinInput = document.getElementById('readingAgeMinInput'); 
     readingAgeMaxInput = document.getElementById('readingAgeMaxInput'); 
     downloadChatLogButton = document.getElementById('downloadChatLogButton');
+    exportVocabularyButton = document.getElementById('exportVocabularyButton');
+    clearVocabularyButton = document.getElementById('clearVocabularyButton');
     charactersInput = document.getElementById('charactersInput');
     audienceInput = document.getElementById('audienceInput');
     userSuggestionsTextarea = document.getElementById('userSuggestionsTextarea');
@@ -603,6 +1068,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Theme toggle
     themeToggle = document.getElementById('themeToggle');
+
+    // Assist tab elements
+    assistTabButton = document.getElementById('assistTabButton');
+    assistEmptyState = document.getElementById('assistEmptyState');
+    assistWordState = document.getElementById('assistWordState');
+    assistWordHeading = document.getElementById('assistWordHeading');
+    assistDefinitions = document.getElementById('assistDefinitions');
+    assistSynonyms = document.getElementById('assistSynonyms');
+    assistAntonyms = document.getElementById('assistAntonyms');
+    assistIpa = document.getElementById('assistIpa');
+    assistSpeakButton = document.getElementById('assistSpeakButton');
+    assistLoadingState = document.getElementById('assistLoadingState');
+    assistErrorState = document.getElementById('assistErrorState');
+    assistSource = document.getElementById('assistSource');
+    assistLookupCount = document.getElementById('assistLookupCount');
+    loadSampleStoryButton = document.getElementById('loadSampleStoryButton');
+    ttsVoiceSelect = document.getElementById('ttsVoiceSelect');
+    ttsGenderSelect = document.getElementById('ttsGenderSelect');
     
     // Framework and Style modal elements
     frameworkModal = document.getElementById('frameworkModal');
@@ -627,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeHelpModalButton = document.getElementById('closeHelpModalButton');
 
 
-    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !agentTogglesContainer) {
+    if (!modalApiKeyInput || !charactersInput || !audienceInput || !craftingFrameworkSelect || !generateButton || !storyOutputDiv || !settingsModal || !settingsButton || !saveSettingsButton || !modalModelSelect || !storyTitleDiv || !userSuggestionsTextarea || !enableReadingAgeAdjustmentCheckbox || !targetReadingAgeSlider || !readingAgeSliderContainer || !decreaseFontButton || !increaseFontButton || !enableConsolidatorCheckbox || !authorStyleSelect || !agentTogglesContainer || !assistTabButton || !assistEmptyState || !assistWordState || !assistWordHeading || !assistDefinitions || !assistSynonyms || !assistAntonyms || !assistIpa || !assistSpeakButton || !assistLoadingState || !assistErrorState || !exportVocabularyButton || !clearVocabularyButton) {
         console.error("Critical UI elements are missing. Application may not function correctly.");
         if (storyOutputDiv) storyOutputDiv.textContent = "Error: Critical UI elements missing. Check console.";
         return;
@@ -706,33 +1189,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Event Listeners ---
-    
-    // Tab Navigation
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-    
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetTab = btn.dataset.tab;
-            
-            // Update button states
-            tabButtons.forEach(b => {
-                b.classList.remove('active');
-                b.setAttribute('aria-selected', 'false');
-            });
-            btn.classList.add('active');
-            btn.setAttribute('aria-selected', 'true');
-            
-            // Update panel states
-            tabPanels.forEach(panel => {
-                panel.classList.remove('active');
-            });
-            const targetPanel = document.getElementById(`tab-${targetTab}`);
-            if (targetPanel) {
-                targetPanel.classList.add('active');
-            }
-        });
-    });
+    initializeTabSystem();
+    setAssistTabEnabled(false);
+    resetAssistPanelToEmptyState();
+
+    if (assistSpeakButton) {
+        assistSpeakButton.addEventListener('click', speakSelectedAssistWord);
+    }
+    if (storyOutputDiv) {
+        storyOutputDiv.addEventListener('click', handleStoryWordClick);
+    }
+    if (assistWordState) {
+        assistWordState.addEventListener('click', handleAssistChipClick);
+    }
     
     craftingFrameworkSelect.addEventListener('change', () => {
         updateFrameworkSummaryDisplay(STORY_FRAMEWORK_SUMMARIES);
@@ -834,10 +1303,29 @@ document.addEventListener('DOMContentLoaded', () => {
         readingAgeMinInput.value = loadFromLocalStorage(LS_READING_AGE_MIN) || DEFAULT_READING_AGE_MIN.toString();
         readingAgeMaxInput.value = loadFromLocalStorage(LS_READING_AGE_MAX) || DEFAULT_READING_AGE_MAX.toString();
         updateAgentTogglesUI();
+        // Populate TTS voice dropdown with current gender filter
+        if (ttsGenderSelect) ttsGenderSelect.value = loadFromLocalStorage(LS_TTS_GENDER) || 'female';
+        populateTTSVoiceDropdown();
         settingsModal.classList.add('active');
     });
     modalModelSelect.addEventListener('change', updateAgentTogglesUI);
     cancelSettingsButton.addEventListener('click', () => settingsModal.classList.remove('active'));
+    // TTS voice gender filter
+    if (ttsGenderSelect) {
+        ttsGenderSelect.addEventListener('change', () => {
+            saveToLocalStorage(LS_TTS_GENDER, ttsGenderSelect.value);
+            populateTTSVoiceDropdown();
+        });
+    }
+    if (ttsVoiceSelect) {
+        ttsVoiceSelect.addEventListener('change', () => {
+            saveToLocalStorage(LS_TTS_VOICE, ttsVoiceSelect.value);
+        });
+    }
+    // Voices may load asynchronously in some browsers
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => populateTTSVoiceDropdown();
+    }
     saveSettingsButton.addEventListener('click', () => {
         saveToLocalStorage(LS_API_KEY, modalApiKeyInput.value);
         saveToLocalStorage(LS_SELECTED_MODEL, modalModelSelect.value);
@@ -851,6 +1339,8 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_THINKING_AGENT_5_CLEANER, agent5CleanerToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_6_TITLER, agent6TitlerToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR, agentCConsolidatorToggle.checked.toString());
+        if (ttsVoiceSelect) saveToLocalStorage(LS_TTS_VOICE, ttsVoiceSelect.value);
+        if (ttsGenderSelect) saveToLocalStorage(LS_TTS_GENDER, ttsGenderSelect.value);
         updateTargetReadingAgeSliderDOMState(); 
         settingsModal.classList.remove('active');
         showTemporaryToast("Settings saved!", "success");
@@ -923,18 +1413,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Other buttons...
     downloadChatLogButton.addEventListener('click', () => {
-        const logData = JSON.stringify(appState.lastRunChatLog, null, 2);
-        const blob = new Blob([logData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `story_generator_chat_log_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        downloadJsonFile(
+            appState.lastRunChatLog,
+            `story_generator_chat_log_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+        );
         showTemporaryToast("Chat log downloaded.", "info");
     });
+    exportVocabularyButton.addEventListener('click', () => {
+        const vocabularyData = loadVocabularyLookupData();
+        downloadJsonFile(
+            vocabularyData,
+            `story_vocabulary_data_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+        );
+        showTemporaryToast("Vocabulary data exported.", "success");
+    });
+    clearVocabularyButton.addEventListener('click', () => {
+        const shouldClear = confirm(
+            'Clear all vocabulary lookup history? This cannot be undone.'
+        );
+        if (!shouldClear) return;
+
+        removeFromLocalStorage(LS_VOCAB_LOOKUPS);
+        showTemporaryToast("Vocabulary data cleared.", "info");
+    });
+    if (loadSampleStoryButton) {
+        loadSampleStoryButton.addEventListener('click', () => {
+            const sampleTitle = "The Sparrow and the Silence-Snatcher";
+            const sampleText = SAMPLE_STORY_TEXT;
+            appState.latestGeneratedStoryTitle = sampleTitle;
+            appState.latestGeneratedStoryText = sampleText;
+            displayFinalStoryOutput(sampleTitle, sampleText);
+            setAssistTabEnabled(true);
+            resetAssistPanelToEmptyState();
+            setActiveTab('story');
+            // Close settings modal
+            if (settingsModal) settingsModal.classList.remove('active');
+            showTemporaryToast("Sample story loaded — click any word to test Assist.", "success");
+        });
+    }
     copyStoryButton.addEventListener('click', () => {
         if (appState.latestGeneratedStoryText) {
             navigator.clipboard.writeText(appState.latestGeneratedStoryText)
@@ -1076,6 +1592,8 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
 
     async function handleGenerateStory() {
         appState.clearChatLog(); 
+        setAssistTabEnabled(false);
+        resetAssistSelectionForNewStory();
         clearStoryOutput(); 
         disableMainControls();
         appState.latestGeneratedStoryText = ""; 
@@ -1123,10 +1641,13 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
 
             updateStatusInStoryOutput("Story generation complete!\n"); 
             displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText);
+            setAssistTabEnabled(true);
+            resetAssistPanelToEmptyState();
 
         } catch (error) {
             console.error("Error in handleGenerateStory:", error);
             displayErrorInStoryOutput(error.message || "An unknown error occurred during story generation.");
+            setAssistTabEnabled(false);
         } finally {
             enableMainControls(); 
         }
@@ -1140,6 +1661,8 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
         
         appState.addLogEntry({ agentName: "User Action", type: 'elaboration-start', content: `Elaborating existing story. Initial length: ${appState.latestGeneratedStoryText.length}`, timestamp: new Date().toISOString() });
         
+        setAssistTabEnabled(false);
+        resetAssistSelectionForNewStory();
         clearStoryOutput(); 
         if (storyOutputDiv) storyOutputDiv.textContent = `Previous story version (will be elaborated):\n"${appState.latestGeneratedStoryText.substring(0,150)}..."\n\n`;
 
@@ -1171,10 +1694,13 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
             
             updateStatusInStoryOutput("Story elaboration complete!\n");
             displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText, true);
+            setAssistTabEnabled(true);
+            resetAssistPanelToEmptyState();
 
         } catch (error) {
             console.error("Error in handleElaborateStory:", error);
             displayErrorInStoryOutput(error.message || "An unknown error occurred during story elaboration.");
+            setAssistTabEnabled(false);
         } finally {
             enableMainControls();
         }
@@ -1188,7 +1714,7 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
         if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'r') {
             e.preventDefault(); // Prevent browser refresh
             
-            if (confirm('Reset all StoryGen data? This will clear:\n- All story settings\n- Plot points\n- Style choices\n\nYour API key will be preserved.\n\nContinue?')) {
+            if (confirm('Reset all StoryGen data? This will clear:\n- All story settings\n- Plot points\n- Style choices\n- Vocabulary lookup history\n\nYour API key will be preserved.\n\nContinue?')) {
                 clearAllAppData(false); // Keep API key
                 showTemporaryToast('All data reset. Reloading...', 'info');
                 setTimeout(() => window.location.reload(), 500);

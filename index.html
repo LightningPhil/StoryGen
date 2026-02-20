@@ -77,6 +77,12 @@
                         </svg>
                         Options
                     </button>
+                    <button id="assistTabButton" class="tab-btn" data-tab="assist" role="tab" aria-selected="false" aria-controls="tab-assist" disabled aria-disabled="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Assist
+                    </button>
                 </nav>
 
                 <!-- Tab Panels -->
@@ -228,6 +234,45 @@
                             <div class="field-hint">Runs an extra pass to tighten the story and remove redundancy.</div>
                         </div>
                     </div>
+
+                    <!-- Tab 3: Assist -->
+                    <div id="tab-assist" class="tab-panel" role="tabpanel">
+                        <div id="assistEmptyState" class="assist-empty-state">
+                            <p>Click a word in the story to see a quick explanation.</p>
+                        </div>
+
+                        <div id="assistWordState" class="hidden">
+                            <h3 id="assistWordHeading" class="assist-word-heading"></h3>
+
+                            <div class="assist-pronunciation-row">
+                                <span id="assistIpa" class="assist-ipa"></span>
+                                <button id="assistSpeakButton" class="btn btn-secondary assist-speak-button" type="button" title="Hear pronunciation">
+                                    🔊 Hear pronunciation
+                                </button>
+                            </div>
+
+                            <div id="assistLoadingState" class="assist-status hidden">Looking this up…</div>
+                            <div id="assistErrorState" class="assist-status assist-status-error hidden"></div>
+
+                            <section class="assist-section">
+                                <h4>Definitions</h4>
+                                <div id="assistDefinitions"></div>
+                            </section>
+
+                            <section class="assist-section">
+                                <h4>Synonyms</h4>
+                                <div id="assistSynonyms" class="assist-word-chips"></div>
+                            </section>
+
+                            <section class="assist-section">
+                                <h4>Antonyms</h4>
+                                <div id="assistAntonyms" class="assist-word-chips"></div>
+                            </section>
+
+                            <p id="assistLookupCount" class="assist-lookup-count hidden"></p>
+                            <p id="assistSource" class="assist-source"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -342,6 +387,25 @@
                 </div>
 
                 <div class="field-group">
+                    <label class="field-group-title">Pronunciation Voice</label>
+                    <div class="modal-grid">
+                        <div class="field">
+                            <label for="ttsGenderSelect">Voice Type</label>
+                            <select id="ttsGenderSelect">
+                                <option value="female">Female</option>
+                                <option value="male">Male</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="ttsVoiceSelect">Voice</label>
+                            <select id="ttsVoiceSelect">
+                                <option value="">Auto (best available)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group">
                     <label class="field-group-title">Agent Thinking Toggles</label>
                     <div id="agentTogglesContainer" class="toggle-grid">
                         <label class="toggle-label">
@@ -376,7 +440,12 @@
                 </div>
             </div>
             <footer class="modal-footer">
-                <button id="downloadChatLogButton" class="btn btn-secondary">Download Session Log</button>
+                <div class="modal-footer-left">
+                    <button id="downloadChatLogButton" class="btn btn-secondary">Download Session Log</button>
+                    <button id="exportVocabularyButton" class="btn btn-secondary">Export Vocabulary Data</button>
+                    <button id="clearVocabularyButton" class="btn btn-ghost">Clear Vocabulary Data</button>
+                    <button id="loadSampleStoryButton" class="btn btn-secondary" title="Load a sample story for testing">🧪 Sample Story</button>
+                </div>
                 <div class="modal-footer-right">
                     <button id="cancelSettingsButton" class="btn btn-ghost">Cancel</button>
                     <button id="saveSettingsButton" class="btn btn-primary">Save & Close</button>
@@ -471,6 +540,7 @@
         </div>
     </div>
 
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
     <script src="./src/script.js" type="module"></script>
 </body>
 </html>

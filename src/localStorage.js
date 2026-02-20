@@ -40,6 +40,11 @@ export const LS_SENSITIVITY_COMPLEXITY = 'storySensitivityComplexity_storyCircle
 // --- Theme ---
 export const LS_THEME = 'storyTheme_storyCircle';
 
+// --- Vocabulary Assist ---
+export const LS_VOCAB_LOOKUPS = 'storyVocabLookups_storyCircle';
+export const LS_TTS_VOICE = 'storyTtsVoice_storyCircle';
+export const LS_TTS_GENDER = 'storyTtsGender_storyCircle';
+
 // --- New Keys for Agent Thinking Toggles ---
 export const LS_THINKING_AGENT_1_CRAFTER = 'thinkingAgent1_storyCircle';
 export const LS_THINKING_AGENT_2_ELABORATOR = 'thinkingAgent2_storyCircle';
@@ -75,6 +80,55 @@ export function removeFromLocalStorage(key) {
     }
 }
 
+export function loadVocabularyLookupData() {
+    const raw = loadFromLocalStorage(LS_VOCAB_LOOKUPS);
+    if (!raw) {
+        return {};
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            return parsed;
+        }
+        return {};
+    } catch (e) {
+        console.warn("Could not parse vocabulary lookup data:", e);
+        return {};
+    }
+}
+
+export function saveVocabularyLookupData(lookupData) {
+    if (!lookupData || typeof lookupData !== 'object' || Array.isArray(lookupData)) {
+        console.warn("Invalid vocabulary lookup data. Expected object map.");
+        return;
+    }
+    saveToLocalStorage(LS_VOCAB_LOOKUPS, JSON.stringify(lookupData));
+}
+
+export function trackVocabularyLookup(normalizedWord) {
+    if (!normalizedWord || typeof normalizedWord !== 'string') {
+        return loadVocabularyLookupData();
+    }
+
+    // Schema: { [word]: { firstSeen: ISO timestamp, lookupCount: number } }
+    const lookupData = loadVocabularyLookupData();
+    const existing = lookupData[normalizedWord];
+
+    if (existing && typeof existing === 'object') {
+        existing.firstSeen = existing.firstSeen || new Date().toISOString();
+        existing.lookupCount = Number.isFinite(existing.lookupCount) ? existing.lookupCount + 1 : 1;
+    } else {
+        lookupData[normalizedWord] = {
+            firstSeen: new Date().toISOString(),
+            lookupCount: 1
+        };
+    }
+
+    saveVocabularyLookupData(lookupData);
+    return lookupData;
+}
+
 /**
  * Clear all StoryGen app data from localStorage
  * Keeps the API key by default (pass true to clear it too)
@@ -89,6 +143,7 @@ export function clearAllAppData(includeApiKey = false) {
         LS_STEM_CONCEPT, LS_INCLUDE_PLOT_POINTS, LS_NARRATOR_PERSONA,
         LS_SENSITIVITY_PRESET, LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
         LS_THEME,
+        LS_VOCAB_LOOKUPS,
         LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
         LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
         LS_THINKING_AGENT_C_CONSOLIDATOR
