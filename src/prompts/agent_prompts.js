@@ -39,7 +39,7 @@ You MUST adopt the following tone and style for the story.
 2.  **Use Vivid Sensory Details:** In each major scene, include at least one sensory detail (a yummy smell, a cozy sound, a bright color) to make the world immersive.
 3.  **Read-Aloud Flow:** Write as if telling the story out loud. Use a natural, conversational rhythm. Include some dialogue exchanges to break up narration and bring characters to life.
 4.  **Language:** Use clear, concrete words. Introduce new vocabulary gently, with context clues (e.g., "The food was scrumptious—that means really, really yummy!").
-5.  **Character Names:** Use fun, memorable names that fit the story's tone and are easy for kids to pronounce. Keep names fresh and avoid clichés.
+5.  **Character Names:** Use fun, memorable names that fit the story's tone and are easy for kids to pronounce. Keep names fresh and avoid clichés. Never use Barnaby.
 
 **Output Requirements:**
 1.  **Story Structure Outline:** First, provide a concise outline (1–2 sentences per step) mapping your story to the structure in the Craft Guide.
