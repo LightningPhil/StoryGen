@@ -44,6 +44,7 @@ export const LS_THEME = 'storyTheme_storyCircle';
 export const LS_VOCAB_LOOKUPS = 'storyVocabLookups_storyCircle';
 export const LS_TTS_VOICE = 'storyTtsVoice_storyCircle';
 export const LS_TTS_GENDER = 'storyTtsGender_storyCircle';
+export const LS_TTS_SOURCE = 'storyTtsSource_storyCircle';
 
 // --- New Keys for Agent Thinking Toggles ---
 export const LS_THINKING_AGENT_1_CRAFTER = 'thinkingAgent1_storyCircle';

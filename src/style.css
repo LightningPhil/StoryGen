@@ -975,6 +975,16 @@ input[type="range"]::-moz-range-thumb {
     gap: var(--space-xs);
 }
 
+/* Open Story button — always visible so users can load a story at any time */
+#openStoryButton {
+    color: var(--accent);
+    opacity: 1 !important;
+}
+
+#openStoryButton:hover {
+    background-color: var(--bg-surface-hover);
+}
+
 /* Story Content */
 .story-content {
     flex: 1;
@@ -1060,6 +1070,124 @@ input[type="range"]::-moz-range-thumb {
     color: var(--text-muted);
     font-size: 1.2em;
     letter-spacing: 0.5em;
+}
+
+/* Markdown list and blockquote styles for loaded stories */
+.story-list {
+    margin: 0.5em 0 1.25em 1.5em;
+    padding: 0;
+    list-style: disc;
+    line-height: 1.8;
+}
+
+.story-list .story-list {
+    margin: 0.25em 0 0.25em 1.5em;
+    list-style: circle;
+}
+
+.story-list .story-list .story-list {
+    list-style: square;
+}
+
+.story-ordered-list {
+    margin: 0.5em 0 1.25em 1.5em;
+    padding: 0;
+    list-style: decimal;
+    line-height: 1.8;
+}
+
+.story-ordered-list .story-ordered-list {
+    margin: 0.25em 0 0.25em 1.5em;
+    list-style: lower-alpha;
+}
+
+.story-ordered-list .story-ordered-list .story-ordered-list {
+    list-style: lower-roman;
+}
+
+.story-list li,
+.story-ordered-list li {
+    margin-bottom: 0.3em;
+}
+
+.story-blockquote {
+    margin: 1em 0 1.25em 0;
+    padding: 0.5em 1em;
+    border-left: 3px solid var(--accent);
+    background: var(--bg-surface);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.story-blockquote .story-paragraph {
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+.story-blockquote .story-blockquote {
+    margin: 0.5em 0;
+    border-left-color: var(--text-muted);
+}
+
+/* Fenced code blocks */
+.story-code-block {
+    margin: 1em 0 1.25em 0;
+    padding: 1em 1.2em;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88em;
+    line-height: 1.6;
+    white-space: pre;
+    color: var(--text-primary);
+}
+
+.story-code-block code {
+    font-family: inherit;
+    background: none;
+    padding: 0;
+}
+
+/* Inline code */
+.story-inline-code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88em;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+}
+
+/* Tables */
+.story-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0 1.25em 0;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.story-table th,
+.story-table td {
+    border: 1px solid var(--border-default);
+    padding: 0.45em 0.75em;
+}
+
+.story-table th {
+    background: var(--bg-surface);
+    font-weight: 600;
+}
+
+.story-table tr:nth-child(even) td {
+    background: var(--bg-surface);
+}
+
+/* Horizontal rule */
+.story-hr {
+    border: none;
+    border-top: 1px solid var(--border-default);
+    margin: 2em 0;
 }
 
 /* Story Placeholder */

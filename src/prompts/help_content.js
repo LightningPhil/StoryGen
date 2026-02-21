@@ -4,6 +4,33 @@
  */
 
 export const HELP_TOPICS = {
+    about: {
+        title: "About StoryGen",
+        content: `
+            <h3>About StoryGen</h3>
+            <p><strong>StoryGen</strong> was created by <strong>Phil Leichauer</strong> on 21 February 2026.</p>
+
+            <p>The app was built to help Phil's daughter with reading — specifically to aid understanding and pronunciation of new words she encounters in stories. When you tap any word in a story, you can hear it spoken aloud, see its definition, and explore example sentences, all without leaving the page.</p>
+
+            <p>StoryGen also began life as an experiment in doing something genuinely useful with AI agents. Rather than asking a single AI to write an entire story in one go, StoryGen uses a team of specialist agents that each handle one part of the writing process — much like a real publishing team:</p>
+
+            <ol>
+                <li>A <strong>Story Crafter</strong> writes the first draft from your characters and ideas</li>
+                <li>An <strong>Elaborator</strong> enriches the draft with sensory details, dialogue, and emotion</li>
+                <li>A <strong>Reviewer</strong> reads the story critically and provides feedback</li>
+                <li>A <strong>Polisher</strong> rewrites the story incorporating the reviewer's suggestions</li>
+                <li>A <strong>Cleaner</strong> tidies up any leftover formatting or notes</li>
+                <li>A <strong>Titler</strong> gives the finished story a fitting title</li>
+            </ol>
+
+            <p>An optional <strong>Consolidator</strong> can step in to tighten wordy passages. The result is a story that feels considered and crafted rather than generated — one that children actually enjoy hearing at bedtime.</p>
+
+            <div class="tip">
+                <div class="tip-title">📖 Open Source</div>
+                <p>StoryGen is released under the MIT License. It has zero dependencies — every line of code was written for this project.</p>
+            </div>
+        `
+    },
     getting_started: {
         title: "Getting Started",
         content: `
@@ -333,11 +360,63 @@ export const HELP_TOPICS = {
                 <li>Try a different browser (Chrome or Firefox recommended)</li>
             </ul>
         `
+    },
+
+    gemini_api_key: {
+        title: "Getting a Gemini API Key",
+        content: `
+            <h3>How to Get a Gemini API Key</h3>
+            <p>StoryGen uses Google's Gemini AI to generate stories. You'll need a free API key to get started. Here's a detailed step-by-step guide.</p>
+
+            <h4>Step 1: Sign in to Google</h4>
+            <p>You'll need a Google account (the same kind you use for Gmail or YouTube). If you don't have one, create one at <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">accounts.google.com</a>.</p>
+
+            <h4>Step 2: Go to Google AI Studio</h4>
+            <p>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"><strong>aistudio.google.com/app/apikey</strong></a>. This is Google's free tool for managing AI API keys.</p>
+
+            <h4>Step 3: Create an API Key</h4>
+            <ol>
+                <li>Click the <strong>"Create API Key"</strong> button</li>
+                <li>If prompted, select a Google Cloud project (or let it create one for you — the default is fine)</li>
+                <li>A long string of letters and numbers will appear — this is your API key</li>
+                <li>Click the <strong>copy</strong> button next to the key to copy it to your clipboard</li>
+            </ol>
+
+            <h4>Step 4: Paste the Key into StoryGen</h4>
+            <ol>
+                <li>In StoryGen, click the <strong>Settings</strong> icon (⚙️) in the top-left corner</li>
+                <li>Paste your API key into the <strong>"Gemini API Key"</strong> field</li>
+                <li>Click <strong>"Save & Close"</strong></li>
+                <li>You're ready to generate stories!</li>
+            </ol>
+
+            <h4>Is It Free?</h4>
+            <p>Yes! Google offers a generous free tier for the Gemini API. For typical story generation use (a few stories a day), you're unlikely to ever hit the free limits. The free tier includes:</p>
+            <ul>
+                <li>Multiple requests per minute</li>
+                <li>No credit card required</li>
+                <li>Access to the latest Gemini models</li>
+            </ul>
+
+            <h4>Keeping Your Key Safe</h4>
+            <ul>
+                <li>Your API key is stored <strong>only in your browser's local storage</strong> — it's never sent anywhere except directly to Google's API</li>
+                <li>Don't share your API key publicly (e.g., in screenshots or social media)</li>
+                <li>If you think your key has been compromised, go back to AI Studio and delete it, then create a new one</li>
+            </ul>
+
+            <div class="tip">
+                <div class="tip-title">💡 Tip</div>
+                <p>If you get an "Invalid API key" error, double-check that you copied the entire key with no extra spaces. You can also try creating a fresh key in AI Studio.</p>
+            </div>
+        `
     }
 };
 
 export const HELP_TOPIC_ORDER = [
+    'about',
     'getting_started',
+    'gemini_api_key',
     'characters',
     'audience',
     'frameworks',

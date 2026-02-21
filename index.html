@@ -123,7 +123,7 @@
 
                         <div class="field">
                             <label class="toggle-label">
-                                <input type="checkbox" id="includePlotPointsCheckbox" checked>
+                                <input type="checkbox" id="includePlotPointsCheckbox">
                                 <span>Include plot points</span>
                             </label>
                         </div>
@@ -141,8 +141,8 @@
                             <select id="sensitivityPresetSelect">
                                 <option value="extra_gentle">Extra Gentle (Ages 3-4)</option>
                                 <option value="gentle">Gentle (Ages 4-6)</option>
-                                <option value="standard" selected>Standard (Ages 6-9)</option>
-                                <option value="adventurous">Adventurous (Ages 9+)</option>
+                                <option value="standard">Standard (Ages 6-9)</option>
+                                <option value="adventurous" selected>Adventurous (Ages 9+)</option>
                                 <option value="custom">Custom...</option>
                             </select>
                             <div id="sensitivitySummary" class="field-hint"></div>
@@ -212,15 +212,19 @@
                         <div class="field">
                             <label class="toggle-label">
                                 <input type="checkbox" id="enableReadingAgeAdjustmentCheckbox">
-                                <span>Adjust vocabulary for reading age</span>
+                                <!-- UI label says "difficulty" not "reading age" to avoid making older children feel sad.
+                                     The underlying mechanism still adjusts by reading-age internally. Do NOT put ages on this label. -->
+                                <span>Adjust vocabulary for difficulty</span>
                             </label>
                         </div>
 
                         <div id="readingAgeSliderContainer" class="slider-container">
                             <div class="slider-row">
-                                <span class="slider-min">Simple (5)</span>
-                                <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7" aria-label="Target reading age">
-                                <span class="slider-max">Advanced (12)</span>
+                                <!-- Do NOT show actual ages on these labels — just Younger / Older.
+                                     The numeric age is an internal detail only. -->
+                                <span class="slider-min">Younger</span>
+                                <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7" aria-label="Vocabulary difficulty">
+                                <span class="slider-max">Older</span>
                             </div>
                         </div>
 
@@ -294,6 +298,19 @@
             <header class="story-header">
                 <h2 id="storyTitle"></h2>
                 <div id="storyActionsBar" class="story-actions">
+                    <button id="openStoryButton" class="icon-button" aria-label="Open a saved story" title="Open a saved story">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </button>
+                    <input type="file" id="storyFileInput" accept=".md,.markdown,.txt" class="hidden" aria-hidden="true">
+                    <button id="saveStoryButton" class="icon-button" aria-label="Save story" title="Save story">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </button>
                     <button id="decreaseFontButton" class="icon-button" aria-label="Decrease font size" title="Decrease font size">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 7V5h12v2M8 5v14m4-14v14M10 19h4"/>
@@ -311,13 +328,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                        </svg>
-                    </button>
-                    <button id="saveStoryButton" class="icon-button" aria-label="Save story" title="Save story">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
                     </button>
                     <button id="elaborateStoryButton" class="icon-button" aria-label="Elaborate story" title="Elaborate story">
@@ -387,8 +397,16 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-group-title">Pronunciation Voice</label>
-                    <div class="modal-grid">
+                    <label class="field-group-title">Pronunciation</label>
+                    <div class="field">
+                        <label for="ttsSourceSelect">Audio Source</label>
+                        <select id="ttsSourceSelect">
+                            <option value="dictionary">Dictionary recordings (natural, but voice varies per word)</option>
+                            <option value="browser" selected>Browser voice (consistent voice, sounds robotic)</option>
+                        </select>
+                        <div class="field-hint" id="ttsSourceHint">Dictionary recordings use real human pronunciations from Wikimedia. Browser voice uses your device's text-to-speech engine with a single consistent voice.</div>
+                    </div>
+                    <div id="browserVoiceSettings" class="modal-grid">
                         <div class="field">
                             <label for="ttsGenderSelect">Voice Type</label>
                             <select id="ttsGenderSelect">

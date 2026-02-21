@@ -52,8 +52,8 @@
                     📚 Multi-Part Campaign
                     <span class="toggle-arrow">▼</span>
                 </button>
-                <div id="campaignContent" class="campaign-content" style="display: none;">
-                    <div id="activeCampaignInfo" class="active-campaign-info" style="display: none;">
+                <div id="campaignContent" class="campaign-content hidden">
+                    <div id="activeCampaignInfo" class="active-campaign-info hidden">
                         <div class="campaign-header">
                             <span id="campaignTitle" class="campaign-title"></span>
                             <span id="campaignProgress" class="campaign-progress"></span>
@@ -67,9 +67,9 @@
                     <div id="noCampaignInfo" class="no-campaign-info">
                         <p>Create a multi-episode story arc with recurring characters and a continuing plot.</p>
                         <button id="newCampaignButton" class="button-secondary">Start New Campaign</button>
-                        <div id="existingCampaigns" class="existing-campaigns" style="display: none;">
+                        <div id="existingCampaigns" class="existing-campaigns hidden">
                             <p class="existing-label">Or continue existing:</p>
-                            <select id="existingCampaignSelect">
+                            <select id="existingCampaignSelect" aria-label="Select an existing campaign">
                                 <!-- Populated by script -->
                             </select>
                             <button id="loadCampaignButton" class="button-tertiary button-small">Load</button>
@@ -102,7 +102,7 @@
                     <div id="readingAgeSliderContainer" class="slider-container"> 
                         <div class="slider-wrapper">
                             <span class="slider-label-min">Simple</span> 
-                            <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7">
+                            <input type="range" id="targetReadingAgeSlider" min="5" max="12" step="1" value="7" aria-label="Target reading age">
                             <span class="slider-label-max">Advanced</span>
                         </div>
                     </div>
@@ -124,7 +124,7 @@
                 </div>
 
                 <!-- STEM Concept Selector (shown only when Learning Fable framework is selected) -->
-                <div id="stemConceptSection" class="conditional-section" style="display: none;">
+                <div id="stemConceptSection" class="conditional-section hidden">
                     <label for="stemConceptSelect">STEM Concept to Teach</label>
                     <select id="stemConceptSelect">
                         <option value="">-- Select a concept --</option>
@@ -173,7 +173,7 @@
                 <div id="personaSummary" class="framework-summary">
                     <!-- Summary will appear here -->
                 </div>
-                <div id="personaRecommendation" class="persona-recommendation" style="display: none;">
+                <div id="personaRecommendation" class="persona-recommendation hidden">
                     💡 Suggested for current mode: <span id="recommendedPersonas"></span>
                 </div>
 
@@ -183,7 +183,7 @@
                         🛡️ Parental Content Settings
                         <span class="toggle-arrow">▼</span>
                     </button>
-                    <div id="parentalControlsContent" class="parental-content" style="display: none;">
+                    <div id="parentalControlsContent" class="parental-content hidden">
                         
                         <label for="sensitivityPresetSelect">Quick Preset</label>
                         <select id="sensitivityPresetSelect">
@@ -194,7 +194,7 @@
                             <option value="custom">Custom...</option>
                         </select>
                         
-                        <div id="customSensitivityControls" class="custom-sensitivity-controls" style="display: none;">
+                        <div id="customSensitivityControls" class="custom-sensitivity-controls hidden">
                             <div class="sensitivity-slider-group">
                                 <label for="conflictSlider">Conflict Level</label>
                                 <input type="range" id="conflictSlider" min="0" max="3" value="2" class="sensitivity-slider">

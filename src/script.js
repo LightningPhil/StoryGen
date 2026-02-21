@@ -1,6 +1,17 @@
 // src/script.js
 
 // --- Configuration (Constants) ---
+// ─── HOW TO ADD OR CHANGE GEMINI MODELS ────────────────────────────────
+// 1. Search this file for "AVAILABLE_MODELS" to find this block.
+// 2. Add a new entry using the model's API ID (the string you'd use in a
+//    REST call to generativelanguage.googleapis.com). For example:
+//        "gemini-2.0-pro": { name: "Gemini 2.0 Pro", supportsThinking: false }
+// 3. Set supportsThinking to true if the model supports the "thinking"
+//    (extended reasoning) parameter, or false if it doesn't.
+// 4. To change the default model, update DEFAULT_GEMINI_MODEL_ID below.
+// 5. That's it — no other files need changing. The Settings dropdown and
+//    API calls are built dynamically from this object.
+// ────────────────────────────────────────────────────────────────────────
 const DEFAULT_GEMINI_MODEL_ID = "gemini-3-flash-preview"; 
 const AVAILABLE_MODELS = { 
     "gemini-3-flash-preview": { name: "Gemini-3-Flash-Preview", supportsThinking: true },
@@ -28,7 +39,7 @@ import {
     LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
     LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
     LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
-    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME, LS_VOCAB_LOOKUPS, LS_TTS_VOICE, LS_TTS_GENDER,
+    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME, LS_VOCAB_LOOKUPS, LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
     saveToLocalStorage, loadFromLocalStorage, clearAllAppData, trackVocabularyLookup,
     loadVocabularyLookupData, removeFromLocalStorage
 } from './localStorage.js';
@@ -62,7 +73,8 @@ import { lookupWord } from './wiktionary.js';
 // --- Global DOM Element Variables ---
 let modalApiKeyInput, charactersInput, audienceInput, craftingFrameworkSelect, frameworkSummaryDiv, generateButton, storyTitleDiv, storyOutputDiv;
 let settingsModal, settingsButton, cancelSettingsButton, saveSettingsButton, modalModelSelect, downloadChatLogButton, minApiIntervalInput;
-let copyStoryButton, saveStoryButton, elaborateStoryButton, decreaseFontButton, increaseFontButton; 
+let copyStoryButton, saveStoryButton, elaborateStoryButton, decreaseFontButton, increaseFontButton;
+let openStoryButton, storyFileInput; 
 let userSuggestionsTextarea;
 let enableReadingAgeAdjustmentCheckbox, targetReadingAgeSlider, readingAgeSliderContainer; 
 let readingAgeMinInput, readingAgeMaxInput; 
@@ -88,7 +100,7 @@ let assistTabButton, exportVocabularyButton, clearVocabularyButton;
 let assistEmptyState, assistWordState, assistWordHeading, assistDefinitions, assistSynonyms, assistAntonyms, assistIpa;
 let assistSpeakButton, assistLoadingState, assistErrorState, assistSource, assistLookupCount;
 let loadSampleStoryButton;
-let ttsVoiceSelect, ttsGenderSelect;
+let ttsVoiceSelect, ttsGenderSelect, ttsSourceSelect;
 
 // Shared tab state
 let tabButtons = [];
@@ -510,21 +522,68 @@ function cancelAssistSpeech() {
 
 function getSelectedTTSVoice() {
     if (!('speechSynthesis' in window)) return null;
-    const savedVoiceName = loadFromLocalStorage(LS_TTS_VOICE);
-    if (!savedVoiceName) return null;
     const voices = window.speechSynthesis.getVoices();
-    return voices.find(v => v.name === savedVoiceName) || null;
+    if (!voices || voices.length === 0) return null;
+
+    const savedVoiceName = (loadFromLocalStorage(LS_TTS_VOICE) || '').trim();
+    if (savedVoiceName) {
+        const exactMatches = voices
+            .filter(v => v.name === savedVoiceName)
+            .sort(compareVoicesForStability);
+        if (exactMatches.length > 0) return exactMatches[0];
+    }
+
+    // In "Auto" mode, prefer Google UK English Female if available (Chrome),
+    // then fall back to a deterministic voice to prevent rotation across utterances.
+    const selectedGender = (ttsGenderSelect?.value || loadFromLocalStorage(LS_TTS_GENDER) || 'female').toLowerCase();
+    const englishVoices = voices
+        .filter(v => typeof v.lang === 'string' && v.lang.toLowerCase().startsWith('en'))
+        .sort(compareVoicesForStability);
+
+    // Try Google UK English Female first (high-quality, available in Chrome)
+    const googleUKFemale = englishVoices.find(v =>
+        v.name === 'Google UK English Female');
+    if (googleUKFemale && selectedGender === 'female') return googleUKFemale;
+
+    const genderMatches = englishVoices.filter(v => classifyVoiceGender(v) === selectedGender);
+
+    if (genderMatches.length > 0) return genderMatches[0];
+    if (englishVoices.length > 0) return englishVoices[0];
+
+    const anyVoices = [...voices].sort(compareVoicesForStability);
+    return anyVoices[0] || null;
 }
 
 // Heuristic gender classification for TTS voices
 function classifyVoiceGender(voice) {
-    const name = voice.name.toLowerCase();
+    const name = (voice?.name || '').toLowerCase();
     const femalePatterns = /\b(female|woman|girl|zira|hazel|susan|jenny|linda|aria|sara|elsa|jenny|catherine|heera|tracy|irina|paulina|sabina|helena|monica|lucia|ayumi|hanhan|huihui|yaoyao|zhiwei|miren|hedda)\b/;
     const malePatterns = /\b(male|man|boy|david|mark|james|george|richard|daniel|sean|ravi|frank|cosimo|pablo|ivan|naayf|tolga|bengt|andika|hemant|filip)\b/;
     if (femalePatterns.test(name)) return 'female';
     if (malePatterns.test(name)) return 'male';
     // Default guess: voices with higher-pitched-sounding names tend to be female
     return 'female';
+}
+
+function compareVoicesForStability(a, b) {
+    const aLang = (a?.lang || '').toLowerCase();
+    const bLang = (b?.lang || '').toLowerCase();
+    const aIsEnglish = aLang.startsWith('en');
+    const bIsEnglish = bLang.startsWith('en');
+    if (aIsEnglish !== bIsEnglish) return aIsEnglish ? -1 : 1;
+
+    const aLocal = Boolean(a?.localService);
+    const bLocal = Boolean(b?.localService);
+    if (aLocal !== bLocal) return aLocal ? -1 : 1;
+
+    const aDefault = Boolean(a?.default);
+    const bDefault = Boolean(b?.default);
+    if (aDefault !== bDefault) return aDefault ? -1 : 1;
+
+    const nameCompare = (a?.name || '').localeCompare(b?.name || '');
+    if (nameCompare !== 0) return nameCompare;
+
+    return (a?.voiceURI || '').localeCompare(b?.voiceURI || '');
 }
 
 function populateTTSVoiceDropdown() {
@@ -536,13 +595,9 @@ function populateTTSVoiceDropdown() {
 
     // Filter to English voices matching selected gender
     const englishVoices = voices
-        .filter(v => v.lang.startsWith('en'))
+        .filter(v => typeof v.lang === 'string' && v.lang.toLowerCase().startsWith('en'))
         .filter(v => classifyVoiceGender(v) === selectedGender)
-        .sort((a, b) => {
-            // Prefer local voices, then sort alphabetically
-            if (a.localService !== b.localService) return a.localService ? -1 : 1;
-            return a.name.localeCompare(b.name);
-        });
+        .sort(compareVoicesForStability);
 
     ttsVoiceSelect.innerHTML = '<option value="">Auto (best available)</option>';
     for (const voice of englishVoices) {
@@ -555,7 +610,9 @@ function populateTTSVoiceDropdown() {
 
     // If no English voices match the gender, show all English voices
     if (englishVoices.length === 0) {
-        const allEnglish = voices.filter(v => v.lang.startsWith('en'));
+        const allEnglish = voices
+            .filter(v => typeof v.lang === 'string' && v.lang.toLowerCase().startsWith('en'))
+            .sort(compareVoicesForStability);
         for (const voice of allEnglish) {
             const opt = document.createElement('option');
             opt.value = voice.name;
@@ -566,11 +623,23 @@ function populateTTSVoiceDropdown() {
     }
 }
 
+function updateBrowserVoiceSettingsVisibility() {
+    const container = document.getElementById('browserVoiceSettings');
+    if (!container) return;
+    const source = ttsSourceSelect ? ttsSourceSelect.value : 'browser';
+    container.style.display = source === 'browser' ? '' : 'none';
+}
+
 function speakWithTTS(word) {
     if (!('speechSynthesis' in window)) return;
     const utterance = new SpeechSynthesisUtterance(word);
     const voice = getSelectedTTSVoice();
-    if (voice) utterance.voice = voice;
+    if (voice) {
+        utterance.voice = voice;
+        if (voice.lang) utterance.lang = voice.lang;
+    } else {
+        utterance.lang = 'en-US';
+    }
     utterance.rate = 0.92;
     utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
@@ -586,25 +655,51 @@ function primeTTSAudio() {
     primer.volume = 0.01; // barely audible
     primer.rate = 2;
     const voice = getSelectedTTSVoice();
-    if (voice) primer.voice = voice;
+    if (voice) {
+        primer.voice = voice;
+        if (voice.lang) primer.lang = voice.lang;
+    } else {
+        primer.lang = 'en-US';
+    }
     window.speechSynthesis.speak(primer);
+}
+
+function getTTSSource() {
+    return loadFromLocalStorage(LS_TTS_SOURCE) || 'browser';
 }
 
 function speakSelectedAssistWord() {
     if (!selectedAssistWord) return;
     cancelAssistSpeech();
 
-    // Try recorded dictionary audio first
+    const preferBrowser = getTTSSource() === 'browser';
+
+    if (preferBrowser) {
+        // User prefers the consistent browser TTS voice
+        if ('speechSynthesis' in window && window.speechSynthesis.getVoices().length > 0) {
+            speakWithTTS(selectedAssistWord);
+            return;
+        }
+        // Fall back to dictionary audio if TTS unavailable
+        if (currentAssistAudioUrl) {
+            currentAssistAudio = new Audio(currentAssistAudioUrl);
+            currentAssistAudio.play().catch(() => { currentAssistAudio = null; });
+        }
+        return;
+    }
+
+    // Default: prefer dictionary recordings (natural human pronunciation)
     if (currentAssistAudioUrl) {
         currentAssistAudio = new Audio(currentAssistAudioUrl);
         currentAssistAudio.play().catch(() => {
             currentAssistAudio = null;
+            // Fall back to browser TTS if recording fails
             speakWithTTS(selectedAssistWord);
         });
         return;
     }
 
-    // Fall back to browser TTS
+    // No dictionary audio available — use browser TTS
     speakWithTTS(selectedAssistWord);
 }
 
@@ -934,7 +1029,7 @@ function saveSensitivitySettings() {
 }
 
 function loadSensitivitySettings() {
-    const preset = loadFromLocalStorage(LS_SENSITIVITY_PRESET) || 'standard';
+    const preset = loadFromLocalStorage(LS_SENSITIVITY_PRESET) || 'adventurous';
     if (sensitivityPresetSelect) {
         sensitivityPresetSelect.value = preset;
     }
@@ -1026,6 +1121,8 @@ document.addEventListener('DOMContentLoaded', () => {
     storyOutputDiv = document.getElementById('storyOutput');
     copyStoryButton = document.getElementById('copyStoryButton');
     saveStoryButton = document.getElementById('saveStoryButton');
+    openStoryButton = document.getElementById('openStoryButton');
+    storyFileInput = document.getElementById('storyFileInput');
     elaborateStoryButton = document.getElementById('elaborateStoryButton');
     decreaseFontButton = document.getElementById('decreaseFontButton'); 
     increaseFontButton = document.getElementById('increaseFontButton'); 
@@ -1086,6 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSampleStoryButton = document.getElementById('loadSampleStoryButton');
     ttsVoiceSelect = document.getElementById('ttsVoiceSelect');
     ttsGenderSelect = document.getElementById('ttsGenderSelect');
+    ttsSourceSelect = document.getElementById('ttsSourceSelect');
     
     // Framework and Style modal elements
     frameworkModal = document.getElementById('frameworkModal');
@@ -1128,7 +1226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme from localStorage or system preference
     initializeTheme();
 
-    if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome to StoryGen!\n\nTo create a story:\n1. Enter your characters in the Characters field\n2. Set your target audience (e.g., "children aged 5-7")\n3. Choose a Story Framework and Authorial Style\n4. Optionally add specific plot points\n5. Click "Generate Story"\n\nFirst time? Configure your Gemini API Key in Settings (⚙️ icon).';
+    if (storyOutputDiv) storyOutputDiv.textContent = 'Welcome to StoryGen!\n\nStoryGen was created by Phil Leichauer to help his daughter with reading \u2014 specifically to aid understanding and pronunciation of new words. Tap any word in a story to hear it spoken aloud, see its definition, and explore examples.\n\nRather than asking one AI to write a story in one go, StoryGen uses a team of specialist agents \u2014 a Crafter writes the first draft, an Elaborator adds detail, a Reviewer gives feedback, a Polisher refines, a Cleaner tidies up, and a Titler names the finished story.\n\nTo create a story:\n1. Enter your characters in the Characters field\n2. Set your target audience (e.g. \u201cchildren aged 5-7\u201d)\n3. Choose a Story Framework and Authorial Style\n4. Click \u201cGenerate Story\u201d\n\nYou can also open a previously saved story \u2014 use the folder icon (\uD83D\uDCC2) at the top right to load a .md or .txt file.\n\nFirst time? Configure your Gemini API Key in Settings (\u2699\uFE0F). Need help? Click the question mark icon (\u2753) to open the Help Wiki.';
     enableMainControls();
 
     // Populate UI elements
@@ -1305,11 +1403,22 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAgentTogglesUI();
         // Populate TTS voice dropdown with current gender filter
         if (ttsGenderSelect) ttsGenderSelect.value = loadFromLocalStorage(LS_TTS_GENDER) || 'female';
+        if (ttsSourceSelect) {
+            ttsSourceSelect.value = loadFromLocalStorage(LS_TTS_SOURCE) || 'browser';
+            updateBrowserVoiceSettingsVisibility();
+        }
         populateTTSVoiceDropdown();
         settingsModal.classList.add('active');
     });
     modalModelSelect.addEventListener('change', updateAgentTogglesUI);
     cancelSettingsButton.addEventListener('click', () => settingsModal.classList.remove('active'));
+    // TTS source selection
+    if (ttsSourceSelect) {
+        ttsSourceSelect.addEventListener('change', () => {
+            saveToLocalStorage(LS_TTS_SOURCE, ttsSourceSelect.value);
+            updateBrowserVoiceSettingsVisibility();
+        });
+    }
     // TTS voice gender filter
     if (ttsGenderSelect) {
         ttsGenderSelect.addEventListener('change', () => {
@@ -1341,6 +1450,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR, agentCConsolidatorToggle.checked.toString());
         if (ttsVoiceSelect) saveToLocalStorage(LS_TTS_VOICE, ttsVoiceSelect.value);
         if (ttsGenderSelect) saveToLocalStorage(LS_TTS_GENDER, ttsGenderSelect.value);
+        if (ttsSourceSelect) saveToLocalStorage(LS_TTS_SOURCE, ttsSourceSelect.value);
         updateTargetReadingAgeSliderDOMState(); 
         settingsModal.classList.remove('active');
         showTemporaryToast("Settings saved!", "success");
@@ -1464,18 +1574,111 @@ document.addEventListener('DOMContentLoaded', () => {
     saveStoryButton.addEventListener('click', () => {
         if (appState.latestGeneratedStoryText) {
             const title = appState.latestGeneratedStoryTitle || "Untitled Story";
-            const textToSave = `Title: ${title}\n\n${appState.latestGeneratedStoryText}`;
-            const blob = new Blob([textToSave], { type: 'text/plain;charset=utf-8' });
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+
+            // Gather current settings for frontmatter
+            const characters = charactersInput ? charactersInput.value.trim() : '';
+            const audience = audienceInput ? audienceInput.value.trim() : '';
+            const framework = craftingFrameworkSelect ? craftingFrameworkSelect.value : '';
+            const style = authorStyleSelect ? authorStyleSelect.value : '';
+
+            // Build markdown with YAML frontmatter
+            let md = '---\n';
+            md += `title: "${title.replace(/"/g, '\\"')}"\n`;
+            md += `date: ${dateStr}\n`;
+            if (characters) md += `characters: "${characters.replace(/"/g, '\\"')}"\n`;
+            if (audience) md += `audience: "${audience.replace(/"/g, '\\"')}"\n`;
+            if (framework) md += `framework: "${framework}"\n`;
+            if (style) md += `style: "${style}"\n`;
+            md += '---\n\n';
+            md += `# ${title}\n\n`;
+            md += appState.latestGeneratedStoryText;
+
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+            const safeFilename = title
+                .replace(/[^a-z0-9\s]/gi, '')
+                .trim()
+                .replace(/\s+/g, '_')
+                .toLowerCase()
+                || 'untitled_story';
+            a.download = `${safeFilename}.md`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showTemporaryToast("Story saved as .txt file!", "success");
+            showTemporaryToast("Story saved as markdown!", "success");
         }
+    });
+
+    // --- Open Story from Markdown file ---
+    openStoryButton.addEventListener('click', () => {
+        storyFileInput.click();
+    });
+
+    storyFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+
+            let title = '';
+            let storyBody = content;
+
+            // Try to parse YAML frontmatter
+            const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+            if (frontmatterMatch) {
+                const frontmatter = frontmatterMatch[1];
+                storyBody = content.slice(frontmatterMatch[0].length);
+
+                // Extract title from frontmatter
+                const titleMatch = frontmatter.match(/^title:\s*"?(.*?)"?\s*$/m);
+                if (titleMatch) title = titleMatch[1];
+            }
+
+            // Remove leading markdown heading if it duplicates the title
+            const headingMatch = storyBody.match(/^#\s+(.+)\r?\n+/);
+            if (headingMatch) {
+                if (!title) title = headingMatch[1];
+                // Remove the heading from the story body if it matches the title
+                if (headingMatch[1].trim() === title.trim()) {
+                    storyBody = storyBody.slice(headingMatch[0].length);
+                }
+            }
+
+            // Fallback: derive title from filename
+            if (!title) {
+                title = file.name.replace(/\.(md|markdown|txt)$/i, '').replace(/[_-]/g, ' ');
+            }
+
+            storyBody = storyBody.trim();
+
+            if (!storyBody) {
+                showTemporaryToast("The file appears to be empty.", "error");
+                storyFileInput.value = '';
+                return;
+            }
+
+            appState.latestGeneratedStoryTitle = title;
+            appState.latestGeneratedStoryText = storyBody;
+            displayFinalStoryOutput(title, storyBody);
+            setAssistTabEnabled(true);
+            resetAssistPanelToEmptyState();
+            showTemporaryToast(`Loaded: ${title}`, "success");
+        };
+
+        reader.onerror = () => {
+            showTemporaryToast("Could not read the file.", "error");
+        };
+
+        reader.readAsText(file);
+        // Reset so the same file can be re-opened
+        storyFileInput.value = '';
     });
     increaseFontButton.addEventListener('click', () => {
         let newSize = currentStoryFontSizeRem + STORY_FONT_SIZE_STEP;
