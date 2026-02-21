@@ -90,7 +90,7 @@ export function displayErrorInStoryOutput(errorMessage) {
         storyTitleDiv.classList.remove('placeholder');
     }
     if (storyOutputDiv) {
-        storyOutputDiv.textContent = "An error occurred. Please check the browser console for details and ensure your API key and settings are correct.";
+        storyOutputDiv.textContent = "If an error has occurred, it's likely a rate limit. This means your API key has been used as much as it can be today. It should be refreshed with a new small quota if you're on the free tier within 24 hours. If you're on the paid tier, rate limits are unlikely. However, there is at present (Feb 2026) a generous amount of usage per day, so you should get a couple of stories before hitting any limit.\n\nAn error occurred. Please check the browser console for details and ensure your API key and settings are correct.";
         storyOutputDiv.scrollTop = 0; 
     }
 

@@ -12,8 +12,9 @@
 // 5. That's it — no other files need changing. The Settings dropdown and
 //    API calls are built dynamically from this object.
 // ────────────────────────────────────────────────────────────────────────
-const DEFAULT_GEMINI_MODEL_ID = "gemini-3-flash-preview"; 
+const DEFAULT_GEMINI_MODEL_ID = "gemini-2.5-flash-lite"; 
 const AVAILABLE_MODELS = { 
+    "gemini-flash-latest": { name: "Gemini Flash Latest", supportsThinking: false },
     "gemini-3-flash-preview": { name: "Gemini 3 Flash Preview", supportsThinking: true },
     "gemini-2.5-flash": { name: "Gemini 2.5 Flash", supportsThinking: true },
     "gemini-2.5-flash-lite": { name: "Gemini 2.5 Flash Lite", supportsThinking: true },
@@ -40,7 +41,7 @@ import {
     LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
     LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
     LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
-    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THEME, LS_VOCAB_LOOKUPS, LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
+    LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THINKING_ENABLED, LS_THEME, LS_VOCAB_LOOKUPS, LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
     saveToLocalStorage, loadFromLocalStorage, clearAllAppData, trackVocabularyLookup,
     loadVocabularyLookupData, removeFromLocalStorage
 } from './localStorage.js';
@@ -83,7 +84,7 @@ let readingAgeMinInput, readingAgeMaxInput;
 let enableConsolidatorCheckbox;
 let authorStyleSelect, styleSummaryDiv;
 let toneSelect, pacingSelect, humorSelect, emotionSelect;
-let agentTogglesContainer, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
+let agentTogglesContainer, masterThinkingToggle, agent1CrafterToggle, agent2ElaboratorToggle, agent3ReviewerToggle, agent4PolisherToggle, agent5CleanerToggle, agent6TitlerToggle, agentCConsolidatorToggle;
 let parentalControlsToggle, parentalControlsContent, sensitivityPresetSelect, customSensitivityControls;
 let conflictSlider, scarySlider, sadnessSlider, complexitySlider;
 let conflictLabel, scaryLabel, sadnessLabel, complexityLabel, sensitivitySummary;
@@ -320,8 +321,13 @@ function updateAgentTogglesUI() {
     const selectedModelId = modalModelSelect.value;
     const model = AVAILABLE_MODELS[selectedModelId];
     const canThink = model ? model.supportsThinking : false;
+    const masterEnabled = masterThinkingToggle ? masterThinkingToggle.checked : false;
 
-    agentTogglesContainer.classList.toggle('disabled', !canThink);
+    // Disable everything if the model can't think, or master is off
+    const active = canThink && masterEnabled;
+    agentTogglesContainer.classList.toggle('disabled', !active);
+    agentTogglesContainer.style.display = masterEnabled ? '' : 'none';
+    if (masterThinkingToggle) masterThinkingToggle.disabled = !canThink;
 }
 
 function initializeTabSystem() {
@@ -1249,6 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     humorSelect = document.getElementById('humorSelect');
     emotionSelect = document.getElementById('emotionSelect');
     agentTogglesContainer = document.getElementById('agentTogglesContainer');
+    masterThinkingToggle = document.getElementById('masterThinkingToggle');
     agent1CrafterToggle = document.getElementById('agent1CrafterToggle');
     agent2ElaboratorToggle = document.getElementById('agent2ElaboratorToggle');
     agent3ReviewerToggle = document.getElementById('agent3ReviewerToggle');
@@ -1391,6 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     enableConsolidatorCheckbox.checked = (loadFromLocalStorage(LS_ENABLE_CONSOLIDATOR) === 'true');
     
+    masterThinkingToggle.checked = (loadFromLocalStorage(LS_THINKING_ENABLED) ?? 'false') === 'true';
     agent1CrafterToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true';
     agent2ElaboratorToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true';
     agent3ReviewerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_3_REVIEWER) ?? 'true') === 'true';
@@ -1398,6 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     agent5CleanerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_5_CLEANER) ?? 'false') === 'true';
     agent6TitlerToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_6_TITLER) ?? 'false') === 'true';
     agentCConsolidatorToggle.checked = (loadFromLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR) ?? 'true') === 'true';
+    masterThinkingToggle.addEventListener('change', updateAgentTogglesUI);
     updateAgentTogglesUI();
 
 
@@ -1562,6 +1571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage(LS_MIN_API_INTERVAL, minApiIntervalInput.value);
         saveToLocalStorage(LS_READING_AGE_MIN, readingAgeMinInput.value); 
         saveToLocalStorage(LS_READING_AGE_MAX, readingAgeMaxInput.value);
+        saveToLocalStorage(LS_THINKING_ENABLED, masterThinkingToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_1_CRAFTER, agent1CrafterToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_2_ELABORATOR, agent2ElaboratorToggle.checked.toString());
         saveToLocalStorage(LS_THINKING_AGENT_3_REVIEWER, agent3ReviewerToggle.checked.toString());
@@ -1861,6 +1871,7 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
             ADJUSTMENT_MODULES.emotion[selectedEmotion]
         ].filter(Boolean).join('\n');
 
+        const masterThinkingEnabled = (loadFromLocalStorage(LS_THINKING_ENABLED) ?? 'false') === 'true';
         const agentThinkingConfig = {
             "Agent 1: Story Crafter": (loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) ?? 'true') === 'true',
             "Agent 2: Elaborator": (loadFromLocalStorage(LS_THINKING_AGENT_2_ELABORATOR) ?? 'true') === 'true',
@@ -1872,7 +1883,7 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
         };
         const model = AVAILABLE_MODELS[modelId];
         const canThink = model ? model.supportsThinking : false;
-        if (!canThink) {
+        if (!canThink || !masterThinkingEnabled) {
             Object.keys(agentThinkingConfig).forEach(key => agentThinkingConfig[key] = false);
         }
 
@@ -1944,6 +1955,7 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
 
 
         updateStatusInStoryOutput(`Initialising story generation...\n`);
+        updateStatusInStoryOutput(`This will take a while — it's multiple calls to models. Just wait a bit and the story should be ready.\n\n`);
         
         const initialPipelineData = {
             charactersList: parseCharacters(charactersInput.value).join(', ') || "a brave little mouse",
@@ -1992,6 +2004,7 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
 
         disableMainControls();
         updateStatusInStoryOutput(`Starting elaboration...\n`);
+        updateStatusInStoryOutput(`This will take a while — it's multiple calls to thinking models. Just wait a bit and the story should be ready.\n\n`);
 
         const commonInputs = gatherPipelineInputs();
 

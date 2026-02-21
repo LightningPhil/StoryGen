@@ -37,6 +37,9 @@ export const LS_SENSITIVITY_SCARY = 'storySensitivityScary_storyCircle';
 export const LS_SENSITIVITY_SADNESS = 'storySensitivitySadness_storyCircle';
 export const LS_SENSITIVITY_COMPLEXITY = 'storySensitivityComplexity_storyCircle';
 
+// --- Thinking Master Toggle ---
+export const LS_THINKING_ENABLED = 'thinkingEnabled_storyCircle';
+
 // --- Theme ---
 export const LS_THEME = 'storyTheme_storyCircle';
 

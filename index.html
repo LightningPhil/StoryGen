@@ -434,8 +434,13 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-group-title">Agent Thinking Toggles</label>
-                    <div id="agentTogglesContainer" class="toggle-grid">
+                    <label class="field-group-title">Agent Thinking</label>
+                    <p class="field-group-hint">Thinking models reason more deeply but are slower. Disable for faster generation.</p>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="masterThinkingToggle">
+                        <span>Enable Thinking</span>
+                    </label>
+                    <div id="agentTogglesContainer" class="toggle-grid" style="margin-top:0.75rem">
                         <label class="toggle-label">
                             <input type="checkbox" id="agent1CrafterToggle" checked>
                             <span>Agent 1: Crafter</span>

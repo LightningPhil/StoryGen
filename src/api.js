@@ -78,14 +78,10 @@ export async function callAgentAPI(
         requestBody.generationConfig.responseMimeType = responseMimeType;
     }
 
-    // --- New: Conditionally add thinking/tool configuration ---
+    // --- Conditionally add thinking configuration ---
     if (enableThinking) {
-        requestBody.tool_config = {
-            "function_calling_config": {
-                // In Gemini, enabling "thinking" is done by allowing tool/function calls.
-                // "ANY" mode lets the model decide when to "think".
-                "mode": "ANY" 
-            }
+        requestBody.generationConfig.thinkingConfig = {
+            "thinkingBudget": -1  // -1 = dynamic (model decides how much to think)
         };
         console.log(`[API] ${agentName} is running with thinking ENABLED.`);
     }
