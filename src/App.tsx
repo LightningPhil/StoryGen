@@ -57,16 +57,7 @@ import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineCo
 import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig } from './types';
-
-// Model configurations
-const AVAILABLE_MODELS: ModelConfig[] = [
-  { name: 'gemini-2.5-flash-preview-05-20', supportsThinking: true },
-  { name: 'gemini-2.5-pro-preview-05-06', supportsThinking: true },
-  { name: 'gemini-2.0-flash', supportsThinking: false },
-  { name: 'gemini-2.0-flash-lite', supportsThinking: false },
-  { name: 'gemini-1.5-flash', supportsThinking: false },
-  { name: 'gemini-1.5-pro', supportsThinking: false },
-];
+import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
 
 export interface ToastMessage {
   id: number;
@@ -142,7 +133,7 @@ export default function App() {
 
   // ─── Settings state ───────────────────────────────────────────────────
   const [apiKey, setApiKey] = useState(() => loadFromLocalStorage(LS_API_KEY) || '');
-  const [selectedModel, setSelectedModel] = useState(() => loadFromLocalStorage(LS_SELECTED_MODEL) || AVAILABLE_MODELS[0].name);
+  const [selectedModel, setSelectedModel] = useState(() => loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_MODEL);
   const [minApiInterval, setMinApiInterval] = useState(() => parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || '5'));
   const [thinkingEnabled, setThinkingEnabled] = useState(() => loadFromLocalStorage(LS_THINKING_ENABLED) !== 'false');
   const [agentThinking, setAgentThinking] = useState(() => ({
@@ -157,6 +148,31 @@ export default function App() {
   const [ttsSource, setTtsSource] = useState(() => loadFromLocalStorage(LS_TTS_SOURCE) || 'browser');
   const [ttsGender, setTtsGender] = useState(() => loadFromLocalStorage(LS_TTS_GENDER) || 'female');
   const [ttsVoice, setTtsVoice] = useState(() => loadFromLocalStorage(LS_TTS_VOICE) || '');
+
+  // ─── Dynamic model discovery ───────────────────────────────────────────
+  const [availableModels, setAvailableModels] = useState<ModelConfig[]>([DEFAULT_MODEL_CONFIG]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+
+  // Fetch models when API key changes
+  useEffect(() => {
+    if (!apiKey) { setAvailableModels([DEFAULT_MODEL_CONFIG]); return; }
+    let cancelled = false;
+    setModelsLoading(true);
+    fetchAvailableModels(apiKey).then(models => {
+      if (cancelled) return;
+      setAvailableModels(models);
+      // If current selected model isn't in the list, pick the first one
+      if (models.length > 0 && !models.find(m => m.name === selectedModel)) {
+        const first = models[0].name;
+        setSelectedModel(first);
+        saveToLocalStorage(LS_SELECTED_MODEL, first);
+      }
+      setModelsLoading(false);
+    }).catch(() => {
+      if (!cancelled) setModelsLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [apiKey]);
 
   // ─── Story display state ──────────────────────────────────────────────
   const [storyTitle, setStoryTitle] = useState('');
@@ -227,7 +243,7 @@ export default function App() {
     appState.clearChatLog();
 
     // Build pipeline inputs
-    const modelConfig = AVAILABLE_MODELS.find(m => m.name === selectedModel) || AVAILABLE_MODELS[0];
+    const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
     const frameworkGuide = STORY_CRAFTING_GUIDES[selectedFramework] || '';
     const styleGuide = STORY_STYLE_GUIDES[selectedStyle] || '';
 
@@ -342,7 +358,7 @@ export default function App() {
   }, [apiKey, characters, audience, selectedFramework, selectedStyle, selectedModel, adjustReadingAge,
     targetReadingAge, enableConsolidator, toneAdj, pacingAdj, humorAdj, emotionAdj,
     thinkingEnabled, agentThinking, stemConcept, userSuggestions, includePlotPoints,
-    minApiInterval, getCurrentSensitivitySettings, showToast]);
+    minApiInterval, availableModels, getCurrentSensitivitySettings, showToast]);
 
   // ─── Elaborate story ──────────────────────────────────────────────────
   const handleElaborateStory = useCallback(async () => {
@@ -353,9 +369,9 @@ export default function App() {
     setStatusText('');
     appState.clearChatLog();
 
-    const modelConfig = AVAILABLE_MODELS.find(m => m.name === selectedModel) || AVAILABLE_MODELS[0];
+    const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
     const thinkingConfig: Record<string, boolean> = {};
-    if (modelConfig.supportsThinking && thinkingEnabled) {
+    if (modelConfig?.supportsThinking && thinkingEnabled) {
       thinkingConfig['Agent 2: Story Elaborator'] = agentThinking.elaborator;
       thinkingConfig['Agent 3: Story Reviewer'] = agentThinking.reviewer;
       thinkingConfig['Agent 4: Story Polisher'] = agentThinking.polisher;
@@ -405,7 +421,7 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, selectedModel, characters, audience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, showToast]);
+  }, [apiKey, selectedModel, characters, audience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, showToast]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
@@ -516,7 +532,16 @@ export default function App() {
           minApiInterval={minApiInterval}
           thinkingEnabled={thinkingEnabled}
           agentThinking={agentThinking}
-          availableModels={AVAILABLE_MODELS}
+          availableModels={availableModels}
+          modelsLoading={modelsLoading}
+          onRefreshModels={(localApiKey) => {
+            if (!localApiKey) return;
+            setModelsLoading(true);
+            fetchAvailableModels(localApiKey).then(models => {
+              setAvailableModels(models);
+              setModelsLoading(false);
+            }).catch(() => setModelsLoading(false));
+          }}
           ttsSource={ttsSource}
           ttsGender={ttsGender}
           ttsVoice={ttsVoice}
@@ -565,9 +590,16 @@ export default function App() {
           styles={STORY_STYLE_SUMMARIES}
           onSelect={(key) => {
             updateStyle(key);
-            setStyleModalOpen(false);
           }}
           onClose={() => setStyleModalOpen(false)}
+          toneAdj={toneAdj}
+          pacingAdj={pacingAdj}
+          humorAdj={humorAdj}
+          emotionAdj={emotionAdj}
+          onToneChange={(v) => { setToneAdj(v); saveToLocalStorage(LS_ADJUSTMENT_TONE, v); }}
+          onPacingChange={(v) => { setPacingAdj(v); saveToLocalStorage(LS_ADJUSTMENT_PACING, v); }}
+          onHumorChange={(v) => { setHumorAdj(v); saveToLocalStorage(LS_ADJUSTMENT_HUMOR, v); }}
+          onEmotionChange={(v) => { setEmotionAdj(v); saveToLocalStorage(LS_ADJUSTMENT_EMOTION, v); }}
         />
       )}
 

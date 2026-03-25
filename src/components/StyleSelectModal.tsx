@@ -3,23 +3,28 @@ import { ADJUSTMENT_MODULES } from '../prompts/adjustment_modules';
 interface StyleSelectModalProps {
   selectedStyle: string;
   styles: Record<string, string>;
+  toneAdj: string;
+  pacingAdj: string;
+  humorAdj: string;
+  emotionAdj: string;
   onSelect: (key: string) => void;
+  onToneChange: (v: string) => void;
+  onPacingChange: (v: string) => void;
+  onHumorChange: (v: string) => void;
+  onEmotionChange: (v: string) => void;
   onClose: () => void;
 }
-// Note: Adjustment dropdowns are in this modal but controlled by App.tsx via props
-// For now, they're passed via the modal and saved via onSelect
-// The parent manages tone/pacing/humor/emotion state
 
-export function StyleSelectModal({ selectedStyle, styles, onSelect, onClose }: StyleSelectModalProps & {
-  toneAdj?: string;
-  pacingAdj?: string;
-  humorAdj?: string;
-  emotionAdj?: string;
-  onToneChange?: (v: string) => void;
-  onPacingChange?: (v: string) => void;
-  onHumorChange?: (v: string) => void;
-  onEmotionChange?: (v: string) => void;
-}) {
+function formatOptionLabel(key: string): string {
+  if (key === 'default' || key === 'none') return 'Default (No adjustment)';
+  return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+export function StyleSelectModal({
+  selectedStyle, styles, onSelect, onClose,
+  toneAdj, pacingAdj, humorAdj, emotionAdj,
+  onToneChange, onPacingChange, onHumorChange, onEmotionChange,
+}: StyleSelectModalProps) {
   return (
     <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-content modal-xl">
@@ -41,6 +46,41 @@ export function StyleSelectModal({ selectedStyle, styles, onSelect, onClose }: S
                   <div className="selection-card-description">{summary}</div>
                 </div>
               ))}
+            </div>
+          </div>
+          <div className="modal-column modal-column-right">
+            <h3>Fine-tune the Style</h3>
+            <div className="field">
+              <label htmlFor="toneSelect">Tone</label>
+              <select id="toneSelect" value={toneAdj} onChange={e => onToneChange(e.target.value)}>
+                {Object.keys(ADJUSTMENT_MODULES.tone).map(key => (
+                  <option key={key} value={key}>{formatOptionLabel(key)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="pacingSelect">Pacing</label>
+              <select id="pacingSelect" value={pacingAdj} onChange={e => onPacingChange(e.target.value)}>
+                {Object.keys(ADJUSTMENT_MODULES.pacing).map(key => (
+                  <option key={key} value={key}>{formatOptionLabel(key)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="humorSelect">Humor Style</label>
+              <select id="humorSelect" value={humorAdj} onChange={e => onHumorChange(e.target.value)}>
+                {Object.keys(ADJUSTMENT_MODULES.humor).map(key => (
+                  <option key={key} value={key}>{formatOptionLabel(key)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="emotionSelect">Emotional Journey</label>
+              <select id="emotionSelect" value={emotionAdj} onChange={e => onEmotionChange(e.target.value)}>
+                {Object.keys(ADJUSTMENT_MODULES.emotion).map(key => (
+                  <option key={key} value={key}>{formatOptionLabel(key)}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>

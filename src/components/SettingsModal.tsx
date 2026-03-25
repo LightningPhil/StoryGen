@@ -33,6 +33,8 @@ interface SettingsModalProps {
   thinkingEnabled: boolean;
   agentThinking: AgentThinkingState;
   availableModels: ModelConfig[];
+  modelsLoading: boolean;
+  onRefreshModels: (apiKey: string) => void;
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
@@ -43,7 +45,7 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal(props: SettingsModalProps) {
-  const { availableModels, onSave, onClose } = props;
+  const { availableModels, modelsLoading, onRefreshModels, onSave, onClose } = props;
 
   // Local state for editing
   const [apiKey, setApiKey] = useState(props.apiKey);
@@ -141,11 +143,50 @@ export function SettingsModal(props: SettingsModalProps) {
           <div className="modal-grid">
             <div className="field">
               <label htmlFor="modalModelSelect">Gemini Model</label>
-              <select id="modalModelSelect" value={selectedModel} onChange={e => setSelectedModel(e.target.value)}>
-                {availableModels.map(m => (
-                  <option key={m.name} value={m.name}>{m.name}</option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', position: 'relative' }}>
+                <select id="modalModelSelect" value={selectedModel} onChange={e => setSelectedModel(e.target.value)} disabled={modelsLoading} style={{ flex: 1 }}>
+                  {availableModels.length === 0 ? (
+                    <option value="">No models found (check API key)</option>
+                  ) : (
+                    availableModels.map(m => (
+                      <option key={m.name} value={m.name}>{m.name}</option>
+                    ))
+                  )}
+                </select>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  title="Refresh model list"
+                  onClick={() => onRefreshModels(apiKey)}
+                  disabled={modelsLoading}
+                  style={{
+                    padding: '0.35rem 0.55rem',
+                    fontSize: '0.95rem',
+                    lineHeight: 1,
+                    ...(modelsLoading ? { animation: 'spin 1s linear infinite' } : {}),
+                  }}
+                >
+                  &#x21bb;
+                </button>
+                {modelsLoading && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'var(--card-bg, rgba(255,255,255,0.85))',
+                    borderRadius: '0.35rem',
+                    zIndex: 2,
+                    gap: '0.5rem',
+                    fontSize: '0.85rem',
+                    color: 'var(--text-muted, #666)',
+                  }}>
+                    <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>&#x21bb;</span>
+                    Fetching models&hellip;
+                  </div>
+                )}
+              </div>
             </div>
             <div className="field">
               <label htmlFor="minApiIntervalInput">Min. API Interval (seconds)</label>
