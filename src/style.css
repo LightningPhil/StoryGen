@@ -1857,3 +1857,147 @@ input[type="range"]::-moz-range-thumb {
 .toast-error { background: var(--color-error); }
 .toast-info { background: var(--color-info); }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Phonics Assist
+   ───────────────────────────────────────────────────────────────────────────── */
+.phonics-section {
+    padding-top: var(--space-sm);
+}
+
+.phonics-chunks-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.phonics-chunk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--bg-surface);
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                transform var(--transition-fast),
+                box-shadow var(--transition-fast);
+    -webkit-user-select: none;
+    user-select: none;
+    min-width: 2.2em;
+    text-align: center;
+}
+
+.phonics-chunk:hover {
+    background: var(--accent-primary-light);
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.phonics-chunk:active {
+    transform: translateY(0);
+}
+
+.phonics-chunk.is-highlighted {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--text-inverse);
+    transform: scale(1.08);
+    box-shadow: 0 2px 10px rgba(var(--accent-primary-rgb, 59, 130, 246), 0.35);
+}
+
+.phonics-chunk.is-highlighted .phonics-grapheme {
+    color: var(--text-inverse);
+}
+
+.phonics-chunk.is-highlighted .phonics-phoneme {
+    color: var(--text-inverse);
+    opacity: 0.85;
+}
+
+.phonics-grapheme {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    font-family: var(--font-heading);
+}
+
+.phonics-phoneme {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin-top: 1px;
+}
+
+.phonics-controls {
+    margin-bottom: var(--space-sm);
+}
+
+.phonics-sound-out-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-size: 0.9rem;
+    padding: 0.45em 1em;
+}
+
+.phonics-sound-out-btn.is-playing {
+    background-color: var(--accent-primary);
+    color: var(--text-inverse);
+    border-color: var(--accent-primary);
+}
+
+.phonics-phonemes-row {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: var(--space-xs) 0;
+    letter-spacing: 0.04em;
+}
+
+.phonics-phoneme-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    cursor: pointer;
+    background: var(--bg-panel-alt);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.phonics-phoneme-chip:hover {
+    background: var(--accent-primary-light);
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.phonics-phoneme-chip.is-highlighted {
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    border-color: var(--accent-primary);
+}
+
+.phonics-disclaimer {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: var(--space-xs);
+}
+
+.phonics-loading {
+    font-size: 0.82rem;
+}
+

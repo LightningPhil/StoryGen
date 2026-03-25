@@ -265,6 +265,24 @@
                                 </button>
                             </div>
 
+                            <!-- Phonics Assist Section -->
+                            <section id="assistPhonicsSection" class="assist-section phonics-section hidden">
+                                <h4>Sound it out</h4>
+                                <div id="phonicsChunks" class="phonics-chunks-row">
+                                    <!-- dynamically populated with clickable chunk chips -->
+                                </div>
+                                <div class="phonics-controls">
+                                    <button id="phonicsSoundOutButton" class="btn btn-secondary phonics-sound-out-btn" type="button" title="Hear each sound in sequence">
+                                        ▶ Sound it out
+                                    </button>
+                                </div>
+                                <div id="phonicsPhonemesRow" class="phonics-phonemes-row hidden">
+                                    <!-- fallback phoneme-only display, e.g. "n · ay · t" -->
+                                </div>
+                                <div id="phonicsDisclaimer" class="phonics-disclaimer hidden"></div>
+                                <div id="phonicsLoadingState" class="assist-status phonics-loading hidden">Loading sounds…</div>
+                            </section>
+
                             <div id="assistLoadingState" class="assist-status hidden">Looking this up…</div>
                             <div id="assistErrorState" class="assist-status assist-status-error hidden"></div>
 
@@ -574,6 +592,6 @@
     </div>
 
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
-    <script src="./src/script.js" type="module"></script>
+    <script src="./dist/script.js" type="module"></script>
 </body>
 </html>
