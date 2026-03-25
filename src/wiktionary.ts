@@ -2,7 +2,7 @@
 // Dictionary lookup module using Free Dictionary API + Wiktionary REST fallback
 // with IndexedDB caching. No API key required.
 
-import type { AssistData, DictionaryDefinition } from './types.js';
+import type { AssistData, DictionaryDefinition } from './types';
 
 const DB_NAME = 'storyGenDictionary';
 const DB_VERSION = 1;

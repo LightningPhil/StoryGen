@@ -1,9 +1,8 @@
 // src/pipeline.ts
 
-import { callAgentAPI } from './api.js';
-import { constructAgentPrompt, checkNarrativeVoiceConsistency } from './utils.js';
-import { updateStatusInStoryOutput } from './ui.js';
-import type { AgentDefinition, PipelineData, CommonInputs } from './types.js';
+import { callAgentAPI } from './api';
+import { constructAgentPrompt, checkNarrativeVoiceConsistency } from './utils';
+import type { AgentDefinition, PipelineData, CommonInputs } from './types';
 import {
     PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
     PROMPT_AGENT_2_ELABORATOR_TEMPLATE,
@@ -12,8 +11,8 @@ import {
     PROMPT_AGENT_5_CLEANER_TEMPLATE,
     PROMPT_AGENT_6_TITLER_TEMPLATE,
     PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE,
-} from './prompts/agent_prompts.js';
-import appState from './appState.js';
+} from './prompts/agent_prompts';
+import appState from './appState';
 
 // --- Agent Definitions ---
 const AGENT_1_CRAFTER_DEF: AgentDefinition = { name: "Agent 1: Story Crafter", promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT', 'NARRATOR_PERSONA_TEXT', 'SENSITIVITY_GUIDANCE_TEXT'], outputKey: 'storyText' };
@@ -66,11 +65,11 @@ export function getElaborationPipelineConfig(enableConsolidator: boolean): Agent
  * @param {HTMLElement} storyOutputDiv - The DOM element to display status updates.
  * @returns {Promise<Object>} A promise that resolves with the final data object from the pipeline.
  */
-export async function runPipeline(pipelineConfig: AgentDefinition[], pipelineData: PipelineData, commonInputs: CommonInputs, storyOutputDiv: HTMLElement): Promise<PipelineData> {
+export async function runPipeline(pipelineConfig: AgentDefinition[], pipelineData: PipelineData, commonInputs: CommonInputs, statusCallback: ((msg: string) => void) | null): Promise<PipelineData> {
     let currentPipelineData: PipelineData = { ...pipelineData };
 
     for (const agentDef of pipelineConfig) {
-        updateStatusInStoryOutput(`Step ${agentDef.step}: ${agentDef.name.substring(agentDef.name.indexOf(':') + 2).replace('(Elaboration Cycle)', '').trim().replace('Story ', '')}...\n`);
+        if (statusCallback) statusCallback(`Step ${agentDef.step}: ${agentDef.name.substring(agentDef.name.indexOf(':') + 2).replace('(Elaboration Cycle)', '').trim().replace('Story ', '')}...\n`);
         
         const agentDataObject: Record<string, string> = {};
 
@@ -97,9 +96,9 @@ export async function runPipeline(pipelineConfig: AgentDefinition[], pipelineDat
             agentDef.name, 
             0, 
             appState.lastRunChatLog, 
-            storyOutputDiv, 
+            statusCallback, 
             commonInputs.minApiIntervalMs,
-            enableThinking // Pass the flag to the API call
+            enableThinking
         );
 
         if (agentDef.outputKey) {

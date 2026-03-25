@@ -1,6 +1,6 @@
 // src/localStorage.ts
 
-import type { VocabularyLookupData, VocabularyEntry } from './types.js';
+import type { VocabularyLookupData, VocabularyEntry } from './types';
 
 export const LS_API_KEY = 'geminiApiKey_storyCircle';
 export const LS_CHARACTERS = 'storyCharacters_storyCircle';

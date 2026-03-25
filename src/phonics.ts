@@ -2,7 +2,7 @@
 // Pure-logic module for phonics assist — grapheme–phoneme alignment using RiTa.
 // No DOM access. All functions are exported for use by script.ts.
 
-import type { GraphemeMapEntry, AlignedChunk, PhonicsChunk, PhonicsAssist } from './types.js';
+import type { GraphemeMapEntry, AlignedChunk, PhonicsChunk, PhonicsAssist } from './types';
 
 // ─── RiTa Lazy-Loading ──────────────────────────────────────────────────────
 

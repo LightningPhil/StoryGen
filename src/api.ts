@@ -1,6 +1,6 @@
 // src/api.ts
 
-import type { ChatLogEntry } from './types.js';
+import type { ChatLogEntry } from './types';
 
 let lastApiFetchInitiatedTimestamp: number = 0; 
 
@@ -11,7 +11,7 @@ export async function callAgentAPI(
     agentName: string = "Agent", 
     retryAttempt: number = 0, 
     currentRunChatLogArray: ChatLogEntry[], 
-    storyOutputDivRef: HTMLElement | null,
+    statusCallback: ((msg: string) => void) | null,
     minApiIntervalMs: number,
     enableThinking: boolean = false,
     responseMimeType: string = ''
@@ -43,7 +43,7 @@ export async function callAgentAPI(
             if (waitTime > 0) { 
                 const waitMsg = `Rate Limiter: Waiting ${Math.ceil(waitTime / 1000)}s before calling ${agentName}...\n`;
                 console.log(waitMsg);
-                if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += waitMsg; 
+                if (statusCallback) statusCallback(waitMsg); 
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             }
         }
@@ -100,9 +100,9 @@ export async function callAgentAPI(
                 const delay = RETRY_DELAYS[retryAttempt];
                 const retryMsg = `Model busy or rate limit hit (${response.status}). Retrying ${agentName} in ${delay / 1000}s... (Attempt ${retryAttempt + 1}/${MAX_RETRIES})\n`;
                 console.warn(retryMsg);
-                if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += retryMsg;
+                if (statusCallback) statusCallback(retryMsg);
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking, responseMimeType);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, statusCallback, minApiIntervalMs, enableThinking, responseMimeType);
             } else {
                 const overloadErrorMsg = `${agentName} Error: Model is overloaded or rate limits exceeded after ${MAX_RETRIES} retries (Status ${response.status}). Please try again later.`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries', content: overloadErrorMsg, timestamp: new Date().toISOString() });
@@ -118,9 +118,9 @@ export async function callAgentAPI(
                 const delay = RETRY_DELAYS[retryAttempt];
                 const retryMsg = `Model is busy (message: ${responseData.error.message}). Retrying ${agentName} in ${delay / 1000}s... (Attempt ${retryAttempt + 1}/${MAX_RETRIES})\n`;
                 console.warn(retryMsg);
-                if (storyOutputDivRef && storyOutputDivRef.textContent !== undefined) storyOutputDivRef.textContent += retryMsg;
+                if (statusCallback) statusCallback(retryMsg);
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, storyOutputDivRef, minApiIntervalMs, enableThinking, responseMimeType);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, statusCallback, minApiIntervalMs, enableThinking, responseMimeType);
             } else {
                 const busyErrorMsg = `${agentName} Error: Model remained busy after ${MAX_RETRIES} retries. Please try again later. (Original Error: ${responseData.error.message})`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries-busy', content: busyErrorMsg, timestamp: new Date().toISOString() });

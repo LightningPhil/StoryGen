@@ -1,6 +1,6 @@
 // src/appState.ts
 
-import type { ChatLogEntry, SensitivityPreset } from './types.js';
+import type { ChatLogEntry, SensitivityPreset } from './types';
 
 // Bedtime Mode Preset - optimal settings for calming sleep-time stories
 export const BEDTIME_MODE_PRESET: {

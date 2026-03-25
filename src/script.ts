@@ -1,6 +1,6 @@
 // src/script.ts
 
-import type { ModelConfig, STEMConceptData, SelectedSTEMConcept, SensitivitySettings, PhonicsAssist } from './types.js';
+import type { ModelConfig, STEMConceptData, SelectedSTEMConcept, SensitivitySettings, PhonicsAssist } from './types';
 
 // --- Configuration (Constants) ---
 // ─── HOW TO ADD OR CHANGE GEMINI MODELS ────────────────────────────────
@@ -46,16 +46,16 @@ import {
     LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THINKING_ENABLED, LS_THEME, LS_VOCAB_LOOKUPS, LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
     saveToLocalStorage, loadFromLocalStorage, clearAllAppData, trackVocabularyLookup,
     loadVocabularyLookupData, removeFromLocalStorage
-} from './localStorage.js';
+} from './localStorage';
 
 // --- Imports from Modules ---
-import appState from './appState.js'; 
-import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides.js';
-import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles.js';
-import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules.js';
-import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts.js';
-import { HELP_TOPICS, HELP_TOPIC_ORDER } from './prompts/help_content.js';
-import { parseCharacters, countWords, normalizeVocabularyWord } from './utils.js'; 
+import appState from './appState'; 
+import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides';
+import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles';
+import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules';
+import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts';
+import { HELP_TOPICS, HELP_TOPIC_ORDER } from './prompts/help_content';
+import { parseCharacters, countWords, normalizeVocabularyWord } from './utils'; 
 import { 
     initUIElements,
     updateStatusInStoryOutput, 
@@ -70,13 +70,13 @@ import {
     applyStoryFontSize,
     populateDropdown,
     formatStoryAsHtml
-} from './ui.js';
+} from './ui';
 // --- New Pipeline Module Import ---
-import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline.js';
-import { lookupWord } from './wiktionary.js';
+import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline';
+import { lookupWord } from './wiktionary';
 // --- Phonics Module Import ---
-import { ensureRitaLoaded, buildPhonicsAssist, ttsHintForPhoneme } from './phonics.js';
-import { saveStoryToLibrary } from './storyLibrary.js';
+import { ensureRitaLoaded, buildPhonicsAssist, ttsHintForPhoneme } from './phonics';
+import { saveStoryToLibrary } from './storyLibrary';
 
 // Expose ttsHintForPhoneme for use by phoneme-only playback
 window.__phonicsHelpers = { ttsHintForPhoneme };

@@ -1,7 +1,7 @@
 // src/ui.ts
-import appState from './appState.js'; 
-import { normalizeVocabularyWord } from './utils.js';
-import type { UIElements } from './types.js';
+import appState from './appState'; 
+import { normalizeVocabularyWord } from './utils';
+import type { UIElements } from './types';
 
 // --- DOM Element References (initialized by initUIElements) ---
 let storyTitleDiv: HTMLElement | null, storyOutputDiv: HTMLElement | null, generateButton: HTMLButtonElement | null, elaborateStoryButton: HTMLButtonElement | null;
