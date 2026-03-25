@@ -76,6 +76,7 @@ import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineCo
 import { lookupWord } from './wiktionary.js';
 // --- Phonics Module Import ---
 import { ensureRitaLoaded, buildPhonicsAssist, ttsHintForPhoneme } from './phonics.js';
+import { saveStoryToLibrary } from './storyLibrary.js';
 
 // Expose ttsHintForPhoneme for use by phoneme-only playback
 window.__phonicsHelpers = { ttsHintForPhoneme };
@@ -2137,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             helpModal.classList.remove('active');
         });
     }
-    
+
     // Plot points toggle
     if (includePlotPointsCheckbox && plotPointsContainer) {
         const savedIncludePlotPoints = loadFromLocalStorage(LS_INCLUDE_PLOT_POINTS);
@@ -2500,6 +2501,21 @@ IMPORTANT: The story MUST teach this specific concept. The "moral" or lesson of 
             displayFinalStoryOutput(appState.latestGeneratedStoryTitle, appState.latestGeneratedStoryText);
             setAssistTabEnabled(true);
             resetAssistPanelToEmptyState();
+
+            // Auto-save to library
+            try {
+                await saveStoryToLibrary({
+                    title: appState.latestGeneratedStoryTitle,
+                    markdown: appState.latestGeneratedStoryText,
+                    characters: charactersInput ? charactersInput.value.trim() : '',
+                    audience: audienceInput ? audienceInput.value.trim() : '',
+                    framework: craftingFrameworkSelect ? craftingFrameworkSelect.value : '',
+                    style: authorStyleSelect ? authorStyleSelect.value : '',
+                    date: new Date().toISOString()
+                });
+            } catch (e) {
+                console.warn('Could not save story to library:', e);
+            }
 
         } catch (error) {
             console.error("Error in handleGenerateStory:", error);

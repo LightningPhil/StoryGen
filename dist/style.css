@@ -942,6 +942,29 @@ input[type="range"]::-moz-range-thumb {
     color: var(--text-primary);
 }
 
+/* Danger Button */
+.btn-danger {
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-danger:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
 /* Button Variants */
 .btn-block {
     width: 100%;

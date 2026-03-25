@@ -28,3 +28,4 @@ if (fs.existsSync(soundsSrc)) {
 }
 
 console.log('Static assets copied to dist/');
+console.log('Woot, build successful 🎉');
