@@ -5,6 +5,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { FrameworkSelectModal } from './components/FrameworkSelectModal';
 import { StyleSelectModal } from './components/StyleSelectModal';
 import { HelpModal } from './components/HelpModal';
+import { StoryLibraryModal } from './components/StoryLibraryModal';
+import { OnlineStoryBrowser } from './components/OnlineStoryBrowser';
 import { Toast, ToastContainer } from './components/Toast';
 import {
   saveToLocalStorage,
@@ -39,6 +41,7 @@ import {
   LS_ADJUSTMENT_PACING,
   LS_ADJUSTMENT_HUMOR,
   LS_ADJUSTMENT_EMOTION,
+  LS_AGE_GROUP,
   LS_STEM_CONCEPT,
   LS_READING_AGE_MIN,
   LS_READING_AGE_MAX,
@@ -83,6 +86,8 @@ export default function App() {
   const [frameworkModalOpen, setFrameworkModalOpen] = useState(false);
   const [styleModalOpen, setStyleModalOpen] = useState(false);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [onlineBrowserOpen, setOnlineBrowserOpen] = useState(false);
 
   // ─── Toast ────────────────────────────────────────────────────────────
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -103,6 +108,7 @@ export default function App() {
   // ─── Story form state ─────────────────────────────────────────────────
   const [characters, setCharacters] = useState(() => loadFromLocalStorage(LS_CHARACTERS) || '');
   const [audience, setAudience] = useState(() => loadFromLocalStorage(LS_AUDIENCE) || '');
+  const [ageGroup, setAgeGroup] = useState(() => loadFromLocalStorage(LS_AGE_GROUP) || '');
   const [selectedFramework, setSelectedFramework] = useState(() => loadFromLocalStorage(LS_SELECTED_FRAMEWORK) || '');
   const [selectedStyle, setSelectedStyle] = useState(() => loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || '');
   const [userSuggestions, setUserSuggestions] = useState(() => loadFromLocalStorage(LS_USER_SUGGESTIONS) || '');
@@ -187,6 +193,19 @@ export default function App() {
   // ─── Persist form values ──────────────────────────────────────────────
   const updateCharacters = useCallback((v: string) => { setCharacters(v); saveToLocalStorage(LS_CHARACTERS, v); }, []);
   const updateAudience = useCallback((v: string) => { setAudience(v); saveToLocalStorage(LS_AUDIENCE, v); }, []);
+  const updateAgeGroup = useCallback((v: string) => { setAgeGroup(v); saveToLocalStorage(LS_AGE_GROUP, v); }, []);
+
+  // Combine age group and audience text into a single audience string for the pipeline
+  const buildAudience = useCallback((): string => {
+    if (ageGroup && audience.trim()) {
+      return `children aged ${ageGroup}, ${audience.trim()}`;
+    } else if (ageGroup) {
+      return `children aged ${ageGroup}`;
+    } else if (audience.trim()) {
+      return audience.trim();
+    }
+    return 'children aged 5-7';
+  }, [ageGroup, audience]);
   const updateUserSuggestions = useCallback((v: string) => { setUserSuggestions(v); saveToLocalStorage(LS_USER_SUGGESTIONS, v); }, []);
   
   const updateFramework = useCallback((v: string) => {
@@ -287,7 +306,7 @@ export default function App() {
       apiKey,
       modelId: selectedModel,
       minApiIntervalMs: minApiInterval * 1000,
-      audience: audience || 'children aged 5-7',
+      audience: buildAudience(),
       CRAFT_GUIDE_TEXT: augmentedFrameworkGuide,
       READING_AGE_NOTE: readingAgeNote,
       USER_SUGGESTIONS_TEXT: userSuggestionsText,
@@ -337,10 +356,20 @@ export default function App() {
           title,
           markdown: story,
           characters,
-          audience: audience || 'children aged 5-7',
+          audience: buildAudience(),
           framework: selectedFramework,
           style: selectedStyle,
           date: new Date().toISOString(),
+          tone: toneAdj,
+          pacing: pacingAdj,
+          humor: humorAdj,
+          emotion: emotionAdj,
+          model: selectedModel,
+          readingAge: adjustReadingAge ? targetReadingAge : null,
+          consolidator: enableConsolidator,
+          wordCount,
+          plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
+          ageGroup: ageGroup || undefined,
         });
       } catch (e) {
         console.warn('Could not auto-save story:', e);
@@ -355,7 +384,7 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, characters, audience, selectedFramework, selectedStyle, selectedModel, adjustReadingAge,
+  }, [apiKey, characters, audience, ageGroup, buildAudience, selectedFramework, selectedStyle, selectedModel, adjustReadingAge,
     targetReadingAge, enableConsolidator, toneAdj, pacingAdj, humorAdj, emotionAdj,
     thinkingEnabled, agentThinking, stemConcept, userSuggestions, includePlotPoints,
     minApiInterval, availableModels, getCurrentSensitivitySettings, showToast]);
@@ -382,7 +411,7 @@ export default function App() {
       apiKey,
       modelId: selectedModel,
       minApiIntervalMs: minApiInterval * 1000,
-      audience: audience || 'children aged 5-7',
+      audience: buildAudience(),
       CRAFT_GUIDE_TEXT: '',
       READING_AGE_NOTE: '',
       USER_SUGGESTIONS_TEXT: '',
@@ -421,11 +450,50 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, selectedModel, characters, audience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, showToast]);
+  }, [apiKey, selectedModel, characters, audience, ageGroup, buildAudience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, showToast]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
   const decreaseFont = useCallback(() => setStoryFontSize(s => Math.max(s - 0.1, 0.7)), []);
+
+  // ─── Export JSON ──────────────────────────────────────────────────────
+  const handleExportJson = useCallback(() => {
+    if (!appState.latestGeneratedStoryText) return;
+    const storyTitle = appState.latestGeneratedStoryTitle || 'Untitled Story';
+    const storyData = {
+      title: storyTitle,
+      markdown: appState.latestGeneratedStoryText,
+      characters,
+      audience: buildAudience(),
+      ageGroup: ageGroup || undefined,
+      framework: selectedFramework,
+      style: selectedStyle,
+      tone: toneAdj,
+      pacing: pacingAdj,
+      humor: humorAdj,
+      emotion: emotionAdj,
+      model: selectedModel,
+      readingAge: adjustReadingAge ? targetReadingAge : null,
+      consolidator: enableConsolidator,
+      wordCount: countWords(appState.latestGeneratedStoryText),
+      plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
+      date: new Date().toISOString(),
+    };
+    const json = JSON.stringify(storyData, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeFilename = storyTitle.replace(/[^a-z0-9\s]/gi, '').trim().replace(/\s+/g, '_').toLowerCase() || 'untitled_story';
+    a.download = `${safeFilename}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Story exported as JSON!', 'success');
+  }, [characters, buildAudience, ageGroup, selectedFramework, selectedStyle, toneAdj, pacingAdj,
+    humorAdj, emotionAdj, selectedModel, adjustReadingAge, targetReadingAge, enableConsolidator,
+    includePlotPoints, userSuggestions, showToast]);
 
   // ─── Keyboard shortcuts ───────────────────────────────────────────────
   useEffect(() => {
@@ -461,6 +529,8 @@ export default function App() {
           onCharactersChange={updateCharacters}
           audience={audience}
           onAudienceChange={updateAudience}
+          ageGroup={ageGroup}
+          onAgeGroupChange={updateAgeGroup}
           selectedFramework={selectedFramework}
           onOpenFrameworkModal={() => setFrameworkModalOpen(true)}
           selectedStyle={selectedStyle}
@@ -520,6 +590,9 @@ export default function App() {
           onIncreaseFontSize={increaseFont}
           onDecreaseFontSize={decreaseFont}
           onElaborate={handleElaborateStory}
+          onOpenLibrary={() => setLibraryOpen(true)}
+          onOpenOnlineBrowser={() => setOnlineBrowserOpen(true)}
+          onExportJson={handleExportJson}
           showToast={showToast}
         />
       </div>
@@ -605,6 +678,36 @@ export default function App() {
 
       {helpModalOpen && (
         <HelpModal onClose={() => setHelpModalOpen(false)} />
+      )}
+
+      {libraryOpen && (
+        <StoryLibraryModal
+          onLoad={(story) => {
+            setStoryTitle(story.title);
+            setStoryHtml(formatStoryAsHtml(story.markdown));
+            appState.latestGeneratedStoryText = story.markdown;
+            setHasStory(true);
+            setLibraryOpen(false);
+            showToast(`Loaded: ${story.title}`, 'success');
+          }}
+          onClose={() => setLibraryOpen(false)}
+          showToast={showToast}
+        />
+      )}
+
+      {onlineBrowserOpen && (
+        <OnlineStoryBrowser
+          onLoad={(story) => {
+            setStoryTitle(story.title);
+            setStoryHtml(formatStoryAsHtml(story.markdown));
+            appState.latestGeneratedStoryText = story.markdown;
+            appState.latestGeneratedStoryTitle = story.title;
+            setHasStory(true);
+            setOnlineBrowserOpen(false);
+          }}
+          onClose={() => setOnlineBrowserOpen(false)}
+          showToast={showToast}
+        />
       )}
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />

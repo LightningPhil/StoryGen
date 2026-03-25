@@ -48,6 +48,8 @@ interface ControlsPanelProps {
   onCharactersChange: (v: string) => void;
   audience: string;
   onAudienceChange: (v: string) => void;
+  ageGroup: string;
+  onAgeGroupChange: (v: string) => void;
   selectedFramework: string;
   onOpenFrameworkModal: () => void;
   selectedStyle: string;
@@ -103,6 +105,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
     activeTab, onTabChange, assistEnabled,
     theme, onToggleTheme, onOpenSettings, onOpenHelp,
     characters, onCharactersChange, audience, onAudienceChange,
+    ageGroup, onAgeGroupChange,
     selectedFramework, onOpenFrameworkModal, selectedStyle, onOpenStyleModal,
     includePlotPoints, onIncludePlotPointsChange, userSuggestions, onUserSuggestionsChange,
     sensitivityPreset, onSensitivityPresetChange,
@@ -185,8 +188,25 @@ export function ControlsPanel(props: ControlsPanelProps) {
               <textarea id="charactersInput" rows={2} placeholder="e.g., a curious fox named Felix, a wise owl" value={characters} onChange={e => onCharactersChange(e.target.value)} />
             </div>
             <div className="field">
-              <label htmlFor="audienceInput">Target Audience</label>
-              <input type="text" id="audienceInput" placeholder="e.g., children aged 5-7" value={audience} onChange={e => onAudienceChange(e.target.value)} />
+              <label htmlFor="ageGroupSelect">Age Group</label>
+              <select id="ageGroupSelect" value={ageGroup} onChange={e => onAgeGroupChange(e.target.value)}>
+                <option value="">Not set</option>
+                <option value="3-4">3–4 years</option>
+                <option value="5-6">5–6 years</option>
+                <option value="7-8">7–8 years</option>
+                <option value="9-10">9–10 years</option>
+                <option value="11-12">11–12 years</option>
+                <option value="13+">13+ years</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="audienceInput">Audience Description</label>
+              <input type="text" id="audienceInput" placeholder="e.g., who enjoy adventure stories" value={audience} onChange={e => onAudienceChange(e.target.value)} />
+              {(ageGroup || audience.trim()) && (
+                <div className="field-hint">
+                  Will be sent as: "{ageGroup && audience.trim() ? `children aged ${ageGroup}, ${audience.trim()}` : ageGroup ? `children aged ${ageGroup}` : audience.trim()}"
+                </div>
+              )}
             </div>
             <div className="field">
               <label>Story Framework</label>

@@ -5,6 +5,7 @@ import type { VocabularyLookupData, VocabularyEntry } from './types';
 export const LS_API_KEY = 'geminiApiKey_storyCircle';
 export const LS_CHARACTERS = 'storyCharacters_storyCircle';
 export const LS_AUDIENCE = 'storyAudience_storyCircle';
+export const LS_AGE_GROUP = 'storyAgeGroup_storyCircle';
 export const LS_SELECTED_FRAMEWORK = 'storySelectedFramework_storyCircle';
 export const LS_SELECTED_MODEL = 'geminiSelectedModel_storyCircle';
 export const LS_USE_ENGINE_SUGGESTIONS = 'useEngineSuggestions_storyCircle';

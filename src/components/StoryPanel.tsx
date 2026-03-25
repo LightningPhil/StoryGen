@@ -13,6 +13,9 @@ interface StoryPanelProps {
   onIncreaseFontSize: () => void;
   onDecreaseFontSize: () => void;
   onElaborate: () => void;
+  onOpenLibrary: () => void;
+  onOpenOnlineBrowser?: () => void;
+  onExportJson?: () => void;
   showToast: (msg: string, type?: ToastMessage['type']) => void;
 }
 
@@ -22,7 +25,7 @@ export function StoryPanel(props: StoryPanelProps) {
   const {
     title, storyHtml, statusText, hasStory, isGenerating,
     fontSize, onIncreaseFontSize, onDecreaseFontSize,
-    onElaborate, showToast,
+    onElaborate, onOpenLibrary, onOpenOnlineBrowser, onExportJson, showToast,
   } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -132,14 +135,33 @@ export function StoryPanel(props: StoryPanelProps) {
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
             </svg>
           </button>
+          <button className="icon-button" aria-label="Story Library" title="Story Library" onClick={onOpenLibrary}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </button>
+          {onOpenOnlineBrowser && (
+            <button className="icon-button" aria-label="Story Database" title="Browse Story Database" onClick={onOpenOnlineBrowser}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </button>
+          )}
           <input ref={fileInputRef} type="file" accept=".md,.markdown,.txt" className="hidden" aria-hidden="true" onChange={handleFileChange} />
           {hasStory && (
             <>
-              <button className="icon-button" aria-label="Save story" title="Save story" onClick={handleSave}>
+              <button className="icon-button" aria-label="Save story" title="Save as Markdown" onClick={handleSave}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
               </button>
+              {onExportJson && (
+                <button className="icon-button" aria-label="Export as JSON" title="Export as JSON" onClick={onExportJson}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1"/><path d="M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1"/>
+                  </svg>
+                </button>
+              )}
               <button className="icon-button" aria-label="Decrease font size" title="Decrease font size" onClick={onDecreaseFontSize}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M4 7V5h12v2M8 5v14m4-14v14M10 19h4"/><line x1="17" y1="12" x2="21" y2="12"/>

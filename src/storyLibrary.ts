@@ -9,6 +9,17 @@ export interface SavedStory {
     framework: string;
     style: string;
     date: string;           // ISO date string
+    // Extended metadata (optional for backward compat)
+    tone?: string;
+    pacing?: string;
+    humor?: string;
+    emotion?: string;
+    model?: string;
+    readingAge?: number | null;
+    consolidator?: boolean;
+    wordCount?: number;
+    plotPoints?: string;
+    ageGroup?: string;
 }
 
 const DB_NAME = 'storyGen_library';

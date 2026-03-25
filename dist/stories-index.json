@@ -1,0 +1,49 @@
+[
+  {
+    "id": "professor-pudding-and-the-runaway-equation-ad119d56",
+    "file": "professor-pudding-and-the-runaway-equation-ad119d56.json",
+    "title": "Professor Pudding and the Runaway Equation",
+    "author": "StoryGen Community",
+    "characters": "Professor Pudding, Tomás, the children of Numberton",
+    "audience": "children aged 5-7",
+    "ageGroup": "5-6",
+    "framework": "Learning Fable (STEM)",
+    "style": "Roald Dahl",
+    "tone": "default",
+    "pacing": "default",
+    "humor": "whimsical",
+    "emotion": "default",
+    "wordCount": 280,
+    "date": "2025-01-20T14:30:00.000Z",
+    "tags": [
+      "maths",
+      "school",
+      "adventures",
+      "learning",
+      "STEM"
+    ]
+  },
+  {
+    "id": "the-lighthouse-keepers-secret-379c37d9",
+    "file": "the-lighthouse-keepers-secret-379c37d9.json",
+    "title": "The Lighthouse Keeper's Secret",
+    "author": "StoryGen Community",
+    "characters": "Mira (a brave girl), Ember (a teacup dragon)",
+    "audience": "children aged 5-7",
+    "ageGroup": "5-6",
+    "framework": "Classic Three-Act",
+    "style": "Beatrix Potter",
+    "tone": "default",
+    "pacing": "default",
+    "humor": "default",
+    "emotion": "default",
+    "wordCount": 230,
+    "date": "2025-01-15T10:00:00.000Z",
+    "tags": [
+      "dragons",
+      "lighthouses",
+      "friendship",
+      "courage"
+    ]
+  }
+]
