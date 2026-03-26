@@ -86,29 +86,66 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
     },
     
     audience: {
-        title: "Target Audience",
+        title: "Age Groups & Audience",
         content: `
-            <h3>Setting Your Target Audience</h3>
-            <p>The audience setting fundamentally shapes how your story is written, affecting vocabulary, sentence structure, themes, and content.</p>
-            
-            <h4>Age-Based Examples</h4>
+            <h3>Age Groups & Audience</h3>
+            <p>StoryGen requires you to select an <strong>Age Group</strong> before generating a story. This is the single most important setting — it shapes vocabulary, sentence structure, themes, conflict level, and overall content.</p>
+
+            <h4>Age Ranges</h4>
             <ul>
-                <li><strong>"Toddlers aged 2-3"</strong> - Very simple words, repetition, short sentences</li>
-                <li><strong>"Children aged 4-6"</strong> - Simple vocabulary, clear plots, gentle themes</li>
-                <li><strong>"Kids aged 7-10"</strong> - More complex plots, richer vocabulary</li>
-                <li><strong>"Tweens aged 11-13"</strong> - Sophisticated themes, nuanced characters</li>
-                <li><strong>"Young adults"</strong> - Complex narratives, mature themes</li>
+                <li><strong>3–4 years</strong> — Very simple words, short sentences, repetition, gentle themes. No conflict or scary elements.</li>
+                <li><strong>5–6 years</strong> — Simple vocabulary, clear plots, friendly characters. Mild challenges resolved quickly.</li>
+                <li><strong>7–8 years</strong> — Richer vocabulary, slightly more complex plots. Light adventure and humour.</li>
+                <li><strong>9–10 years</strong> — Fuller stories with real (but manageable) stakes. Deeper character development.</li>
+                <li><strong>11–12 years</strong> — Sophisticated themes and nuanced characters. More complex narrative structures.</li>
+                <li><strong>13–15 years (Teen)</strong> — Coming-of-age themes, moral dilemmas, complex relationships. Age-appropriate tension.</li>
+                <li><strong>16–18 years (Young Adult)</strong> — Mature themes explored thoughtfully. Deeper emotional complexity.</li>
+                <li><strong>18+ (Adult)</strong> — Full thematic range within content safety guidelines.</li>
             </ul>
-            
-            <h4>Context-Based Examples</h4>
-            <ul>
-                <li><strong>"Bedtime story for a 4-year-old"</strong> - Calming, gentle ending</li>
-                <li><strong>"Educational story about sharing for kindergarteners"</strong></li>
-                <li><strong>"Adventure story for reluctant readers aged 8-10"</strong></li>
-            </ul>
-            
+
+            <h4>Audience Description</h4>
+            <p>The optional <strong>Audience Description</strong> field lets you add context beyond the age range — for example, "who love dinosaurs", "bedtime story", or "reluctant readers". This refines the story without changing the age-appropriate content level.</p>
+
             <h4>Reading Age Adjustment</h4>
-            <p>Enable <strong>Adjust for Reading Age</strong> in the Options tab to fine-tune vocabulary complexity with a slider, independent of your target audience.</p>
+            <p>Enable <strong>Adjust for Reading Age</strong> in the Options tab to fine-tune vocabulary complexity with a slider, independent of your age group selection.</p>
+        `
+    },
+
+    content_safety: {
+        title: "Content Safety",
+        content: `
+            <h3>Content Safety & Filtering</h3>
+            <p>StoryGen has <strong>multiple layers of content safety</strong> built in to ensure stories are appropriate for their chosen audience. This is enforced at every level — you cannot disable it.</p>
+
+            <h4>How It Works</h4>
+            <ol>
+                <li><strong>Prompt-level guardrails</strong> — The Story Crafter agent receives firm content guidelines as part of every request. These prohibit sexual content, graphic violence, discriminatory themes, and strong gender stereotypes.</li>
+                <li><strong>Gemini API safety filters</strong> — Google's own content filters are set to strict levels. Sexually explicit content is blocked at the lowest threshold. Hate speech, harassment, and dangerous content are blocked at medium-and-above thresholds.</li>
+                <li><strong>Sensitivity presets</strong> — The Content Sensitivity setting (Options tab) further tunes conflict, scary elements, sadness, and complexity for younger audiences.</li>
+            </ol>
+
+            <h4>What's Allowed</h4>
+            <ul>
+                <li>Minor peril appropriate to the age group (e.g., a character getting lost, a stormy night)</li>
+                <li>Innocent fairy-tale conventions (a prince's kiss, a frog turning into a prince)</li>
+                <li>Characters of any gender in any role — brave girls, gentle boys, clever animals</li>
+                <li>Challenges, sadness, and mistakes that resolve constructively</li>
+                <li>Age-appropriate themes that grow with the selected age range</li>
+            </ul>
+
+            <h4>What's Always Blocked</h4>
+            <ul>
+                <li>Sexual or romantic content beyond innocent fairy-tale conventions</li>
+                <li>Graphic violence or weapons causing injury</li>
+                <li>Discriminatory language or stereotypes targeting any group</li>
+                <li>Genuinely threatening or horror scenarios</li>
+                <li>Strong gender stereotyping (princess-needs-rescuing, boys-don't-cry patterns)</li>
+            </ul>
+
+            <div class="tip">
+                <div class="tip-title">\uD83D\uDEE1\uFE0F Safety Note</div>
+                <p>While these safeguards are robust, AI-generated content can occasionally be unpredictable. We recommend that parents or guardians review stories before sharing them with very young children.</p>
+            </div>
         `
     },
     
@@ -419,6 +456,7 @@ export const HELP_TOPIC_ORDER = [
     'gemini_api_key',
     'characters',
     'audience',
+    'content_safety',
     'frameworks',
     'authorial_styles',
     'plot_points',

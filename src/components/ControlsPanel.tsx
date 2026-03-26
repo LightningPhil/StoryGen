@@ -1,5 +1,6 @@
 import { ADJUSTMENT_MODULES } from '../prompts/adjustment_modules';
 import { SENSITIVITY_LEVELS } from '../appState';
+import { AssistPanel } from './AssistPanel';
 import type { ToastMessage } from '../App';
 
 const SENSITIVITY_LABELS: string[] = ['None', 'Gentle', 'Standard', 'Adventurous'];
@@ -94,6 +95,8 @@ interface ControlsPanelProps {
   onGenerate: () => void;
   // Assist (passed through)
   storyOutputRef: React.RefObject<HTMLElement | null> | null;
+  selectedWord: string;
+  onWordLookup: (word: string) => void;
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
@@ -173,7 +176,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="20" cy="14" r="2"/></svg>
             Options
           </button>
-          <button className={`tab-btn${activeTab === 'assist' ? ' active' : ''}`} onClick={() => { if (assistEnabled) onTabChange('assist'); }} role="tab" aria-selected={activeTab === 'assist'} disabled={!assistEnabled} aria-disabled={!assistEnabled}>
+          <button className={`tab-btn${activeTab === 'assist' ? ' active' : ''}`} onClick={() => onTabChange('assist')} role="tab" aria-selected={activeTab === 'assist'}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Assist
           </button>
@@ -188,25 +191,22 @@ export function ControlsPanel(props: ControlsPanelProps) {
               <textarea id="charactersInput" rows={2} placeholder="e.g., a curious fox named Felix, a wise owl" value={characters} onChange={e => onCharactersChange(e.target.value)} />
             </div>
             <div className="field">
-              <label htmlFor="ageGroupSelect">Age Group</label>
-              <select id="ageGroupSelect" value={ageGroup} onChange={e => onAgeGroupChange(e.target.value)}>
-                <option value="">Not set</option>
+              <label htmlFor="ageGroupSelect">Age Group <span style={{ color: 'var(--color-error, #c33)' }}>*</span></label>
+              <select id="ageGroupSelect" value={ageGroup} onChange={e => onAgeGroupChange(e.target.value)} required>
+                <option value="" disabled>Choose an age range…</option>
                 <option value="3-4">3–4 years</option>
                 <option value="5-6">5–6 years</option>
                 <option value="7-8">7–8 years</option>
                 <option value="9-10">9–10 years</option>
                 <option value="11-12">11–12 years</option>
-                <option value="13+">13+ years</option>
+                <option value="13-15">13–15 years (Teen)</option>
+                <option value="16-18">16–18 years (Young Adult)</option>
+                <option value="18+">18+ (Adult)</option>
               </select>
             </div>
             <div className="field">
               <label htmlFor="audienceInput">Audience Description</label>
               <input type="text" id="audienceInput" placeholder="e.g., who enjoy adventure stories" value={audience} onChange={e => onAudienceChange(e.target.value)} />
-              {(ageGroup || audience.trim()) && (
-                <div className="field-hint">
-                  Will be sent as: "{ageGroup && audience.trim() ? `children aged ${ageGroup}, ${audience.trim()}` : ageGroup ? `children aged ${ageGroup}` : audience.trim()}"
-                </div>
-              )}
             </div>
             <div className="field">
               <label>Story Framework</label>
@@ -322,14 +322,11 @@ export function ControlsPanel(props: ControlsPanelProps) {
 
           {/* Assist tab */}
           <div className={`tab-panel${activeTab === 'assist' ? ' active' : ''}`} role="tabpanel">
-            <div className="assist-read-aloud-row">
-              <button className="btn btn-secondary assist-read-aloud-button" type="button" title="Read text aloud from start or from highlighted word">
-                {'\uD83D\uDD08'} <span>Read from start</span>
-              </button>
-            </div>
-            <div className="assist-empty-state">
-              <p>Click a word in the story to see a quick explanation.</p>
-            </div>
+            <AssistPanel
+              selectedWord={props.selectedWord}
+              storyContentRef={props.storyOutputRef as React.RefObject<HTMLElement | null>}
+              onWordLookup={props.onWordLookup}
+            />
           </div>
         </div>
       </div>

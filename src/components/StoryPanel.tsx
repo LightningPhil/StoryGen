@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect, forwardRef } from 'react';
 import appState from '../appState';
 import { formatStoryAsHtml } from '../formatStory';
 import type { ToastMessage } from '../App';
@@ -16,19 +16,55 @@ interface StoryPanelProps {
   onOpenLibrary: () => void;
   onOpenOnlineBrowser?: () => void;
   onExportJson?: () => void;
+  onWordClick?: (word: string) => void;
   showToast: (msg: string, type?: ToastMessage['type']) => void;
 }
 
 const WELCOME_TEXT = 'Welcome to StoryGen!\n\nStoryGen was created to help children with reading \u2014 specifically to aid understanding and pronunciation of new words. Tap any word in a story to hear it spoken aloud, see its definition, and explore examples.\n\nRather than asking one AI to write a story in one go, StoryGen uses a team of specialist agents \u2014 a Crafter writes the first draft, an Elaborator adds detail, a Reviewer gives feedback, a Polisher refines, a Cleaner tidies up, and a Titler names the finished story.\n\nTo create a story:\n1. Enter your characters in the Characters field\n2. Set your target audience (e.g. \u201cchildren aged 5-7\u201d)\n3. Choose a Story Framework and Authorial Style\n4. Click \u201cGenerate Story\u201d\n\nYou can also open a previously saved story \u2014 use the folder icon (\uD83D\uDCC2) at the top right to load a .md or .txt file.\n\nFirst time? Configure your Gemini API Key in Settings (\u2699\uFE0F). Need help? Click the question mark icon (\u2753) to open the Help Wiki.\n\nStories can be made using various Frameworks and Authorial Styles. They don\u2019t copy the work of the authors and creators they\u2019re based on \u2014 they were chosen to explore stories crafted with an enthusiasm that leans in different directions. It\u2019s well worth exploring the stories created with the same characters and plot points using different combinations of Frameworks and Authorial Styles.\n\nWhile there is argument that LLMs have been trained on copyrighted content, we\u2019re asking for unique creations and not duplications here. The purpose is absolutely for educational purposes only. Use what\u2019s learned here as a stepping stone to explore the real works of great authors. Enjoy, create your own stories, learn and then explore the rich world of books.';
 
-export function StoryPanel(props: StoryPanelProps) {
+export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function StoryPanel(props, ref) {
   const {
     title, storyHtml, statusText, hasStory, isGenerating,
     fontSize, onIncreaseFontSize, onDecreaseFontSize,
-    onElaborate, onOpenLibrary, onOpenOnlineBrowser, onExportJson, showToast,
+    onElaborate, onOpenLibrary, onOpenOnlineBrowser, onExportJson, onWordClick, showToast,
   } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const storyArticleRef = useRef<HTMLElement>(null);
+
+  // Merge forwarded ref with local ref
+  const setRefs = useCallback((el: HTMLElement | null) => {
+    storyArticleRef.current = el;
+    if (typeof ref === 'function') ref(el);
+    else if (ref) (ref as React.MutableRefObject<HTMLElement | null>).current = el;
+  }, [ref]);
+
+  // Handle word clicks on .story-word spans
+  useEffect(() => {
+    const el = storyArticleRef.current;
+    if (!el || !onWordClick) return;
+
+    const handler = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('.story-word') as HTMLElement | null;
+      if (!target) {
+        // Clicked whitespace — clear selection
+        el.querySelectorAll('.story-word.is-selected').forEach(s => s.classList.remove('is-selected'));
+        onWordClick('');
+        return;
+      }
+      const word = target.getAttribute('data-story-word') || target.textContent || '';
+      if (!word) return;
+
+      // Remove previous selection, highlight clicked word
+      el.querySelectorAll('.story-word.is-selected').forEach(s => s.classList.remove('is-selected'));
+      target.classList.add('is-selected');
+
+      onWordClick(word.trim());
+    };
+
+    el.addEventListener('click', handler);
+    return () => el.removeEventListener('click', handler);
+  }, [onWordClick, storyHtml]);
 
   const handleCopy = useCallback(() => {
     if (appState.latestGeneratedStoryText) {
@@ -186,7 +222,7 @@ export function StoryPanel(props: StoryPanelProps) {
           )}
         </div>
       </header>
-      <article className="story-content" style={{ fontSize: `${fontSize}rem` }}>
+      <article className="story-content" ref={setRefs} style={{ fontSize: `${fontSize}rem` }}>
         {isGenerating && !storyHtml ? (
           <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{statusText}</pre>
         ) : (
@@ -195,4 +231,4 @@ export function StoryPanel(props: StoryPanelProps) {
       </article>
     </main>
   );
-}
+});

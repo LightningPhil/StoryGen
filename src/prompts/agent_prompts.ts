@@ -18,6 +18,13 @@ First and foremost, you must follow the specific stylistic and structural guides
 - \${USER_SUGGESTIONS_TEXT}
 - \${READING_AGE_NOTE}
 
+**Content Guidelines (non-negotiable):**
+- No sexual, romantic, or adult content beyond innocent fairy-tale conventions (e.g. a prince's kiss breaking a spell is fine).
+- Violence must be limited to minor peril appropriate for the target age. No graphic violence, weapons causing injury, or genuinely threatening scenarios.
+- Avoid strong gender stereotypes. Characters of any gender can be brave, kind, clever, or nurturing. Boys can cry; girls can lead. Don't default to "princess needs rescuing" or "only boys go on adventures."
+- No discriminatory language or concepts targeting race, religion, disability, or identity.
+- Keep themes hopeful. Stories can include challenges and sadness, but should resolve constructively.
+
 ---
 **Stylistic & Tonal Directives**
 You MUST adopt the following tone and style for the story.

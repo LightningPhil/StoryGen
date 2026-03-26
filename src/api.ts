@@ -69,7 +69,13 @@ export async function callAgentAPI(
 
     const requestBody: Record<string, unknown> = { 
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {} as Record<string, unknown>
+        generationConfig: {} as Record<string, unknown>,
+        safetySettings: [
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        ],
     };
 
     if (responseMimeType) {

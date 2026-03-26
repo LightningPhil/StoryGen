@@ -189,18 +189,42 @@ export default function App() {
   const [hasStory, setHasStory] = useState(false);
   const [activeTab, setActiveTab] = useState<'story' | 'options' | 'assist'>('story');
   const [assistEnabled, setAssistEnabled] = useState(false);
+  const [selectedWord, setSelectedWord] = useState('');
+  const storyContentRef = useRef<HTMLElement>(null);
 
   // ─── Persist form values ──────────────────────────────────────────────
   const updateCharacters = useCallback((v: string) => { setCharacters(v); saveToLocalStorage(LS_CHARACTERS, v); }, []);
   const updateAudience = useCallback((v: string) => { setAudience(v); saveToLocalStorage(LS_AUDIENCE, v); }, []);
   const updateAgeGroup = useCallback((v: string) => { setAgeGroup(v); saveToLocalStorage(LS_AGE_GROUP, v); }, []);
 
+  // Word click in story → switch to Assist tab and look up word
+  const handleWordClick = useCallback((word: string) => {
+    setSelectedWord(word);
+    if (word) setActiveTab('assist');
+  }, []);
+
+  // Allow AssistPanel synonym/antonym chips to trigger a new lookup
+  const handleWordLookup = useCallback((word: string) => {
+    setSelectedWord(word);
+  }, []);
+
   // Combine age group and audience text into a single audience string for the pipeline
   const buildAudience = useCallback((): string => {
-    if (ageGroup && audience.trim()) {
-      return `children aged ${ageGroup}, ${audience.trim()}`;
-    } else if (ageGroup) {
-      return `children aged ${ageGroup}`;
+    const AGE_LABELS: Record<string, string> = {
+      '3-4': 'children aged 3-4',
+      '5-6': 'children aged 5-6',
+      '7-8': 'children aged 7-8',
+      '9-10': 'children aged 9-10',
+      '11-12': 'children aged 11-12',
+      '13-15': 'teenagers aged 13-15',
+      '16-18': 'young adults aged 16-18',
+      '18+': 'adults',
+    };
+    const label = AGE_LABELS[ageGroup] || '';
+    if (label && audience.trim()) {
+      return `${label}, ${audience.trim()}`;
+    } else if (label) {
+      return label;
     } else if (audience.trim()) {
       return audience.trim();
     }
@@ -252,6 +276,7 @@ export default function App() {
   const handleGenerateStory = useCallback(async () => {
     if (!apiKey) { showToast('Please set your API key in Settings.', 'error'); return; }
     if (!characters.trim()) { showToast('Please enter at least one character.', 'error'); return; }
+    if (!ageGroup) { showToast('Please select an age group.', 'error'); return; }
 
     setIsGenerating(true);
     setHasStory(false);
@@ -574,13 +599,16 @@ export default function App() {
           isGenerating={isGenerating}
           onGenerate={handleGenerateStory}
           // Assist - pass through for now
-          storyOutputRef={null}
+          storyOutputRef={storyContentRef}
+          selectedWord={selectedWord}
+          onWordLookup={handleWordLookup}
           ttsSource={ttsSource}
           ttsGender={ttsGender}
           ttsVoice={ttsVoice}
           showToast={showToast}
         />
         <StoryPanel
+          ref={storyContentRef}
           title={storyTitle}
           storyHtml={storyHtml}
           statusText={statusText}
@@ -593,6 +621,7 @@ export default function App() {
           onOpenLibrary={() => setLibraryOpen(true)}
           onOpenOnlineBrowser={() => setOnlineBrowserOpen(true)}
           onExportJson={handleExportJson}
+          onWordClick={handleWordClick}
           showToast={showToast}
         />
       </div>
