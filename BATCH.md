@@ -1,6 +1,6 @@
 # Batch Story Generation
 
-Generate dozens of stories from a CSV spreadsheet without clicking a single button.
+Generate dozens of stories from a TSV spreadsheet without clicking a single button.
 
 ## Quick Start
 
@@ -11,22 +11,22 @@ Generate dozens of stories from a CSV spreadsheet without clicking a single butt
    export GEMINI_API_KEY=your-key-here        # Mac/Linux
    ```
 
-2. **Copy the template CSV** and fill in your stories:
+2. **Copy the template TSV** and fill in your stories:
    ```
-   stories/batch-template.csv  →  stories/batch.csv
+   stories/batch-template.tsv  →  stories/batch.tsv
    ```
 
 3. **Run the batch generator:**
    ```
    npm run batch
    ```
-   Or with a custom CSV path:
+   Or with a custom TSV path:
    ```
-   npm run batch -- stories/my-stories.csv
+   npm run batch -- stories/my-stories.tsv
    ```
    Or pass the API key inline:
    ```
-   npm run batch -- stories/batch.csv --api-key=YOUR_KEY
+   npm run batch -- stories/batch.tsv --api-key=YOUR_KEY
    ```
 
 4. **Ingest the stories** into the public library:
@@ -36,18 +36,18 @@ Generate dozens of stories from a CSV spreadsheet without clicking a single butt
 
 ## How It Works
 
-- Reads one CSV row at a time
+- Reads one TSV row at a time
 - Runs the full 6–8 agent pipeline (Crafter → Elaborator → [Consolidator] → Reviewer → Polisher → [Consolidator] → Cleaner → Titler)
 - Waits **20 seconds** between stories to avoid API rate limits
 - Retries failed API calls up to 4 times with exponential backoff
 - Saves successful stories as JSON to `stories/inbox/`
 - Skips failures and keeps going — only completed stories are saved
 
-## CSV Columns
+## TSV Columns
 
 | Column | Required | Description |
 |--------|----------|-------------|
-| `characters` | Yes | Comma-separated character names/descriptions (wrap in quotes if using commas) |
+| `characters` | Yes | Character names/descriptions — commas are fine, tabs are the delimiter |
 | `audience` | No | Free text, e.g. "bedtime story", "school assembly" |
 | `age_group` | No | `3-4`, `5-6`, `7-8`, `9-10`, `11-12`, `13-15`, `16-18`, `18+` (default: `5-6`) |
 | `framework` | No | Story engine short name (see below). Default: `story_circle` |
@@ -60,7 +60,7 @@ Generate dozens of stories from a CSV spreadsheet without clicking a single butt
 | `sensitivity` | No | Sensitivity preset (see below). Default: `standard` |
 | `reading_age` | No | Target reading age (number, 2–18). Leave blank for auto |
 | `consolidator` | No | `true` / `false` — adds a compression pass for tighter stories |
-| `user_suggestions` | No | Free text instructions for the story crafter (wrap in quotes if using commas) |
+| `user_suggestions` | No | Free text instructions for the story crafter — your elaboration field |
 | `stem_concept` | No | For `stem_fable` framework only — the science concept to teach |
 
 ---
@@ -166,7 +166,8 @@ Generate dozens of stories from a CSV spreadsheet without clicking a single butt
 
 ## Tips
 
-- **Wrap fields in quotes** if they contain commas: `"Pip the mouse, Luna the owl"`
+- **TSV uses tabs as delimiters** — commas, quotes, and special characters are all fine in any field
+- **Edit in Excel/Sheets** then Save As → Tab-delimited (.tsv / .txt) — or just use the template
 - **Leave columns blank** to use defaults — you don't need to fill everything
 - The `user_suggestions` column is your free-text elaboration — use it for specific story directions, themes, or requirements
 - The `consolidator` column adds extra compression passes. Use `true` for tighter stories, `false` (default) for more natural length

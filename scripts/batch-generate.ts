@@ -2,12 +2,12 @@
 /**
  * StoryGen Batch Generator
  * 
- * Reads a CSV file and generates stories one row at a time through the full
+ * Reads a TSV file and generates stories one row at a time through the full
  * multi-agent pipeline. Outputs completed story JSON files to stories/inbox/
  * ready for ingestion via `npm run ingest`.
  *
- * Usage:  npx tsx scripts/batch-generate.ts [path-to-csv] [--api-key=KEY]
- *         npm run batch -- stories/batch.csv --api-key=YOUR_KEY
+ * Usage:  npx tsx scripts/batch-generate.ts [path-to-tsv] [--api-key=KEY]
+ *         npm run batch -- stories/batch.tsv --api-key=YOUR_KEY
  *
  * Environment:  set GEMINI_API_KEY=your-key-here
  */
@@ -120,19 +120,18 @@ interface CsvRow {
   stem_concept: string;
 }
 
-function parseCsv(filePath: string): CsvRow[] {
+function parseTsv(filePath: string): CsvRow[] {
   const raw = fs.readFileSync(filePath, 'utf-8');
   const lines = raw.split(/\r?\n/).filter(l => l.trim() !== '');
   if (lines.length < 2) {
-    throw new Error('CSV must have a header row and at least one data row.');
+    throw new Error('TSV must have a header row and at least one data row.');
   }
 
-  // Parse header - handle quoted fields
-  const header = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+  const header = lines[0].split('\t').map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
 
   const rows: CsvRow[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const values = parseCsvLine(lines[i]);
+    const values = lines[i].split('\t');
     const row: Record<string, string> = {};
     for (let j = 0; j < header.length; j++) {
       row[header[j]] = (values[j] || '').trim();
@@ -140,40 +139,6 @@ function parseCsv(filePath: string): CsvRow[] {
     rows.push(row as unknown as CsvRow);
   }
   return rows;
-}
-
-/** Simple CSV line parser that handles quoted fields with commas */
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (i + 1 < line.length && line[i + 1] === '"') {
-          current += '"';
-          i++; // skip escaped quote
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        current += ch;
-      }
-    } else {
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ',') {
-        result.push(current);
-        current = '';
-      } else {
-        current += ch;
-      }
-    }
-  }
-  result.push(current);
-  return result;
 }
 
 // ── Resolve short names to full prompt text ─────────────────────────────────
@@ -499,14 +464,14 @@ function sleep(ms: number): Promise<void> {
 async function main() {
   // Parse CLI args
   const args = process.argv.slice(2);
-  let csvPath = path.resolve('stories', 'batch.csv');
+  let tsvPath = path.resolve('stories', 'batch.tsv');
   let apiKey = process.env.GEMINI_API_KEY || '';
 
   for (const arg of args) {
     if (arg.startsWith('--api-key=')) {
       apiKey = arg.split('=').slice(1).join('=');
     } else if (!arg.startsWith('--')) {
-      csvPath = path.resolve(arg);
+      tsvPath = path.resolve(arg);
     }
   }
 
@@ -515,8 +480,8 @@ async function main() {
     process.exit(1);
   }
 
-  if (!fs.existsSync(csvPath)) {
-    console.error(`Error: CSV file not found: ${csvPath}`);
+  if (!fs.existsSync(tsvPath)) {
+    console.error(`Error: TSV file not found: ${tsvPath}`);
     process.exit(1);
   }
 
@@ -527,10 +492,10 @@ async function main() {
   console.log('║    StoryGen Batch Generator            ║');
   console.log('╚════════════════════════════════════════╝');
   console.log(`Model:  ${MODEL_ID}`);
-  console.log(`CSV:    ${csvPath}`);
+  console.log(`TSV:    ${tsvPath}`);
   console.log(`Output: ${INBOX_DIR}\n`);
 
-  const rows = parseCsv(csvPath);
+  const rows = parseTsv(tsvPath);
   console.log(`Found ${rows.length} stories to generate.\n`);
 
   let successCount = 0;
