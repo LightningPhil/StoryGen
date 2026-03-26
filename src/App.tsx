@@ -61,6 +61,8 @@ import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig } from './types';
 import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
+import { StoryMetadataModal } from './components/StoryMetadataModal';
+import type { StoryMetadata } from './components/StoryInfoPanel';
 
 export interface ToastMessage {
   id: number;
@@ -191,6 +193,8 @@ export default function App() {
   const [assistEnabled, setAssistEnabled] = useState(false);
   const [selectedWord, setSelectedWord] = useState('');
   const storyContentRef = useRef<HTMLElement>(null);
+  const [loadedStoryMeta, setLoadedStoryMeta] = useState<StoryMetadata | null>(null);
+  const [metadataModalOpen, setMetadataModalOpen] = useState(false);
 
   // ─── Persist form values ──────────────────────────────────────────────
   const updateCharacters = useCallback((v: string) => { setCharacters(v); saveToLocalStorage(LS_CHARACTERS, v); }, []);
@@ -226,6 +230,7 @@ export default function App() {
       const detail = (event as CustomEvent<{ title?: string; text?: string }>).detail;
       if (!detail?.text) return;
       loadStoryIntoApp(detail.title || 'Untitled Story', detail.text);
+      setLoadedStoryMeta(null);
     };
 
     window.addEventListener('storygen:file-loaded', handleFileLoaded as EventListener);
@@ -312,6 +317,8 @@ export default function App() {
     setAssistEnabled(false);
     setSelectedWord('');
     setActiveTab('story');
+    setLoadedStoryMeta(null);
+    setMetadataModalOpen(false);
     appState.clearChatLog();
 
     // Build pipeline inputs
@@ -397,6 +404,26 @@ export default function App() {
       const wordCount = countWords(story);
       console.log(`Story generated: "${title}" (${wordCount} words)`);
 
+      // Store metadata for the info modal
+      setLoadedStoryMeta({
+        title,
+        date: new Date().toISOString(),
+        characters,
+        audience: buildAudience(),
+        framework: selectedFramework,
+        style: selectedStyle,
+        tone: toneAdj,
+        pacing: pacingAdj,
+        humor: humorAdj,
+        emotion: emotionAdj,
+        model: selectedModel,
+        readingAge: adjustReadingAge ? targetReadingAge : null,
+        consolidator: enableConsolidator,
+        wordCount,
+        plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
+        ageGroup: ageGroup || undefined,
+      });
+
       // Auto-save to IndexedDB
       try {
         await saveStoryToLibrary({
@@ -443,6 +470,8 @@ export default function App() {
 
     setIsGenerating(true);
     setStatusText('');
+    setLoadedStoryMeta(null);
+    setMetadataModalOpen(false);
     appState.clearChatLog();
 
     const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
@@ -485,7 +514,30 @@ export default function App() {
       );
 
       const story = (result.storyText || '').trim();
-      loadStoryIntoApp(appState.latestGeneratedStoryTitle || storyTitle || 'Untitled Story', story);
+      const nextTitle = appState.latestGeneratedStoryTitle || storyTitle || 'Untitled Story';
+      loadStoryIntoApp(nextTitle, story);
+      setLoadedStoryMeta({
+        ...(loadedStoryMeta || {
+          title: nextTitle,
+          date: new Date().toISOString(),
+          characters,
+          audience: buildAudience(),
+          ageGroup: ageGroup || undefined,
+          framework: selectedFramework,
+          style: selectedStyle,
+          tone: toneAdj,
+          pacing: pacingAdj,
+          humor: humorAdj,
+          emotion: emotionAdj,
+          model: selectedModel,
+          readingAge: adjustReadingAge ? targetReadingAge : null,
+          consolidator: enableConsolidator,
+          plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
+        }),
+        title: nextTitle,
+        date: new Date().toISOString(),
+        wordCount: countWords(story),
+      });
       showToast('Story elaborated successfully!', 'success');
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
@@ -494,7 +546,7 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, selectedModel, characters, audience, ageGroup, buildAudience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, loadStoryIntoApp, showToast, storyTitle]);
+  }, [apiKey, selectedModel, characters, audience, ageGroup, buildAudience, selectedFramework, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, toneAdj, pacingAdj, humorAdj, emotionAdj, adjustReadingAge, targetReadingAge, enableConsolidator, includePlotPoints, userSuggestions]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
@@ -641,6 +693,7 @@ export default function App() {
           onOpenOnlineBrowser={() => setOnlineBrowserOpen(true)}
           onExportJson={handleExportJson}
           onWordClick={handleWordClick}
+          onShowInfo={loadedStoryMeta ? () => setMetadataModalOpen(true) : undefined}
           showToast={showToast}
         />
       </div>
@@ -732,6 +785,24 @@ export default function App() {
         <StoryLibraryModal
           onLoad={(story) => {
             loadStoryIntoApp(story.title, story.markdown);
+            setLoadedStoryMeta({
+              title: story.title,
+              date: story.date,
+              characters: story.characters,
+              audience: story.audience,
+              ageGroup: story.ageGroup,
+              framework: story.framework,
+              style: story.style,
+              tone: story.tone,
+              pacing: story.pacing,
+              humor: story.humor,
+              emotion: story.emotion,
+              model: story.model,
+              readingAge: story.readingAge,
+              consolidator: story.consolidator,
+              wordCount: story.wordCount,
+              plotPoints: story.plotPoints,
+            });
             setLibraryOpen(false);
             showToast(`Loaded: ${story.title}`, 'success');
           }}
@@ -744,10 +815,33 @@ export default function App() {
         <OnlineStoryBrowser
           onLoad={(story) => {
             loadStoryIntoApp(story.title, story.markdown);
+            setLoadedStoryMeta({
+              title: story.title,
+              date: story.date,
+              characters: story.characters,
+              audience: story.audience,
+              ageGroup: story.ageGroup,
+              framework: story.framework,
+              style: story.style,
+              tone: story.tone,
+              pacing: story.pacing,
+              humor: story.humor,
+              emotion: story.emotion,
+              wordCount: story.wordCount,
+              author: story.author,
+              tags: story.tags,
+            });
             setOnlineBrowserOpen(false);
           }}
           onClose={() => setOnlineBrowserOpen(false)}
           showToast={showToast}
+        />
+      )}
+
+      {metadataModalOpen && loadedStoryMeta && (
+        <StoryMetadataModal
+          story={loadedStoryMeta}
+          onClose={() => setMetadataModalOpen(false)}
         />
       )}
 
