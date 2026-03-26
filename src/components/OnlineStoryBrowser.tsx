@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-/** Lightweight index entry (no markdown) */
 export interface StoryIndexEntry {
   id: string;
   file: string;
@@ -20,7 +19,6 @@ export interface StoryIndexEntry {
   tags?: string[];
 }
 
-/** Full story (fetched on demand from individual file) */
 export interface OnlineStory extends StoryIndexEntry {
   markdown: string;
 }
@@ -34,31 +32,35 @@ interface OnlineStoryBrowserProps {
   showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
 }
 
-function truncate(str: string, len: number): string {
+function truncateText(str: string, len: number): string {
   if (!str) return '';
   return str.length <= len ? str : str.slice(0, len) + '\u2026';
 }
 
-function formatDate(iso: string): string {
+function formatDisplayDate(iso: string): string {
   try {
     const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
     return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  } catch { return iso; }
+  } catch {
+    return iso;
+  }
 }
 
-function formatLabel(val: string | undefined): string {
+function formatDisplayLabel(val: string | undefined): string {
   if (!val || val === 'default' || val === 'none') return '\u2014';
   return val.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-/** Fetch full story content from the individual JSON file */
+function matchesQuery(value: string | undefined, query: string): boolean {
+  return (value || '').toLowerCase().includes(query);
+}
+
 async function fetchStoryContent(entry: StoryIndexEntry): Promise<OnlineStory> {
   const res = await fetch(`./stories/${entry.file}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
-
-// ─── Detail panel (shown after fetching full story) ─────────────────────
 
 function StoryDetailPanel({ entry, onBack, onLoad, showToast }: {
   entry: StoryIndexEntry;
@@ -70,13 +72,24 @@ function StoryDetailPanel({ entry, onBack, onLoad, showToast }: {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
+
     fetchStoryContent(entry)
-      .then(s => { setStory(s); setLoading(false); })
+      .then(nextStory => {
+        if (cancelled) return;
+        setStory(nextStory);
+        setLoading(false);
+      })
       .catch(() => {
+        if (cancelled) return;
         showToast('Could not load story content.', 'error');
         setLoading(false);
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, [entry, showToast]);
 
   if (loading) {
@@ -85,7 +98,7 @@ function StoryDetailPanel({ entry, onBack, onLoad, showToast }: {
 
   return (
     <div className="lib-info-panel">
-      <button className="lib-info-back" onClick={onBack}>
+      <button type="button" className="lib-info-back" onClick={onBack}>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         Back to list
       </button>
@@ -95,11 +108,11 @@ function StoryDetailPanel({ entry, onBack, onLoad, showToast }: {
       <div className="lib-info-grid">
         <div className="lib-info-item">
           <span className="lib-info-label">Author</span>
-          <span className="lib-info-value">{entry.author}</span>
+          <span className="lib-info-value">{entry.author || '\u2014'}</span>
         </div>
         <div className="lib-info-item">
           <span className="lib-info-label">Date</span>
-          <span className="lib-info-value">{formatDate(entry.date)}</span>
+          <span className="lib-info-value">{formatDisplayDate(entry.date)}</span>
         </div>
         {entry.wordCount != null && (
           <div className="lib-info-item">
@@ -126,39 +139,33 @@ function StoryDetailPanel({ entry, onBack, onLoad, showToast }: {
             <span className="lib-info-label">Audience</span>
             <span className="lib-info-value">{entry.audience || '\u2014'}</span>
           </div>
-          {entry.framework && (
-            <div className="lib-info-item">
-              <span className="lib-info-label">Framework</span>
-              <span className="lib-info-value">{entry.framework}</span>
-            </div>
-          )}
-          {entry.style && (
-            <div className="lib-info-item">
-              <span className="lib-info-label">Style</span>
-              <span className="lib-info-value">{entry.style}</span>
-            </div>
-          )}
+          <div className="lib-info-item">
+            <span className="lib-info-label">Framework</span>
+            <span className="lib-info-value">{entry.framework || '\u2014'}</span>
+          </div>
+          <div className="lib-info-item">
+            <span className="lib-info-label">Style</span>
+            <span className="lib-info-value">{entry.style || '\u2014'}</span>
+          </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Tone</span>
-            <span className="lib-info-value">{formatLabel(entry.tone)}</span>
+            <span className="lib-info-value">{formatDisplayLabel(entry.tone)}</span>
           </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Humor</span>
-            <span className="lib-info-value">{formatLabel(entry.humor)}</span>
+            <span className="lib-info-value">{formatDisplayLabel(entry.humor)}</span>
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-        <button className="primary-btn" onClick={() => story && onLoad(story)} disabled={!story}>
+        <button type="button" className="btn btn-primary" onClick={() => story && onLoad(story)} disabled={!story}>
           Load This Story
         </button>
       </div>
     </div>
   );
 }
-
-// ─── Main browser component ─────────────────────────────────────────────
 
 export function OnlineStoryBrowser({ onLoad, onClose, showToast }: OnlineStoryBrowserProps) {
   const [index, setIndex] = useState<StoryIndexEntry[]>([]);
@@ -171,54 +178,62 @@ export function OnlineStoryBrowser({ onLoad, onClose, showToast }: OnlineStoryBr
   const [loadingStoryId, setLoadingStoryId] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
+
     fetch('./stories-index.json')
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data: StoryIndexEntry[]) => {
+        if (cancelled) return;
         setIndex(data);
         setLoading(false);
       })
       .catch(err => {
+        if (cancelled) return;
         setError('Could not load the story database.');
         setLoading(false);
         console.error('Failed to load stories-index.json:', err);
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
     let list = index;
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.toLowerCase().trim();
       list = list.filter(s =>
-        s.title.toLowerCase().includes(q) ||
-        s.characters.toLowerCase().includes(q) ||
-        s.author.toLowerCase().includes(q) ||
-        (s.tags && s.tags.some(t => t.toLowerCase().includes(q)))
+        matchesQuery(s.title, q) ||
+        matchesQuery(s.characters, q) ||
+        matchesQuery(s.author, q) ||
+        (s.tags && s.tags.some(tag => tag.toLowerCase().includes(q)))
       );
     }
-    list = [...list].sort((a, b) => {
+
+    return [...list].sort((a, b) => {
       let cmp = 0;
-      if (sortField === 'title') cmp = a.title.localeCompare(b.title);
-      else if (sortField === 'author') cmp = a.author.localeCompare(b.author);
-      else cmp = a.date.localeCompare(b.date);
+      if (sortField === 'title') cmp = (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' });
+      else if (sortField === 'author') cmp = (a.author || '').localeCompare(b.author || '', undefined, { sensitivity: 'base' });
+      else cmp = (a.date || '').localeCompare(b.date || '');
       return sortDir === 'asc' ? cmp : -cmp;
     });
-    return list;
   }, [index, search, sortField, sortDir]);
 
   const toggleSort = useCallback((field: SortField) => {
     if (sortField === field) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir(field === 'date' ? 'desc' : 'asc');
+      setSortDir(currentDir => currentDir === 'asc' ? 'desc' : 'asc');
+      return;
     }
+
+    setSortField(field);
+    setSortDir(field === 'date' ? 'desc' : 'asc');
   }, [sortField]);
 
-  /** Directly load a story (fetch content then pass to parent) */
   const handleDirectLoad = useCallback(async (entry: StoryIndexEntry) => {
     setLoadingStoryId(entry.id);
     try {
@@ -236,32 +251,40 @@ export function OnlineStoryBrowser({ onLoad, onClose, showToast }: OnlineStoryBr
     sortField === field ? (sortDir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal lib-modal" onClick={e => e.stopPropagation()}>
+    <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal-content modal-xl lib-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Story Database ({index.length})</h2>
-          <button className="modal-close" onClick={onClose} aria-label="Close">&times;</button>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">&times;</button>
         </div>
 
         {selectedEntry ? (
           <StoryDetailPanel
             entry={selectedEntry}
             onBack={() => setSelectedEntry(null)}
-            onLoad={(story) => { onLoad(story); showToast(`Loaded: ${story.title}`, 'success'); }}
+            onLoad={(story) => {
+              onLoad(story);
+              showToast(`Loaded: ${story.title}`, 'success');
+            }}
             showToast={showToast}
           />
         ) : (
           <>
             <div className="lib-search-bar">
-              <input type="text" placeholder="Search by title, characters, author, or tags\u2026" value={search} onChange={e => setSearch(e.target.value)} />
+              <input
+                type="text"
+                placeholder="Search by title, characters, author, or tags\u2026"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
             </div>
 
             {loading ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>Loading stories\u2026</div>
+              <div className="lib-empty">Loading stories\u2026</div>
             ) : error ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-error, #c33)' }}>{error}</div>
+              <div className="lib-empty lib-empty-error">{error}</div>
             ) : filtered.length === 0 ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <div className="lib-empty">
                 {search.trim() ? 'No stories match your search.' : 'No stories in the database yet.'}
               </div>
             ) : (
@@ -276,16 +299,17 @@ export function OnlineStoryBrowser({ onLoad, onClose, showToast }: OnlineStoryBr
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((entry, i) => (
-                      <tr key={entry.id} className={i % 2 === 1 ? 'lib-row-alt' : ''}>
-                        <td>{truncate(entry.title, 40)}</td>
-                        <td>{truncate(entry.author, 25)}</td>
-                        <td>{formatDate(entry.date)}</td>
+                    {filtered.map((entry, indexPosition) => (
+                      <tr key={entry.id} className={indexPosition % 2 === 1 ? 'lib-row-alt' : ''}>
+                        <td title={entry.title}>{truncateText(entry.title, 40)}</td>
+                        <td title={entry.author}>{truncateText(entry.author, 25)}</td>
+                        <td>{formatDisplayDate(entry.date)}</td>
                         <td className="lib-actions-cell">
-                          <button className="lib-action-btn" title="View details" onClick={() => setSelectedEntry(entry)}>
+                          <button type="button" className="lib-action-btn" title="View details" onClick={() => setSelectedEntry(entry)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                           </button>
                           <button
+                            type="button"
                             className="lib-action-btn"
                             title="Load this story"
                             disabled={loadingStoryId === entry.id}

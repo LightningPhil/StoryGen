@@ -10,28 +10,35 @@ interface StoryLibraryModalProps {
   showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
 }
 
-function truncate(str: string, len: number): string {
+function truncateText(str: string, len: number): string {
   if (!str) return '';
-  return str.length <= len ? str : str.slice(0, len) + '…';
+  return str.length <= len ? str : str.slice(0, len) + '\u2026';
 }
 
-function formatDate(iso: string): string {
+function formatLibraryDate(iso: string): string {
   try {
     const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
     return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
       + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  } catch { return iso; }
+  } catch {
+    return iso;
+  }
 }
 
-function formatLabel(val: string | undefined): string {
-  if (!val || val === 'default' || val === 'none') return '—';
+function formatDisplayLabel(val: string | undefined): string {
+  if (!val || val === 'default' || val === 'none') return '\u2014';
   return val.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function matchesQuery(value: string | undefined, query: string): boolean {
+  return (value || '').toLowerCase().includes(query);
 }
 
 function StoryInfoPanel({ story, onBack }: { story: SavedStory; onBack: () => void }) {
   return (
     <div className="lib-info-panel">
-      <button className="lib-info-back" onClick={onBack}>
+      <button type="button" className="lib-info-back" onClick={onBack}>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         Back to list
       </button>
@@ -41,7 +48,7 @@ function StoryInfoPanel({ story, onBack }: { story: SavedStory; onBack: () => vo
       <div className="lib-info-grid">
         <div className="lib-info-item">
           <span className="lib-info-label">Date Created</span>
-          <span className="lib-info-value">{formatDate(story.date)}</span>
+          <span className="lib-info-value">{formatLibraryDate(story.date)}</span>
         </div>
         {story.wordCount != null && (
           <div className="lib-info-item">
@@ -62,11 +69,11 @@ function StoryInfoPanel({ story, onBack }: { story: SavedStory; onBack: () => vo
         <div className="lib-info-grid">
           <div className="lib-info-item lib-info-item--wide">
             <span className="lib-info-label">Characters</span>
-            <span className="lib-info-value">{story.characters || '—'}</span>
+            <span className="lib-info-value">{story.characters || '\u2014'}</span>
           </div>
           <div className="lib-info-item lib-info-item--wide">
             <span className="lib-info-label">Target Audience</span>
-            <span className="lib-info-value">{story.audience || '—'}</span>
+            <span className="lib-info-value">{story.audience || '\u2014'}</span>
           </div>
           {story.plotPoints && (
             <div className="lib-info-item lib-info-item--wide">
@@ -82,27 +89,27 @@ function StoryInfoPanel({ story, onBack }: { story: SavedStory; onBack: () => vo
         <div className="lib-info-grid">
           <div className="lib-info-item">
             <span className="lib-info-label">Framework</span>
-            <span className="lib-info-value">{story.framework || '—'}</span>
+            <span className="lib-info-value">{story.framework || '\u2014'}</span>
           </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Authorial Style</span>
-            <span className="lib-info-value">{story.style || '—'}</span>
+            <span className="lib-info-value">{story.style || '\u2014'}</span>
           </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Tone</span>
-            <span className="lib-info-value">{formatLabel(story.tone)}</span>
+            <span className="lib-info-value">{formatDisplayLabel(story.tone)}</span>
           </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Pacing</span>
-            <span className="lib-info-value">{formatLabel(story.pacing)}</span>
+            <span className="lib-info-value">{formatDisplayLabel(story.pacing)}</span>
           </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Humor Style</span>
-            <span className="lib-info-value">{formatLabel(story.humor)}</span>
+            <span className="lib-info-value">{formatDisplayLabel(story.humor)}</span>
           </div>
           <div className="lib-info-item">
             <span className="lib-info-label">Emotional Journey</span>
-            <span className="lib-info-value">{formatLabel(story.emotion)}</span>
+            <span className="lib-info-value">{formatDisplayLabel(story.emotion)}</span>
           </div>
           {story.readingAge != null && (
             <div className="lib-info-item">
@@ -132,24 +139,41 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
   const [infoStory, setInfoStory] = useState<SavedStory | null>(null);
 
   useEffect(() => {
-    getAllStories().then(s => { setStories(s); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
+    let cancelled = false;
+    setLoading(true);
+
+    getAllStories()
+      .then(nextStories => {
+        if (cancelled) return;
+        setStories(nextStories);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoading(false);
+        showToast('Could not load saved stories.', 'error');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showToast]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     let list = stories;
     if (q) {
       list = stories.filter(s =>
-        s.title.toLowerCase().includes(q) ||
-        s.characters.toLowerCase().includes(q) ||
-        s.framework.toLowerCase().includes(q) ||
-        s.style.toLowerCase().includes(q)
+        matchesQuery(s.title, q) ||
+        matchesQuery(s.characters, q) ||
+        matchesQuery(s.framework, q) ||
+        matchesQuery(s.style, q)
       );
     }
+
     return [...list].sort((a, b) => {
       if (sortField === 'title') {
-        const cmp = a.title.localeCompare(b.title, undefined, { sensitivity: 'base' });
+        const cmp = (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' });
         return sortDir === 'asc' ? cmp : -cmp;
       }
       const cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
@@ -159,14 +183,20 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
 
   const toggleSort = useCallback((field: SortField) => {
     if (sortField === field) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir(field === 'date' ? 'desc' : 'asc');
+      setSortDir(currentDir => currentDir === 'asc' ? 'desc' : 'asc');
+      return;
     }
+
+    setSortField(field);
+    setSortDir(field === 'date' ? 'desc' : 'asc');
   }, [sortField]);
 
-  const handleDelete = useCallback(async (id: number) => {
+  const handleDelete = useCallback(async (id: number | undefined) => {
+    if (id == null) {
+      showToast('This story cannot be deleted because it has no library id.', 'error');
+      return;
+    }
+
     try {
       await deleteStoryFromLibrary(id);
       setStories(prev => prev.filter(s => s.id !== id));
@@ -190,8 +220,8 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
   }, []);
 
   const sortArrow = (field: SortField) => {
-    if (sortField !== field) return <span className="lib-sort-arrow lib-sort-arrow--inactive">↕</span>;
-    return <span className="lib-sort-arrow">{sortDir === 'asc' ? '↑' : '↓'}</span>;
+    if (sortField !== field) return <span className="lib-sort-arrow lib-sort-arrow--inactive">\u2195</span>;
+    return <span className="lib-sort-arrow">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>;
   };
 
   return (
@@ -199,14 +229,13 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
       <div className="modal-content modal-xl lib-modal">
         <header className="modal-header">
           <h2>Story Library</h2>
-          <button className="modal-close" aria-label="Close modal" onClick={onClose}>&times;</button>
+          <button type="button" className="modal-close" aria-label="Close modal" onClick={onClose}>&times;</button>
         </header>
 
         {infoStory ? (
           <StoryInfoPanel story={infoStory} onBack={() => setInfoStory(null)} />
         ) : (
           <>
-            {/* Toolbar */}
             <div className="lib-toolbar">
               <div className="lib-search-wrap">
                 <svg className="lib-search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -215,71 +244,75 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
                 <input
                   className="lib-search"
                   type="text"
-                  placeholder="Search stories…"
+                  placeholder="Search stories\u2026"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   autoFocus
                 />
                 {search && (
-                  <button className="lib-search-clear" onClick={() => setSearch('')} aria-label="Clear search">&times;</button>
+                  <button type="button" className="lib-search-clear" onClick={() => setSearch('')} aria-label="Clear search">&times;</button>
                 )}
               </div>
               <span className="lib-count">
-                {loading ? '…' : `${filtered.length} stor${filtered.length === 1 ? 'y' : 'ies'}`}
+                {loading ? '\u2026' : `${filtered.length} stor${filtered.length === 1 ? 'y' : 'ies'}`}
               </span>
             </div>
 
-            {/* Column headers */}
             <div className="lib-header-row">
-              <button className="lib-col lib-col-title lib-col-sortable" onClick={() => toggleSort('title')}>
+              <button type="button" className="lib-col lib-col-title lib-col-sortable" onClick={() => toggleSort('title')}>
                 Title {sortArrow('title')}
               </button>
               <span className="lib-col lib-col-chars">Characters</span>
-              <button className="lib-col lib-col-date lib-col-sortable" onClick={() => toggleSort('date')}>
+              <button type="button" className="lib-col lib-col-date lib-col-sortable" onClick={() => toggleSort('date')}>
                 Date {sortArrow('date')}
               </button>
               <span className="lib-col lib-col-actions">Actions</span>
             </div>
 
-            {/* Story list */}
             <div className="lib-list">
               {loading ? (
-                <div className="lib-empty">Loading stories…</div>
+                <div className="lib-empty">Loading stories\u2026</div>
               ) : filtered.length === 0 ? (
                 <div className="lib-empty">
                   {search ? 'No stories match your search.' : 'No saved stories yet. Generate a story and it will appear here.'}
                 </div>
               ) : (
                 filtered.map(story => (
-                  <div key={story.id} className="lib-row">
+                  <div key={story.id ?? `${story.title}-${story.date}`} className="lib-row">
                     <span className="lib-col lib-col-title lib-title-text" title={story.title}>
                       {story.title}
                     </span>
                     <span className="lib-col lib-col-chars" title={story.characters}>
-                      {truncate(story.characters, 40)}
+                      {truncateText(story.characters || '', 40)}
                     </span>
                     <span className="lib-col lib-col-date">
-                      {formatDate(story.date)}
+                      {formatLibraryDate(story.date)}
                     </span>
                     <span className="lib-col lib-col-actions">
                       {confirmDeleteId === story.id ? (
                         <span className="lib-confirm-delete">
                           <span className="lib-confirm-text">Delete?</span>
-                          <button className="lib-action-btn lib-action-btn--danger" title="Confirm delete" onClick={() => handleDelete(story.id!)}>Yes</button>
-                          <button className="lib-action-btn" title="Cancel" onClick={() => setConfirmDeleteId(null)}>No</button>
+                          <button type="button" className="lib-action-btn lib-action-btn--danger" title="Confirm delete" onClick={() => handleDelete(story.id)}>Yes</button>
+                          <button type="button" className="lib-action-btn" title="Cancel" onClick={() => setConfirmDeleteId(null)}>No</button>
                         </span>
                       ) : (
                         <>
-                          <button className="lib-action-btn" title="Story info" onClick={() => setInfoStory(story)}>
+                          <button type="button" className="lib-action-btn" title="Story info" onClick={() => setInfoStory(story)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                           </button>
-                          <button className="lib-action-btn lib-action-btn--primary" title="Load story" onClick={() => onLoad(story)}>
+                          <button type="button" className="lib-action-btn lib-action-btn--primary" title="Load story" onClick={() => onLoad(story)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                           </button>
-                          <button className="lib-action-btn" title="Download as Markdown" onClick={() => handleDownload(story)}>
+                          <button type="button" className="lib-action-btn" title="Download as Markdown" onClick={() => handleDownload(story)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                           </button>
-                          <button className="lib-action-btn lib-action-btn--danger" title="Delete story" onClick={() => setConfirmDeleteId(story.id!)}>
+                          <button
+                            type="button"
+                            className="lib-action-btn lib-action-btn--danger"
+                            title={story.id == null ? 'Story cannot be deleted' : 'Delete story'}
+                            onClick={() => story.id != null && setConfirmDeleteId(story.id)}
+                            disabled={story.id == null}
+                          >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                           </button>
                         </>
@@ -293,7 +326,7 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
         )}
 
         <footer className="modal-footer">
-          <button className="btn btn-primary" onClick={onClose}>Close</button>
+          <button type="button" className="btn btn-primary" onClick={onClose}>Close</button>
         </footer>
       </div>
     </div>

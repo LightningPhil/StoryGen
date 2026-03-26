@@ -175,7 +175,7 @@ export function SettingsModal(props: SettingsModalProps) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: 'var(--card-bg, rgba(255,255,255,0.85))',
+                    background: 'var(--bg-panel, rgba(255,255,255,0.85))',
                     borderRadius: '0.35rem',
                     zIndex: 2,
                     gap: '0.5rem',

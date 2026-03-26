@@ -208,6 +208,32 @@ export default function App() {
     setSelectedWord(word);
   }, []);
 
+  const loadStoryIntoApp = useCallback((title: string, markdown: string) => {
+    const nextTitle = title.trim() || 'Untitled Story';
+    appState.latestGeneratedStoryTitle = nextTitle;
+    appState.latestGeneratedStoryText = markdown;
+    setStoryTitle(nextTitle);
+    setStoryHtml(formatStoryAsHtml(markdown));
+    setStatusText('');
+    setHasStory(true);
+    setAssistEnabled(true);
+    setSelectedWord('');
+    setActiveTab('story');
+  }, []);
+
+  useEffect(() => {
+    const handleFileLoaded = (event: Event) => {
+      const detail = (event as CustomEvent<{ title?: string; text?: string }>).detail;
+      if (!detail?.text) return;
+      loadStoryIntoApp(detail.title || 'Untitled Story', detail.text);
+    };
+
+    window.addEventListener('storygen:file-loaded', handleFileLoaded as EventListener);
+    return () => {
+      window.removeEventListener('storygen:file-loaded', handleFileLoaded as EventListener);
+    };
+  }, [loadStoryIntoApp]);
+
   // Combine age group and audience text into a single audience string for the pipeline
   const buildAudience = useCallback((): string => {
     const AGE_LABELS: Record<string, string> = {
@@ -284,6 +310,8 @@ export default function App() {
     setStoryHtml('');
     setStatusText('');
     setAssistEnabled(false);
+    setSelectedWord('');
+    setActiveTab('story');
     appState.clearChatLog();
 
     // Build pipeline inputs
@@ -363,13 +391,7 @@ export default function App() {
       const title = (result.titleText || 'Untitled Story').trim();
       const story = (result.storyText || '').trim();
 
-      appState.latestGeneratedStoryTitle = title;
-      appState.latestGeneratedStoryText = story;
-
-      setStoryTitle(title);
-      setStoryHtml(formatStoryAsHtml(story));
-      setHasStory(true);
-      setAssistEnabled(true);
+      loadStoryIntoApp(title, story);
       showToast('Story generated successfully!', 'success');
 
       const wordCount = countWords(story);
@@ -412,7 +434,7 @@ export default function App() {
   }, [apiKey, characters, audience, ageGroup, buildAudience, selectedFramework, selectedStyle, selectedModel, adjustReadingAge,
     targetReadingAge, enableConsolidator, toneAdj, pacingAdj, humorAdj, emotionAdj,
     thinkingEnabled, agentThinking, stemConcept, userSuggestions, includePlotPoints,
-    minApiInterval, availableModels, getCurrentSensitivitySettings, showToast]);
+    minApiInterval, availableModels, getCurrentSensitivitySettings, loadStoryIntoApp, showToast]);
 
   // ─── Elaborate story ──────────────────────────────────────────────────
   const handleElaborateStory = useCallback(async () => {
@@ -463,10 +485,7 @@ export default function App() {
       );
 
       const story = (result.storyText || '').trim();
-      appState.latestGeneratedStoryText = story;
-
-      setStoryHtml(formatStoryAsHtml(story));
-      setHasStory(true);
+      loadStoryIntoApp(appState.latestGeneratedStoryTitle || storyTitle || 'Untitled Story', story);
       showToast('Story elaborated successfully!', 'success');
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
@@ -475,7 +494,7 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, selectedModel, characters, audience, ageGroup, buildAudience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, showToast]);
+  }, [apiKey, selectedModel, characters, audience, ageGroup, buildAudience, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, loadStoryIntoApp, showToast, storyTitle]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
@@ -712,10 +731,7 @@ export default function App() {
       {libraryOpen && (
         <StoryLibraryModal
           onLoad={(story) => {
-            setStoryTitle(story.title);
-            setStoryHtml(formatStoryAsHtml(story.markdown));
-            appState.latestGeneratedStoryText = story.markdown;
-            setHasStory(true);
+            loadStoryIntoApp(story.title, story.markdown);
             setLibraryOpen(false);
             showToast(`Loaded: ${story.title}`, 'success');
           }}
@@ -727,11 +743,7 @@ export default function App() {
       {onlineBrowserOpen && (
         <OnlineStoryBrowser
           onLoad={(story) => {
-            setStoryTitle(story.title);
-            setStoryHtml(formatStoryAsHtml(story.markdown));
-            appState.latestGeneratedStoryText = story.markdown;
-            appState.latestGeneratedStoryTitle = story.title;
-            setHasStory(true);
+            loadStoryIntoApp(story.title, story.markdown);
             setOnlineBrowserOpen(false);
           }}
           onClose={() => setOnlineBrowserOpen(false)}
