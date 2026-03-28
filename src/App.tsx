@@ -11,6 +11,7 @@ import { Toast, ToastContainer } from './components/Toast';
 import {
   saveToLocalStorage,
   loadFromLocalStorage,
+  clearAllAppData,
   LS_THEME,
   LS_CHARACTERS,
   LS_AUDIENCE,
@@ -59,7 +60,7 @@ import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts';
 import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline';
 import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
-import type { SensitivitySettings, ModelConfig } from './types';
+import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
 import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
 import { StoryMetadataModal } from './components/StoryMetadataModal';
 import type { StoryMetadata } from './components/StoryInfoPanel';
@@ -68,6 +69,27 @@ export interface ToastMessage {
   id: number;
   message: string;
   type: 'info' | 'success' | 'error' | 'warning';
+}
+
+type AgentThinkingKey =
+  | 'crafter'
+  | 'elaborator'
+  | 'reviewer'
+  | 'polisher'
+  | 'cleaner'
+  | 'titler'
+  | 'consolidator';
+
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeReadingAgeRange(min: number, max: number): { min: number; max: number } {
+  const safeMin = clampNumber(Number.isFinite(min) ? min : 5, 3, 18);
+  const safeMax = clampNumber(Number.isFinite(max) ? max : 12, 3, 18);
+  return safeMin <= safeMax
+    ? { min: safeMin, max: safeMax }
+    : { min: safeMax, max: safeMin };
 }
 
 export default function App() {
@@ -155,7 +177,7 @@ export default function App() {
   }));
   const [ttsSource, setTtsSource] = useState(() => loadFromLocalStorage(LS_TTS_SOURCE) || 'browser');
   const [ttsGender, setTtsGender] = useState(() => loadFromLocalStorage(LS_TTS_GENDER) || 'female');
-  const [ttsVoice, setTtsVoice] = useState(() => loadFromLocalStorage(LS_TTS_VOICE) || '');
+  const [ttsVoice, setTtsVoice] = useState(() => loadFromLocalStorage(LS_TTS_VOICE) || 'Google UK English Female');
 
   // ─── Dynamic model discovery ───────────────────────────────────────────
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>([DEFAULT_MODEL_CONFIG]);
@@ -190,8 +212,9 @@ export default function App() {
   const [statusText, setStatusText] = useState('');
   const [hasStory, setHasStory] = useState(false);
   const [activeTab, setActiveTab] = useState<'story' | 'options' | 'assist'>('story');
-  const [assistEnabled, setAssistEnabled] = useState(false);
+  const [assistEnabled, setAssistEnabled] = useState(true);
   const [selectedWord, setSelectedWord] = useState('');
+  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null);
   const storyContentRef = useRef<HTMLElement>(null);
   const [loadedStoryMeta, setLoadedStoryMeta] = useState<StoryMetadata | null>(null);
   const [metadataModalOpen, setMetadataModalOpen] = useState(false);
@@ -202,14 +225,16 @@ export default function App() {
   const updateAgeGroup = useCallback((v: string) => { setAgeGroup(v); saveToLocalStorage(LS_AGE_GROUP, v); }, []);
 
   // Word click in story → switch to Assist tab and look up word
-  const handleWordClick = useCallback((word: string) => {
+  const handleWordClick = useCallback((word: string, wordIndex: number | null) => {
     setSelectedWord(word);
+    setSelectedWordIndex(wordIndex);
     if (word) setActiveTab('assist');
   }, []);
 
   // Allow AssistPanel synonym/antonym chips to trigger a new lookup
   const handleWordLookup = useCallback((word: string) => {
     setSelectedWord(word);
+    setSelectedWordIndex(null);
   }, []);
 
   const loadStoryIntoApp = useCallback((title: string, markdown: string) => {
@@ -222,7 +247,8 @@ export default function App() {
     setHasStory(true);
     setAssistEnabled(true);
     setSelectedWord('');
-    setActiveTab('story');
+    setSelectedWordIndex(null);
+    setActiveTab('assist');
   }, []);
 
   useEffect(() => {
@@ -261,6 +287,48 @@ export default function App() {
     }
     return 'children aged 5-7';
   }, [ageGroup, audience]);
+
+  const buildReadingAgeNote = useCallback((): string => {
+    if (!adjustReadingAge) {
+      return '';
+    }
+
+    const age = String(targetReadingAge);
+    return READING_AGE_ADJUSTMENT_TEXT_TEMPLATE
+      .replace(/\$\{targetReadingAge\}/g, age)
+      .replace(/\$\{TARGET_READING_AGE\}/g, age);
+  }, [adjustReadingAge, targetReadingAge]);
+
+  const buildAdjustmentModulesText = useCallback((): string => {
+    const adjustmentTexts: string[] = [];
+    if (toneAdj !== 'default' && ADJUSTMENT_MODULES.tone?.[toneAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.tone[toneAdj]);
+    if (pacingAdj !== 'default' && ADJUSTMENT_MODULES.pacing?.[pacingAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.pacing[pacingAdj]);
+    if (humorAdj !== 'default' && ADJUSTMENT_MODULES.humor?.[humorAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.humor[humorAdj]);
+    if (emotionAdj !== 'default' && ADJUSTMENT_MODULES.emotion?.[emotionAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.emotion[emotionAdj]);
+    return adjustmentTexts.join('\n\n');
+  }, [toneAdj, pacingAdj, humorAdj, emotionAdj]);
+
+  const buildAgentThinkingConfig = useCallback((modelConfig?: ModelConfig): Record<string, boolean> => {
+    if (!modelConfig?.supportsThinking || !thinkingEnabled) {
+      return {};
+    }
+
+    const agentNames: Record<AgentThinkingKey, string> = {
+      crafter: 'Agent 1: Story Crafter',
+      elaborator: 'Agent 2: Elaborator',
+      reviewer: 'Agent 3: Reviewer',
+      polisher: 'Agent 4: Polisher',
+      cleaner: 'Agent 5: Cleaner',
+      titler: 'Agent 6: Titler',
+      consolidator: 'Agent C: Consolidator',
+    };
+
+    return (Object.keys(agentNames) as AgentThinkingKey[]).reduce<Record<string, boolean>>((config, key) => {
+      config[agentNames[key]] = agentThinking[key];
+      return config;
+    }, {});
+  }, [agentThinking, thinkingEnabled]);
+
   const updateUserSuggestions = useCallback((v: string) => { setUserSuggestions(v); saveToLocalStorage(LS_USER_SUGGESTIONS, v); }, []);
   
   const updateFramework = useCallback((v: string) => {
@@ -303,6 +371,49 @@ export default function App() {
     return { conflict: conflictLevel, scary: scaryLevel, sadness: sadnessLevel, complexity: complexityLevel };
   }, [sensitivityPreset, conflictLevel, scaryLevel, sadnessLevel, complexityLevel]);
 
+  const buildCommonInputs = useCallback((modelConfig?: ModelConfig): CommonInputs => {
+    let frameworkGuide = STORY_CRAFTING_GUIDES[selectedFramework] || '';
+    if (selectedFramework === 'Learning Fable (STEM)' && stemConcept) {
+      frameworkGuide += `\n\nSTEM Concept to teach: ${stemConcept}`;
+    }
+
+    const userSuggestionsText = includePlotPoints && userSuggestions.trim()
+      ? `\n\nUser-provided plot points and story directions:\n${userSuggestions.trim()}`
+      : '';
+    const sensitivitySettings = getCurrentSensitivitySettings();
+
+    return {
+      apiKey,
+      modelId: selectedModel,
+      minApiIntervalMs: minApiInterval * 1000,
+      audience: buildAudience(),
+      CRAFT_GUIDE_TEXT: frameworkGuide,
+      READING_AGE_NOTE: buildReadingAgeNote(),
+      USER_SUGGESTIONS_TEXT: userSuggestionsText,
+      enableConsolidator,
+      AUTHOR_STYLE_GUIDE: STORY_STYLE_GUIDES[selectedStyle] || '',
+      ADJUSTMENT_MODULES_TEXT: buildAdjustmentModulesText(),
+      NARRATOR_PERSONA_TEXT: '',
+      SENSITIVITY_GUIDANCE_TEXT: sensitivitySettings ? getSensitivityGuidance(sensitivitySettings) : '',
+      agentThinkingConfig: buildAgentThinkingConfig(modelConfig),
+    };
+  }, [
+    apiKey,
+    selectedModel,
+    minApiInterval,
+    buildAudience,
+    selectedFramework,
+    stemConcept,
+    buildReadingAgeNote,
+    includePlotPoints,
+    userSuggestions,
+    enableConsolidator,
+    selectedStyle,
+    buildAdjustmentModulesText,
+    getCurrentSensitivitySettings,
+    buildAgentThinkingConfig,
+  ]);
+
   // ─── Generate story ───────────────────────────────────────────────────
   const handleGenerateStory = useCallback(async () => {
     if (!apiKey) { showToast('Please set your API key in Settings.', 'error'); return; }
@@ -314,69 +425,16 @@ export default function App() {
     setStoryTitle('Generating...');
     setStoryHtml('');
     setStatusText('');
-    setAssistEnabled(false);
+    setAssistEnabled(true);
     setSelectedWord('');
+    setSelectedWordIndex(null);
     setActiveTab('story');
     setLoadedStoryMeta(null);
     setMetadataModalOpen(false);
     appState.clearChatLog();
 
-    // Build pipeline inputs
     const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
-    const frameworkGuide = STORY_CRAFTING_GUIDES[selectedFramework] || '';
-    const styleGuide = STORY_STYLE_GUIDES[selectedStyle] || '';
-
-    let readingAgeNote = '';
-    if (adjustReadingAge) {
-      readingAgeNote = READING_AGE_ADJUSTMENT_TEXT_TEMPLATE.replace('${TARGET_READING_AGE}', String(targetReadingAge));
-    }
-
-    const adjustmentTexts: string[] = [];
-    if (toneAdj !== 'default' && ADJUSTMENT_MODULES.tone?.[toneAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.tone[toneAdj]);
-    if (pacingAdj !== 'default' && ADJUSTMENT_MODULES.pacing?.[pacingAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.pacing[pacingAdj]);
-    if (humorAdj !== 'default' && ADJUSTMENT_MODULES.humor?.[humorAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.humor[humorAdj]);
-    if (emotionAdj !== 'default' && ADJUSTMENT_MODULES.emotion?.[emotionAdj]) adjustmentTexts.push(ADJUSTMENT_MODULES.emotion[emotionAdj]);
-
-    const sensitivitySettings = getCurrentSensitivitySettings();
-    const sensitivityGuidance = sensitivitySettings ? getSensitivityGuidance(sensitivitySettings) : '';
-
-    // Build thinking config
-    const thinkingConfig: Record<string, boolean> = {};
-    if (modelConfig.supportsThinking && thinkingEnabled) {
-      thinkingConfig['Agent 1: Story Crafter'] = agentThinking.crafter;
-      thinkingConfig['Agent 2: Story Elaborator'] = agentThinking.elaborator;
-      thinkingConfig['Agent 3: Story Reviewer'] = agentThinking.reviewer;
-      thinkingConfig['Agent 4: Story Polisher'] = agentThinking.polisher;
-      thinkingConfig['Agent 5: Story Cleaner'] = agentThinking.cleaner;
-      thinkingConfig['Agent 6: Story Titler'] = agentThinking.titler;
-      thinkingConfig['Agent C: Story Consolidator'] = agentThinking.consolidator;
-    }
-
-    // STEM augmentation
-    let augmentedFrameworkGuide = frameworkGuide;
-    if (selectedFramework === 'Learning Fable (STEM)' && stemConcept) {
-      augmentedFrameworkGuide += `\n\nSTEM Concept to teach: ${stemConcept}`;
-    }
-
-    const userSuggestionsText = includePlotPoints && userSuggestions.trim()
-      ? `\n\nUser-provided plot points and story directions:\n${userSuggestions.trim()}`
-      : '';
-
-    const commonInputs = {
-      apiKey,
-      modelId: selectedModel,
-      minApiIntervalMs: minApiInterval * 1000,
-      audience: buildAudience(),
-      CRAFT_GUIDE_TEXT: augmentedFrameworkGuide,
-      READING_AGE_NOTE: readingAgeNote,
-      USER_SUGGESTIONS_TEXT: userSuggestionsText,
-      enableConsolidator,
-      AUTHOR_STYLE_GUIDE: styleGuide,
-      ADJUSTMENT_MODULES_TEXT: adjustmentTexts.join('\n\n'),
-      NARRATOR_PERSONA_TEXT: '',
-      SENSITIVITY_GUIDANCE_TEXT: sensitivityGuidance,
-      agentThinkingConfig: thinkingConfig,
-    };
+    const commonInputs = buildCommonInputs(modelConfig);
 
     try {
       const charactersList = parseCharacters(characters);
@@ -458,10 +516,7 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, characters, audience, ageGroup, buildAudience, selectedFramework, selectedStyle, selectedModel, adjustReadingAge,
-    targetReadingAge, enableConsolidator, toneAdj, pacingAdj, humorAdj, emotionAdj,
-    thinkingEnabled, agentThinking, stemConcept, userSuggestions, includePlotPoints,
-    minApiInterval, availableModels, getCurrentSensitivitySettings, loadStoryIntoApp, showToast]);
+  }, [apiKey, characters, ageGroup, selectedModel, availableModels, buildCommonInputs, loadStoryIntoApp, showToast]);
 
   // ─── Elaborate story ──────────────────────────────────────────────────
   const handleElaborateStory = useCallback(async () => {
@@ -475,32 +530,10 @@ export default function App() {
     appState.clearChatLog();
 
     const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
-    const thinkingConfig: Record<string, boolean> = {};
-    if (modelConfig?.supportsThinking && thinkingEnabled) {
-      thinkingConfig['Agent 2: Story Elaborator'] = agentThinking.elaborator;
-      thinkingConfig['Agent 3: Story Reviewer'] = agentThinking.reviewer;
-      thinkingConfig['Agent 4: Story Polisher'] = agentThinking.polisher;
-      thinkingConfig['Agent 5: Story Cleaner'] = agentThinking.cleaner;
-    }
-
-    const commonInputs = {
-      apiKey,
-      modelId: selectedModel,
-      minApiIntervalMs: minApiInterval * 1000,
-      audience: buildAudience(),
-      CRAFT_GUIDE_TEXT: '',
-      READING_AGE_NOTE: '',
-      USER_SUGGESTIONS_TEXT: '',
-      enableConsolidator: false,
-      AUTHOR_STYLE_GUIDE: STORY_STYLE_GUIDES[selectedStyle] || '',
-      ADJUSTMENT_MODULES_TEXT: '',
-      NARRATOR_PERSONA_TEXT: '',
-      SENSITIVITY_GUIDANCE_TEXT: '',
-      agentThinkingConfig: thinkingConfig,
-    };
+    const commonInputs = buildCommonInputs(modelConfig);
 
     try {
-      const pipelineConfig = getElaborationPipelineConfig(false);
+      const pipelineConfig = getElaborationPipelineConfig(enableConsolidator);
       const initialData = {
         storyText: appState.latestGeneratedStoryText,
         reviewText: '',
@@ -546,7 +579,7 @@ export default function App() {
     } finally {
       setIsGenerating(false);
     }
-  }, [apiKey, selectedModel, characters, audience, ageGroup, buildAudience, selectedFramework, selectedStyle, thinkingEnabled, agentThinking, minApiInterval, availableModels, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, toneAdj, pacingAdj, humorAdj, emotionAdj, adjustReadingAge, targetReadingAge, enableConsolidator, includePlotPoints, userSuggestions]);
+  }, [apiKey, selectedModel, availableModels, buildCommonInputs, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, characters, buildAudience, ageGroup, selectedFramework, selectedStyle, toneAdj, pacingAdj, humorAdj, emotionAdj, adjustReadingAge, targetReadingAge, enableConsolidator, includePlotPoints, userSuggestions]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
@@ -597,14 +630,15 @@ export default function App() {
       if (e.ctrlKey && e.shiftKey && e.key === 'R') {
         e.preventDefault();
         if (confirm('Reset all settings and data?')) {
-          localStorage.clear();
-          window.location.reload();
+          clearAllAppData(false);
+          showToast('All StoryGen data reset. Reloading...', 'info');
+          setTimeout(() => window.location.reload(), 500);
         }
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, []);
+  }, [showToast]);
 
   // ─── Render ───────────────────────────────────────────────────────────
   return (
@@ -672,6 +706,7 @@ export default function App() {
           // Assist - pass through for now
           storyOutputRef={storyContentRef}
           selectedWord={selectedWord}
+          selectedWordIndex={selectedWordIndex}
           onWordLookup={handleWordLookup}
           ttsSource={ttsSource}
           ttsGender={ttsGender}
@@ -722,6 +757,9 @@ export default function App() {
           readingAgeMin={readingAgeMin}
           readingAgeMax={readingAgeMax}
           onSave={(settings) => {
+            const normalizedRange = normalizeReadingAgeRange(settings.readingAgeMin, settings.readingAgeMax);
+            const normalizedTargetReadingAge = clampNumber(targetReadingAge, normalizedRange.min, normalizedRange.max);
+
             setApiKey(settings.apiKey); saveToLocalStorage(LS_API_KEY, settings.apiKey);
             setSelectedModel(settings.selectedModel); saveToLocalStorage(LS_SELECTED_MODEL, settings.selectedModel);
             setMinApiInterval(settings.minApiInterval); saveToLocalStorage(LS_MIN_API_INTERVAL, String(settings.minApiInterval));
@@ -737,8 +775,9 @@ export default function App() {
             setTtsSource(settings.ttsSource); saveToLocalStorage(LS_TTS_SOURCE, settings.ttsSource);
             setTtsGender(settings.ttsGender); saveToLocalStorage(LS_TTS_GENDER, settings.ttsGender);
             setTtsVoice(settings.ttsVoice); saveToLocalStorage(LS_TTS_VOICE, settings.ttsVoice);
-            setReadingAgeMin(settings.readingAgeMin); saveToLocalStorage(LS_READING_AGE_MIN, String(settings.readingAgeMin));
-            setReadingAgeMax(settings.readingAgeMax); saveToLocalStorage(LS_READING_AGE_MAX, String(settings.readingAgeMax));
+            setReadingAgeMin(normalizedRange.min); saveToLocalStorage(LS_READING_AGE_MIN, String(normalizedRange.min));
+            setReadingAgeMax(normalizedRange.max); saveToLocalStorage(LS_READING_AGE_MAX, String(normalizedRange.max));
+            setTargetReadingAge(normalizedTargetReadingAge); saveToLocalStorage(LS_TARGET_READING_AGE, String(normalizedTargetReadingAge));
             setSettingsOpen(false);
             showToast('Settings saved', 'success');
           }}

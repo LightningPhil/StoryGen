@@ -89,6 +89,7 @@ interface ControlsPanelProps {
   onGenerate: () => void;
   storyOutputRef: React.RefObject<HTMLElement | null> | null;
   selectedWord: string;
+  selectedWordIndex: number | null;
   onWordLookup: (word: string) => void;
   ttsSource: string;
   ttsGender: string;
@@ -98,7 +99,7 @@ interface ControlsPanelProps {
 
 export function ControlsPanel(props: ControlsPanelProps) {
   const {
-    activeTab, onTabChange, assistEnabled,
+    activeTab, onTabChange,
     theme, onToggleTheme, onOpenSettings, onOpenHelp,
     characters, onCharactersChange, audience, onAudienceChange,
     ageGroup, onAgeGroupChange,
@@ -172,9 +173,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
             onClick={() => onTabChange('assist')}
             role="tab"
             aria-selected={activeTab === 'assist'}
-            aria-disabled={!assistEnabled}
-            disabled={!assistEnabled}
-            title={assistEnabled ? 'Open the Assist panel' : 'Generate or load a story to enable Assist'}
+            title="Open the Assist panel"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             Assist
@@ -318,8 +317,11 @@ export function ControlsPanel(props: ControlsPanelProps) {
           <div className={`tab-panel${activeTab === 'assist' ? ' active' : ''}`} role="tabpanel">
             <AssistPanel
               selectedWord={props.selectedWord}
+              selectedWordIndex={props.selectedWordIndex}
               storyContentRef={props.storyOutputRef as React.RefObject<HTMLElement | null>}
               onWordLookup={props.onWordLookup}
+              ttsSource={props.ttsSource}
+              ttsVoice={props.ttsVoice}
             />
           </div>
         </div>

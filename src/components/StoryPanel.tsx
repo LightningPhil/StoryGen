@@ -16,7 +16,7 @@ interface StoryPanelProps {
   onOpenLibrary: () => void;
   onOpenOnlineBrowser?: () => void;
   onExportJson?: () => void;
-  onWordClick?: (word: string) => void;
+  onWordClick?: (word: string, wordIndex: number | null) => void;
   onShowInfo?: () => void;
   showToast: (msg: string, type?: ToastMessage['type']) => void;
 }
@@ -50,17 +50,18 @@ export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function Stor
       if (!target) {
         // Clicked whitespace — clear selection
         el.querySelectorAll('.story-word.is-selected').forEach(s => s.classList.remove('is-selected'));
-        onWordClick('');
+        onWordClick('', null);
         return;
       }
       const word = target.getAttribute('data-story-word') || target.textContent || '';
       if (!word) return;
+      const wordIndex = Array.from(el.querySelectorAll('.story-word')).indexOf(target);
 
       // Remove previous selection, highlight clicked word
       el.querySelectorAll('.story-word.is-selected').forEach(s => s.classList.remove('is-selected'));
       target.classList.add('is-selected');
 
-      onWordClick(word.trim());
+      onWordClick(word.trim(), wordIndex >= 0 ? wordIndex : null);
     };
 
     el.addEventListener('click', handler);
