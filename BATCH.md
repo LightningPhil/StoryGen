@@ -171,6 +171,6 @@ Generate dozens of stories from a TSV spreadsheet without clicking a single butt
 - **Leave columns blank** to use defaults — you don't need to fill everything
 - The `user_suggestions` column is your free-text elaboration — use it for specific story directions, themes, or requirements
 - The `consolidator` column adds extra compression passes. Use `true` for tighter stories, `false` (default) for more natural length
-- Model used: `gemini-2.0-flash` (fast & reliable for batch work)
+- Model used: `gemini-2.5-flash-lite` (fast & reliable for batch work)
 - Stories output to `stories/inbox/` — run `npm run ingest` to index them into the public library
 - Each story takes ~1–3 minutes depending on pipeline length and API speed

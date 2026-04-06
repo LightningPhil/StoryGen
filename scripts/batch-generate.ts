@@ -33,7 +33,7 @@ import {
 import { SENSITIVITY_LEVELS } from '../src/appState';
 
 // ── Constants ────────────────────────────────────────────────────────────────
-const MODEL_ID = 'gemini-2.0-flash';
+const MODEL_ID = 'gemini-2.5-flash-lite';
 const INTER_STORY_DELAY_MS = 20_000;  // 20s between API calls to avoid rate limits
 const MIN_API_INTERVAL_MS = 4_000;     // 4s between individual agent calls within a pipeline
 const MAX_RETRIES = 4;
