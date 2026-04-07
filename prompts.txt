@@ -1,0 +1,16 @@
+
+
+
+
+
+And now for ages 16 to 18 (ensure the sensitivity is set properly). Call the file batch3-50-age-16-18.tsv
+
+Disable the consolidator step.
+
+a batch of 50 historical stories
+
+
+
+
+
+

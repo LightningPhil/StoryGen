@@ -34,8 +34,7 @@ import { SENSITIVITY_LEVELS } from '../src/appState';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const MODEL_ID = 'gemini-2.5-flash-lite';
-const INTER_STORY_DELAY_MS = 20_000;  // 20s between API calls to avoid rate limits
-const MIN_API_INTERVAL_MS = 4_000;     // 4s between individual agent calls within a pipeline
+const MIN_API_INTERVAL_MS = 0;         // no delay between agent calls within a pipeline
 const MAX_RETRIES = 4;
 const RETRY_DELAYS = [8_000, 15_000, 25_000, 40_000];
 const INBOX_DIR = path.resolve(import.meta.dirname!, '..', 'stories', 'inbox');
@@ -120,17 +119,26 @@ interface CsvRow {
   stem_concept: string;
 }
 
-function parseTsv(filePath: string): CsvRow[] {
+interface ParsedTsv {
+  headerLine: string;
+  dataLines: string[];
+  rows: CsvRow[];
+}
+
+function parseTsv(filePath: string): ParsedTsv {
   const raw = fs.readFileSync(filePath, 'utf-8');
   const lines = raw.split(/\r?\n/).filter(l => l.trim() !== '');
   if (lines.length < 2) {
     throw new Error('TSV must have a header row and at least one data row.');
   }
 
-  const header = lines[0].split('\t').map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+  const headerLine = lines[0];
+  const header = headerLine.split('\t').map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
 
+  const dataLines: string[] = [];
   const rows: CsvRow[] = [];
   for (let i = 1; i < lines.length; i++) {
+    dataLines.push(lines[i]);
     const values = lines[i].split('\t');
     const row: Record<string, string> = {};
     for (let j = 0; j < header.length; j++) {
@@ -138,7 +146,13 @@ function parseTsv(filePath: string): CsvRow[] {
     }
     rows.push(row as unknown as CsvRow);
   }
-  return rows;
+  return { headerLine, dataLines, rows };
+}
+
+/** Rewrite the TSV file keeping only the header + the given remaining data lines. */
+function rewriteTsv(filePath: string, headerLine: string, remainingLines: string[]): void {
+  const content = [headerLine, ...remainingLines].join('\n') + '\n';
+  fs.writeFileSync(filePath, content, 'utf-8');
 }
 
 // ── Resolve short names to full prompt text ─────────────────────────────────
@@ -495,7 +509,10 @@ async function main() {
   console.log(`TSV:    ${tsvPath}`);
   console.log(`Output: ${INBOX_DIR}\n`);
 
-  const rows = parseTsv(tsvPath);
+  const { headerLine, dataLines, rows } = parseTsv(tsvPath);
+  // Track which data lines are still pending (indices into dataLines)
+  const remainingIndices = new Set(dataLines.map((_, i) => i));
+
   console.log(`Found ${rows.length} stories to generate.\n`);
 
   let successCount = 0;
@@ -504,12 +521,6 @@ async function main() {
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     const storyNum = `[${i + 1}/${rows.length}]`;
-
-    // Wait between stories (not before the first one)
-    if (i > 0) {
-      process.stdout.write(`  Waiting ${INTER_STORY_DELAY_MS / 1000}s before next story...\n`);
-      await sleep(INTER_STORY_DELAY_MS);
-    }
 
     console.log(`\n${storyNum} Generating story...`);
     console.log(`  Characters: ${row.characters || '(default)'}`);
@@ -557,6 +568,10 @@ async function main() {
       console.log(`${storyNum} ✓ Saved: "${title || 'Untitled'}" → ${filename} (${countWords(result.storyText)} words)`);
       successCount++;
 
+      // Remove this row from the TSV so it won't be re-processed on restart
+      remainingIndices.delete(i);
+      rewriteTsv(tsvPath, headerLine, dataLines.filter((_, idx) => remainingIndices.has(idx)));
+
     } catch (err: any) {
       failCount++;
       console.error(`${storyNum} ✗ FAILED: ${err.message || err}`);
@@ -566,6 +581,11 @@ async function main() {
 
   console.log('\n════════════════════════════════════════');
   console.log(`Done! ${successCount} succeeded, ${failCount} failed out of ${rows.length} total.`);
+  if (remainingIndices.size > 0) {
+    console.log(`\n${remainingIndices.size} row(s) remain in ${tsvPath} — fix and re-run to retry.`);
+  } else {
+    console.log(`\nAll rows processed — ${path.basename(tsvPath)} now contains only the header.`);
+  }
   if (successCount > 0) {
     console.log(`\nStories saved to: ${INBOX_DIR}`);
     console.log('Run "npm run ingest" to add them to the public library.');
