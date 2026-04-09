@@ -13,15 +13,19 @@
 ---
 
 ### Story Pipeline
-
+    
 #### `npm run batch`
 Batch-generate stories from a TSV file through the full multi-agent pipeline.
 
 ```
 npm run batch
 npm run batch -- stories/my-stories.tsv
-npm run batch -- stories/batch.tsv --api-key=YOUR_KEY
 ```
+
+> **Note:** npm consumes `--key=value` style flags before passing them to the script, so `--api-key` does **not** work via `npm run`. Use the env var instead (see below), or invoke the script directly:
+> ```
+> npx tsx scripts/batch-generate.ts stories/batch.tsv --api-key=YOUR_KEY
+> ```
 
 - **Input:** `stories/batch.tsv` (default) or any `.tsv` path passed as argument
 - **Output:** JSON story files saved to `stories/inbox/`
