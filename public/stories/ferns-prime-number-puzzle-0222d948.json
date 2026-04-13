@@ -1,0 +1,21 @@
+{
+  "title": "Fern's Prime Number Puzzle",
+  "markdown": "Every grand adventure begins with a little bit of a puzzle! And this one started with Fern the hedgehog, who was in a terrible tizzy. Her Super-Sparkle Dewdrop Soup competition was tomorrow, and the most vital ingredient, the shimmering Moonpetal Mist, was locked away!\n\nFern nudged a contraption of shiny brass with her snout. Mysterious dials spun, but the lock wouldn't budge. Callum, whose mind sometimes felt like a tangled ball of yarn when numbers were involved, fiddled with the four circular dials, each marked with numbers from one to ten. \"It's no ordinary lock,\" Fern squeaked, her spines rustling like dry leaves.\n\nSuddenly, a warm voice chimed like a well-loved instrument. \"Ah, but here's the thing about that lock, my dears! It’s a prime number lock!\" Dr. Ada Brook bustled over, her apron dusted with whimsical glitter. \"Prime numbers,\" she chirped, her eyes twinkling, \"are like little rebels!\"\n\nShe held up a smooth stone. \"This is a prime stone. You can’t break it evenly into smaller pieces. It’s only divisible by itself and by one.\" Then she showed another stone with faint lines. \"This is composite. It breaks easily!\"\n\nDr. Brook drew on the dusty floor. \"The lock only accepts numbers like my prime stones. Numbers that can *only* be divided by themselves and by one.\"\n\nCallum looked at the dials. Numbers one through ten. He pictured the unbroken prime stone. Two. Three. Five. Seven. But four? That could be two groups of two. Six? Three groups of two. His stomach did a little flip-flop, then settled. A warm certainty spread through him. \"The numbers that work are two, three, five, and seven!\"\n\nFern nudged him. \"The code, Callum! Quickly!\"\n\nCallum took a steadying breath. He looked at the numbers displayed on the dials: a '2', a '3', a '5', and a '7'. \"These are all prime numbers!\" he exclaimed. \"The lock needs a sequence of prime digits. So the code is... 2-3-5-7!\"\n\nWith a series of clicks and a gentle whirr, the contraption sprang open. Inside, on velvet, lay the shimmering Moonpetal Mist. Fern let out a joyous squeak.\n\n\"You see, my dear child?\" Dr. Brook smiled. \"Callum, you discovered the secret of prime numbers! They are special, like being uniquely yourself. And sometimes,\" she added, her voice soft, \"we are strongest when we are exactly who we are, unable to be broken by others. Your own bravery, Callum, is like a prime number – it cannot be divided into anything less than its true, wonderful self.\" Callum beamed, a new bravery blooming within him, steady and bright. He had solved the puzzle, understood the numbers, and saved the day. And that is the curious thing about learning—it can make you the bravest, most wonderful person in the whole wide world.",
+  "characters": "Callum the calm experimenter, Fern the hedgehog, Dr. Ada Brook",
+  "audience": "children aged 11-12, independent reader",
+  "framework": "Learning Fable (STEM)",
+  "style": "Classic Adventure & Morals (Grimm/Lewis/Blyton)",
+  "date": "2026-04-09T01:37:29.240Z",
+  "tone": "whimsical_playful",
+  "pacing": "fast_dynamic",
+  "humor": "none",
+  "emotion": "empowering",
+  "model": "gemini-2.5-flash-lite",
+  "readingAge": 11,
+  "consolidator": false,
+  "wordCount": 463,
+  "ageGroup": "11-12",
+  "author": "StoryGen Community",
+  "id": "ferns-prime-number-puzzle-0222d948",
+  "file": "ferns-prime-number-puzzle-0222d948.json"
+}
