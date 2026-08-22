@@ -1,4 +1,5 @@
 import { StoryInfoPanel, type StoryMetadata } from './StoryInfoPanel';
+import { useEscapeKey } from '../useEscapeKey';
 
 interface StoryMetadataModalProps {
   story: StoryMetadata;
@@ -6,6 +7,8 @@ interface StoryMetadataModalProps {
 }
 
 export function StoryMetadataModal({ story, onClose }: StoryMetadataModalProps) {
+  useEscapeKey(onClose);
+
   return (
     <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-content modal-lg">

@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
 import appState from '../appState';
 import { loadVocabularyLookupData, removeFromLocalStorage, LS_VOCAB_LOOKUPS } from '../localStorage';
+import { useEscapeKey } from '../useEscapeKey';
 import type { ModelConfig } from '../types';
+
+const MALE_VOICE_PATTERN = /male|man|boy|david|mark|james|george|richard|daniel|sean/i;
+const FEMALE_VOICE_PATTERN = /female|woman|girl|zira|hazel|susan|jenny|linda|aria|sara|elsa|catherine/i;
+
+function voicesForGender(voices: SpeechSynthesisVoice[], gender: string): SpeechSynthesisVoice[] {
+  return voices.filter(v => {
+    if (gender === 'female') return FEMALE_VOICE_PATTERN.test(v.name) || !MALE_VOICE_PATTERN.test(v.name);
+    return MALE_VOICE_PATTERN.test(v.name);
+  });
+}
 
 interface AgentThinkingState {
   crafter: boolean;
@@ -60,6 +71,8 @@ export function SettingsModal(props: SettingsModalProps) {
   const [readingAgeMax, setReadingAgeMax] = useState(props.readingAgeMax);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
+  useEscapeKey(onClose);
+
   // Load TTS voices
   useEffect(() => {
     if (!('speechSynthesis' in window)) return;
@@ -68,8 +81,8 @@ export function SettingsModal(props: SettingsModalProps) {
       setVoices(v.filter(voice => voice.lang.toLowerCase().startsWith('en')));
     };
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    return () => { window.speechSynthesis.onvoiceschanged = null; };
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
   }, []);
 
   const currentModelConfig = availableModels.find(m => m.name === selectedModel);
@@ -78,6 +91,15 @@ export function SettingsModal(props: SettingsModalProps) {
 
   const updateAgentToggle = (key: keyof AgentThinkingState, value: boolean) => {
     setAgentThinking(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Switching gender can hide the selected voice from the dropdown, which would
+  // otherwise leave it showing "Auto" while still saving the hidden voice.
+  const handleGenderChange = (nextGender: string) => {
+    setTtsGender(nextGender);
+    if (ttsVoice && !voicesForGender(voices, nextGender).some(v => v.name === ttsVoice)) {
+      setTtsVoice('');
+    }
   };
 
   const handleSave = () => {
@@ -120,12 +142,7 @@ export function SettingsModal(props: SettingsModalProps) {
     }
   };
 
-  // Filter voices by gender
-  const filteredVoices = voices.filter(v => {
-    const name = v.name.toLowerCase();
-    if (ttsGender === 'female') return /female|woman|girl|zira|hazel|susan|jenny|linda|aria|sara|elsa|catherine/i.test(name) || !/male|man|boy|david|mark|james|george|richard|daniel|sean/i.test(name);
-    return /male|man|boy|david|mark|james|george|richard|daniel|sean/i.test(name);
-  });
+  const filteredVoices = voicesForGender(voices, ttsGender);
 
   return (
     <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -221,7 +238,7 @@ export function SettingsModal(props: SettingsModalProps) {
               <div className="modal-grid">
                 <div className="field">
                   <label htmlFor="ttsGenderSelect">Voice Type</label>
-                  <select id="ttsGenderSelect" value={ttsGender} onChange={e => setTtsGender(e.target.value)}>
+                  <select id="ttsGenderSelect" value={ttsGender} onChange={e => handleGenderChange(e.target.value)}>
                     <option value="female">Female</option>
                     <option value="male">Male</option>
                   </select>

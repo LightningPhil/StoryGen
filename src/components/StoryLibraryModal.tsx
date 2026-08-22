@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getAllStories, deleteStoryFromLibrary, type SavedStory } from '../storyLibrary';
 import { StoryInfoPanel, formatLibraryDate } from './StoryInfoPanel';
+import { useEscapeKey } from '../useEscapeKey';
 
 type SortField = 'title' | 'date';
 type SortDir = 'asc' | 'desc';
@@ -28,6 +29,12 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [infoStory, setInfoStory] = useState<SavedStory | null>(null);
+
+  // Escape steps back out of the info panel before it closes the whole modal.
+  useEscapeKey(useCallback(() => {
+    if (infoStory) setInfoStory(null);
+    else onClose();
+  }, [infoStory, onClose]));
 
   useEffect(() => {
     let cancelled = false;
@@ -111,7 +118,7 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
   }, []);
 
   const sortArrow = (field: SortField) => {
-    if (sortField !== field) return <span className="lib-sort-arrow lib-sort-arrow--inactive">\u2195</span>;
+    if (sortField !== field) return <span className="lib-sort-arrow lib-sort-arrow--inactive">{'\u2195'}</span>;
     return <span className="lib-sort-arrow">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>;
   };
 
@@ -135,7 +142,7 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
                 <input
                   className="lib-search"
                   type="text"
-                  placeholder="Search stories\u2026"
+                  placeholder={'Search stories\u2026'}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   autoFocus
@@ -162,7 +169,7 @@ export function StoryLibraryModal({ onLoad, onClose, showToast }: StoryLibraryMo
 
             <div className="lib-list">
               {loading ? (
-                <div className="lib-empty">Loading stories\u2026</div>
+                <div className="lib-empty">{'Loading stories\u2026'}</div>
               ) : filtered.length === 0 ? (
                 <div className="lib-empty">
                   {search ? 'No stories match your search.' : 'No saved stories yet. Generate a story and it will appear here.'}
