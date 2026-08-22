@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { lookupWord } from '../wiktionary';
 import { buildPhonicsAssist, ensureRitaLoaded } from '../phonics';
+import { trackVocabularyLookup } from '../localStorage';
+import { normalizeVocabularyWord } from '../utils';
 import type { AssistData, PhonicsAssist } from '../types';
 
 interface AssistPanelProps {
@@ -29,6 +31,19 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   const isReadingRef = useRef(false);
   const [highlightedChunk, setHighlightedChunk] = useState<number | null>(null);
   const requestTokenRef = useRef(0);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const phonemeTokenRef = useRef(0);
+
+  // Chrome populates getVoices() asynchronously, so the list is empty on the
+  // first render and the chosen voice would be silently ignored.
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return;
+    const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
+    loadVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+  }, []);
 
   useEffect(() => {
     if (!selectedWord) {
@@ -44,6 +59,11 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     setError('');
     setAssistData(null);
     setPhonicsData(null);
+
+    const normalizedWord = normalizeVocabularyWord(selectedWord);
+    if (normalizedWord) {
+      trackVocabularyLookup(normalizedWord);
+    }
 
     lookupWord(selectedWord)
       .then(result => {
@@ -77,20 +97,28 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   }, [selectedWord]);
 
   const findVoice = useCallback((): SpeechSynthesisVoice | undefined => {
-    if (!ttsVoice || !('speechSynthesis' in window)) return undefined;
-    return window.speechSynthesis.getVoices().find(v => v.name === ttsVoice);
-  }, [ttsVoice]);
+    if (!ttsVoice) return undefined;
+    return voices.find(v => v.name === ttsVoice);
+  }, [ttsVoice, voices]);
+
+  const stopPlayback = useCallback(() => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current = null;
+    }
+  }, []);
 
   const speakWord = useCallback((word: string) => {
     if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    stopPlayback();
     const utterance = new SpeechSynthesisUtterance(word);
     const voice = findVoice();
     if (voice) utterance.voice = voice;
-    utterance.lang = 'en-US';
+    utterance.lang = voice?.lang || 'en-GB';
     utterance.rate = 0.85;
     window.speechSynthesis.speak(utterance);
-  }, [findVoice]);
+  }, [findVoice, stopPlayback]);
 
   const speakSelectedWord = useCallback(() => {
     if (!selectedWord) return;
@@ -102,17 +130,25 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     }
 
     // Dictionary mode: try dictionary audio, fall back to browser TTS
+    stopPlayback();
     const audio = new Audio(assistData.audioUrl);
-    audio.play().catch(() => speakWord(selectedWord));
-  }, [selectedWord, assistData, speakWord, ttsSource]);
+    activeAudioRef.current = audio;
+    audio.addEventListener('ended', () => {
+      if (activeAudioRef.current === audio) activeAudioRef.current = null;
+    });
+    audio.play().catch(() => {
+      if (activeAudioRef.current === audio) activeAudioRef.current = null;
+      speakWord(selectedWord);
+    });
+  }, [selectedWord, assistData, speakWord, stopPlayback, ttsSource]);
 
   const handleReadAloud = useCallback(() => {
     if (!('speechSynthesis' in window)) return;
 
     if (isReading) {
-      window.speechSynthesis.cancel();
-      setIsReading(false);
       isReadingRef.current = false;
+      stopPlayback();
+      setIsReading(false);
       return;
     }
 
@@ -178,6 +214,7 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
 
     if (chunks.length === 0) return;
 
+    stopPlayback();
     setIsReading(true);
     isReadingRef.current = true;
     let currentIdx = 0;
@@ -208,15 +245,9 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     };
 
     speakNext();
-  }, [isReading, storyContentRef, findVoice, selectedWordIndex]);
+  }, [isReading, storyContentRef, findVoice, selectedWordIndex, stopPlayback]);
 
-  useEffect(() => {
-    return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
+  useEffect(() => stopPlayback, [stopPlayback]);
 
   // Keep the audio pipeline primed with a silent oscillator so TTS doesn't
   // fade-in/ramp at the start of every sentence.
@@ -239,19 +270,26 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   }, []);
 
   const playPhonemeSound = useCallback((phoneme: string, index: number) => {
+    // Tapping a second chunk must not let the first chunk's timers clear the
+    // new highlight, so every play claims a token and only clears its own.
+    const token = ++phonemeTokenRef.current;
+    const clearHighlight = () => {
+      if (phonemeTokenRef.current === token) setHighlightedChunk(null);
+    };
+
     setHighlightedChunk(index);
 
     const filename = phoneme.toLowerCase().replace(/[^a-z]/g, '');
     if (filename) {
       const audio = new Audio(`./sounds/${filename}.mp3`);
+      audio.onended = clearHighlight;
+      audio.onerror = clearHighlight;
       audio.play().catch(() => {
         speakWord(phoneme);
       });
-      audio.onended = () => setHighlightedChunk(null);
-      audio.onerror = () => setHighlightedChunk(null);
     }
 
-    setTimeout(() => setHighlightedChunk(null), 1500);
+    setTimeout(clearHighlight, 1500);
   }, [speakWord]);
 
   const handleChipClick = useCallback((word: string) => {
@@ -280,7 +318,7 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
             title={`Hear "${selectedWord}" spoken aloud`}
             onClick={speakSelectedWord}
           >
-            \uD83D\uDD0A <span>Listen to "{selectedWord}"</span>
+            {'\uD83D\uDD0A'}{' '}<span>Listen to "{selectedWord}"</span>
           </button>
         </div>
       )}

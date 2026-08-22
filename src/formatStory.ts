@@ -1,4 +1,4 @@
-// src/formatStory.ts — Extracted from ui.ts for use in React components
+// src/formatStory.ts — Markdown → HTML with per-word assist spans
 // Converts markdown story text to HTML with word-assist spans.
 
 import { normalizeVocabularyWord } from './utils';

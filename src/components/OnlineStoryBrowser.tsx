@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useEscapeKey } from '../useEscapeKey';
 
 export interface StoryIndexEntry {
   id: string;
@@ -93,7 +94,7 @@ function StoryDetailPanel({ entry, onBack, onLoad, showToast }: {
   }, [entry, showToast]);
 
   if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading story\u2026</div>;
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>{'Loading story\u2026'}</div>;
   }
 
   return (
@@ -176,6 +177,12 @@ export function OnlineStoryBrowser({ onLoad, onClose, showToast }: OnlineStoryBr
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [selectedEntry, setSelectedEntry] = useState<StoryIndexEntry | null>(null);
   const [loadingStoryId, setLoadingStoryId] = useState<string | null>(null);
+
+  // Escape steps back out of the detail panel before it closes the whole modal.
+  useEscapeKey(useCallback(() => {
+    if (selectedEntry) setSelectedEntry(null);
+    else onClose();
+  }, [selectedEntry, onClose]));
 
   useEffect(() => {
     let cancelled = false;
@@ -273,14 +280,14 @@ export function OnlineStoryBrowser({ onLoad, onClose, showToast }: OnlineStoryBr
             <div className="lib-search-bar">
               <input
                 type="text"
-                placeholder="Search by title, characters, author, or tags\u2026"
+                placeholder={'Search by title, characters, author, or tags\u2026'}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
             </div>
 
             {loading ? (
-              <div className="lib-empty">Loading stories\u2026</div>
+              <div className="lib-empty">{'Loading stories\u2026'}</div>
             ) : error ? (
               <div className="lib-empty lib-empty-error">{error}</div>
             ) : filtered.length === 0 ? (

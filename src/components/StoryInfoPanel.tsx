@@ -1,23 +1,6 @@
-export interface StoryMetadata {
-  title: string;
-  date: string;
-  characters?: string;
-  audience?: string;
-  ageGroup?: string;
-  framework?: string;
-  style?: string;
-  tone?: string;
-  pacing?: string;
-  humor?: string;
-  emotion?: string;
-  model?: string;
-  readingAge?: number | null;
-  consolidator?: boolean;
-  wordCount?: number;
-  plotPoints?: string;
-  author?: string;
-  tags?: string[];
-}
+import type { StoryMetadata } from '../types';
+
+export type { StoryMetadata };
 
 export function formatLibraryDate(iso: string): string {
   try {
@@ -109,6 +92,12 @@ export function StoryInfoPanel({ story, onBack, backLabel }: StoryInfoPanelProps
             <span className="lib-info-label">Authorial Style</span>
             <span className="lib-info-value">{story.style || '\u2014'}</span>
           </div>
+          {story.narrator && story.narrator !== 'Default (No Narrator Persona)' && (
+            <div className="lib-info-item">
+              <span className="lib-info-label">Narrator</span>
+              <span className="lib-info-value">{story.narrator}</span>
+            </div>
+          )}
           <div className="lib-info-item">
             <span className="lib-info-label">Tone</span>
             <span className="lib-info-value">{formatDisplayLabel(story.tone)}</span>
@@ -141,6 +130,12 @@ export function StoryInfoPanel({ story, onBack, backLabel }: StoryInfoPanelProps
             <div className="lib-info-item">
               <span className="lib-info-label">Consolidator</span>
               <span className="lib-info-value">{story.consolidator ? 'Enabled' : 'Disabled'}</span>
+            </div>
+          )}
+          {story.fastMode != null && (
+            <div className="lib-info-item">
+              <span className="lib-info-label">Generation Mode</span>
+              <span className="lib-info-value">{story.fastMode ? 'Experimental Fast' : 'Full Agent Pipeline'}</span>
             </div>
           )}
         </div>

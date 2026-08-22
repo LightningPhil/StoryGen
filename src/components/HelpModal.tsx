@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { HELP_TOPICS, HELP_TOPIC_ORDER } from '../prompts/help_content';
+import { useEscapeKey } from '../useEscapeKey';
 
 interface HelpModalProps {
   onClose: () => void;
@@ -7,6 +8,8 @@ interface HelpModalProps {
 
 export function HelpModal({ onClose }: HelpModalProps) {
   const [selectedTopic, setSelectedTopic] = useState(HELP_TOPIC_ORDER[0] || '');
+
+  useEscapeKey(onClose);
 
   const topic = HELP_TOPICS[selectedTopic];
 

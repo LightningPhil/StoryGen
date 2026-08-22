@@ -4,6 +4,39 @@ import type { ChatLogEntry } from './types';
 
 let lastApiFetchInitiatedTimestamp: number = 0; 
 
+export function isAbortError(error: unknown): boolean {
+    return (error instanceof DOMException && error.name === 'AbortError')
+        || (error instanceof Error && error.name === 'AbortError');
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+    if (signal?.aborted) {
+        throw new DOMException('Story generation was cancelled.', 'AbortError');
+    }
+}
+
+function wait(ms: number, signal?: AbortSignal): Promise<void> {
+    if (ms <= 0) return Promise.resolve();
+    throwIfAborted(signal);
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            signal?.removeEventListener('abort', onAbort);
+            resolve();
+        }, ms);
+        const onAbort = () => {
+            clearTimeout(timer);
+            reject(new DOMException('Story generation was cancelled.', 'AbortError'));
+        };
+        if (!signal) return;
+        if (signal.aborted) {
+            clearTimeout(timer);
+            onAbort();
+            return;
+        }
+        signal.addEventListener('abort', onAbort, { once: true });
+    });
+}
+
 export async function callAgentAPI(
     prompt: string, 
     currentApiKey: string, 
@@ -14,7 +47,10 @@ export async function callAgentAPI(
     statusCallback: ((msg: string) => void) | null,
     minApiIntervalMs: number,
     enableThinking: boolean = false,
-    responseMimeType: string = ''
+    responseMimeType: string = '',
+    abortSignal?: AbortSignal,
+    systemInstruction: string = '',
+    responseSchema?: Record<string, unknown>
 ): Promise<string> {
     if (!currentApiKey) { 
         const errorMsg = `${agentName} Error: API Key missing. Please configure it in settings.`;
@@ -34,6 +70,8 @@ export async function callAgentAPI(
         throw new Error(errorMsg);
     }
 
+    throwIfAborted(abortSignal);
+
     // --- Rate Limiting Logic ---
     if (retryAttempt === 0) { // Only apply initial wait if not a retry
         const now = Date.now();
@@ -44,7 +82,7 @@ export async function callAgentAPI(
                 const waitMsg = `Rate Limiter: Waiting ${Math.ceil(waitTime / 1000)}s before calling ${agentName}...\n`;
                 console.log(waitMsg);
                 if (statusCallback) statusCallback(waitMsg); 
-                await new Promise(resolve => setTimeout(resolve, waitTime));
+                await wait(waitTime, abortSignal);
             }
         }
     }
@@ -54,6 +92,9 @@ export async function callAgentAPI(
     const RETRY_DELAYS = [5000, 10000, 15000, 20000, 25000, 30000];
 
     if (retryAttempt === 0) {
+        if (systemInstruction && !currentRunChatLogArray.find((log: ChatLogEntry) => log.agentName === agentName && log.type === 'system-instruction' && log.content === systemInstruction)) {
+            currentRunChatLogArray.push({ agentName, type: 'system-instruction', content: systemInstruction, timestamp: new Date().toISOString() });
+        }
         if (!currentRunChatLogArray.find((log: ChatLogEntry) => log.agentName === agentName && log.type === 'prompt' && log.content === prompt)) {
              currentRunChatLogArray.push({ agentName, type: 'prompt', content: prompt, timestamp: new Date().toISOString() });
         }
@@ -78,8 +119,17 @@ export async function callAgentAPI(
         ],
     };
 
+    if (systemInstruction.trim()) {
+        requestBody.systemInstruction = {
+            parts: [{ text: systemInstruction }],
+        };
+    }
+
     if (responseMimeType) {
         (requestBody.generationConfig as Record<string, unknown>).responseMimeType = responseMimeType;
+    }
+    if (responseSchema) {
+        (requestBody.generationConfig as Record<string, unknown>).responseSchema = responseSchema;
     }
 
     // --- Conditionally add thinking configuration ---
@@ -98,7 +148,8 @@ export async function callAgentAPI(
         const response = await fetch(API_URL, { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify(requestBody) 
+            body: JSON.stringify(requestBody),
+            signal: abortSignal,
         });
         
         if (response.status === 503 || response.status === 429) {
@@ -107,8 +158,8 @@ export async function callAgentAPI(
                 const retryMsg = `Model busy or rate limit hit (${response.status}). Retrying ${agentName} in ${delay / 1000}s... (Attempt ${retryAttempt + 1}/${MAX_RETRIES})\n`;
                 console.warn(retryMsg);
                 if (statusCallback) statusCallback(retryMsg);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, statusCallback, minApiIntervalMs, enableThinking, responseMimeType);
+                await wait(delay, abortSignal);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, statusCallback, minApiIntervalMs, enableThinking, responseMimeType, abortSignal, systemInstruction, responseSchema);
             } else {
                 const overloadErrorMsg = `${agentName} Error: Model is overloaded or rate limits exceeded after ${MAX_RETRIES} retries (Status ${response.status}). Please try again later.`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries', content: overloadErrorMsg, timestamp: new Date().toISOString() });
@@ -125,13 +176,46 @@ export async function callAgentAPI(
                 const retryMsg = `Model is busy (message: ${responseData.error.message}). Retrying ${agentName} in ${delay / 1000}s... (Attempt ${retryAttempt + 1}/${MAX_RETRIES})\n`;
                 console.warn(retryMsg);
                 if (statusCallback) statusCallback(retryMsg);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, statusCallback, minApiIntervalMs, enableThinking, responseMimeType);
+                await wait(delay, abortSignal);
+                return callAgentAPI(prompt, currentApiKey, selectedModelId, agentName, retryAttempt + 1, currentRunChatLogArray, statusCallback, minApiIntervalMs, enableThinking, responseMimeType, abortSignal, systemInstruction, responseSchema);
             } else {
                 const busyErrorMsg = `${agentName} Error: Model remained busy after ${MAX_RETRIES} retries. Please try again later. (Original Error: ${responseData.error.message})`;
                 currentRunChatLogArray.push({ agentName, type: 'error-max-retries-busy', content: busyErrorMsg, timestamp: new Date().toISOString() });
                 throw new Error(busyErrorMsg);
             }
+        }
+
+        const responseErrorMessage = typeof responseData.error?.message === 'string'
+            ? responseData.error.message
+            : '';
+        const structuredOutputUnsupported = response.status === 400
+            && Boolean(responseMimeType)
+            && /response.?schema|response.?mime|structured output|json mode|not supported|unknown field/i.test(responseErrorMessage);
+        if (structuredOutputUnsupported && retryAttempt < MAX_RETRIES) {
+            const fallbackMsg = `${agentName}: selected model rejected structured output; retrying the same prompt with prompt-enforced JSON.\n`;
+            console.warn(fallbackMsg.trim());
+            if (statusCallback) statusCallback(fallbackMsg);
+            currentRunChatLogArray.push({
+                agentName,
+                type: 'structured-output-fallback',
+                content: responseErrorMessage || 'Structured output was rejected by the selected model.',
+                timestamp: new Date().toISOString(),
+            });
+            return callAgentAPI(
+                prompt,
+                currentApiKey,
+                selectedModelId,
+                agentName,
+                retryAttempt + 1,
+                currentRunChatLogArray,
+                statusCallback,
+                minApiIntervalMs,
+                enableThinking,
+                '',
+                abortSignal,
+                systemInstruction,
+                undefined,
+            );
         }
         
         if (!response.ok) {
@@ -171,6 +255,11 @@ export async function callAgentAPI(
         return rawTextOutput;
 
     } catch (error) {
+        if (isAbortError(error) || abortSignal?.aborted) {
+            throw error instanceof DOMException
+                ? error
+                : new DOMException('Story generation was cancelled.', 'AbortError');
+        }
         const err = error instanceof Error ? error : new Error(String(error));
         console.error(`Error during API call for ${agentName} (Attempt ${retryAttempt + 1}/${MAX_RETRIES}):`, err.message);
         if (!currentRunChatLogArray.some((log: ChatLogEntry) => log.agentName === agentName && 

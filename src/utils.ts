@@ -6,14 +6,36 @@ export function parseCharacters(characterString: string): string[] {
 }
 
 export function constructAgentPrompt(basePromptTemplate: string, dataObject: Record<string, string>): string {
-    let prompt = basePromptTemplate;
-    for (const key in dataObject) {
-        const value = typeof dataObject[key] === 'string' ? dataObject[key] : '';
-        // Use a regex that is more robust for global replacement of ${KEY}
-        const placeholder = new RegExp(`\\$\\{${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g');
-        prompt = prompt.replace(placeholder, value);
+    const missingKeys = new Set<string>();
+    const placeholderPattern = /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
+
+    const prompt = basePromptTemplate.replace(placeholderPattern, (placeholder, key: string) => {
+        if (!Object.prototype.hasOwnProperty.call(dataObject, key)) {
+            missingKeys.add(key);
+            return placeholder;
+        }
+        const value = dataObject[key];
+        return typeof value === 'string' ? value : '';
+    });
+
+    if (missingKeys.size > 0) {
+        throw new Error(`Prompt template is missing data for: ${Array.from(missingKeys).sort().join(', ')}`);
     }
+
     return prompt;
+}
+
+export function formatUserStoryRequirements(text: string): string {
+    return typeof text === 'string' ? text.trim() : '';
+}
+
+export function sanitizeGeneratedTitle(text: string): string {
+    if (!text || typeof text !== 'string') return '';
+    const firstLine = text.split(/\r?\n/).map(line => line.trim()).find(Boolean) || '';
+    return firstLine
+        .replace(/^#{1,6}\s*/, '')
+        .replace(/^["'“”‘’*`]+|["'“”‘’*`]+$/g, '')
+        .trim();
 }
 
 export function countWords(text: string): number {

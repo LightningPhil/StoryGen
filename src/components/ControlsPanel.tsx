@@ -1,5 +1,4 @@
-import { ADJUSTMENT_MODULES } from '../prompts/adjustment_modules';
-import { SENSITIVITY_LEVELS } from '../appState';
+import { NARRATOR_PERSONAS, PERSONA_SUMMARIES } from '../prompts/narrator_personas';
 import { AssistPanel } from './AssistPanel';
 import type { ToastMessage } from '../App';
 
@@ -52,6 +51,8 @@ interface ControlsPanelProps {
   onOpenFrameworkModal: () => void;
   selectedStyle: string;
   onOpenStyleModal: () => void;
+  selectedNarrator: string;
+  onNarratorChange: (v: string) => void;
   includePlotPoints: boolean;
   onIncludePlotPointsChange: (v: boolean) => void;
   userSuggestions: string;
@@ -85,8 +86,10 @@ interface ControlsPanelProps {
   onPacingChange: (v: string) => void;
   onHumorChange: (v: string) => void;
   onEmotionChange: (v: string) => void;
+  experimentalFastMode: boolean;
   isGenerating: boolean;
   onGenerate: () => void;
+  onCancelGenerate: () => void;
   storyOutputRef: React.RefObject<HTMLElement | null> | null;
   selectedWord: string;
   selectedWordIndex: number | null;
@@ -104,6 +107,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
     characters, onCharactersChange, audience, onAudienceChange,
     ageGroup, onAgeGroupChange,
     selectedFramework, onOpenFrameworkModal, selectedStyle, onOpenStyleModal,
+    selectedNarrator, onNarratorChange,
     includePlotPoints, onIncludePlotPointsChange, userSuggestions, onUserSuggestionsChange,
     sensitivityPreset, onSensitivityPresetChange,
     conflictLevel, scaryLevel, sadnessLevel, complexityLevel,
@@ -112,7 +116,8 @@ export function ControlsPanel(props: ControlsPanelProps) {
     readingAgeMin, readingAgeMax,
     enableConsolidator, onEnableConsolidatorChange,
     stemConcept, onStemConceptChange, selectedFrameworkForSTEM,
-    isGenerating, onGenerate,
+    experimentalFastMode,
+    isGenerating, onGenerate, onCancelGenerate,
   } = props;
 
   const isLearningFable = selectedFrameworkForSTEM === 'Learning Fable (STEM)';
@@ -219,6 +224,15 @@ export function ControlsPanel(props: ControlsPanelProps) {
               </button>
             </div>
             <div className="field">
+              <label htmlFor="narratorSelect">Narrator Persona</label>
+              <select id="narratorSelect" value={selectedNarrator} onChange={e => onNarratorChange(e.target.value)}>
+                {Object.keys(NARRATOR_PERSONAS).map(key => (
+                  <option key={key} value={key}>{key}</option>
+                ))}
+              </select>
+              <div className="field-hint">{PERSONA_SUMMARIES[selectedNarrator] || ''}</div>
+            </div>
+            <div className="field">
               <label className="toggle-label">
                 <input type="checkbox" checked={includePlotPoints} onChange={e => onIncludePlotPointsChange(e.target.checked)} />
                 <span>Include plot points</span>
@@ -310,7 +324,11 @@ export function ControlsPanel(props: ControlsPanelProps) {
                 <input type="checkbox" checked={enableConsolidator} onChange={e => onEnableConsolidatorChange(e.target.checked)} />
                 <span>Consolidate for conciseness</span>
               </label>
-              <div className="field-hint">Runs an extra pass to tighten the story and remove redundancy.</div>
+              <div className="field-hint">
+                {experimentalFastMode
+                  ? 'Adds consolidation guidance to the single Fast Mode request.'
+                  : 'Adds one tightening pass after polishing, and one pass when elaborating.'}
+              </div>
             </div>
           </div>
 
@@ -328,9 +346,9 @@ export function ControlsPanel(props: ControlsPanelProps) {
       </div>
 
       <footer className="panel-footer">
-        <button className="btn btn-primary btn-generate" onClick={onGenerate} disabled={isGenerating}>
+        <button className={`btn btn-primary btn-generate${isGenerating ? ' btn-cancel' : ''}`} onClick={isGenerating ? onCancelGenerate : onGenerate}>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-          {isGenerating ? 'Generating...' : 'Generate Story'}
+          {isGenerating ? 'Cancel Generation' : experimentalFastMode ? 'Generate Story — Fast' : 'Generate Story'}
         </button>
       </footer>
     </aside>

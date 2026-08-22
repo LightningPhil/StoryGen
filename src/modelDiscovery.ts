@@ -4,9 +4,24 @@ const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 export const DEFAULT_MODEL = 'gemini-flash-latest';
 
+/**
+ * Thinking budgets are supported from Gemini 2.5 onward. The "-latest" aliases
+ * track those newer models, so they qualify even though they carry no version.
+ */
+export function detectThinkingSupport(modelName: string): boolean {
+  if (/thinking/i.test(modelName)) return true;
+  if (/-latest$/i.test(modelName)) return true;
+
+  const version = modelName.match(/gemini-(\d+)(?:\.(\d+))?/i);
+  if (!version) return false;
+  const major = Number(version[1]);
+  const minor = Number(version[2] ?? 0);
+  return major > 2 || (major === 2 && minor >= 5);
+}
+
 export const DEFAULT_MODEL_CONFIG: ModelConfig = {
   name: DEFAULT_MODEL,
-  supportsThinking: false,
+  supportsThinking: detectThinkingSupport(DEFAULT_MODEL),
 };
 
 interface GeminiModel {
@@ -48,8 +63,7 @@ export async function fetchAvailableModels(apiKey: string): Promise<ModelConfig[
     })
     .map(m => {
       const name = m.name.startsWith('models/') ? m.name.slice(7) : m.name;
-      const supportsThinking = /2\.5|thinking/i.test(name);
-      return { name, supportsThinking };
+      return { name, supportsThinking: detectThinkingSupport(name) };
     })
     .sort((a, b) => {
       const [tierA, keyA] = modelSortKey(a.name);

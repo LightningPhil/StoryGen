@@ -48,7 +48,7 @@ DO NOT wind down at the end. Leave the listener energized and ready to start THE
 
 **Narrative Voice:**
 - Enthusiastic, like an excited friend sharing news
-- Use exclamations naturally (up to 15 permitted)
+- Use exclamations naturally; this tone explicitly raises the normal cap to a maximum of 15
 - Fast-paced but clear
 - Occasional direct address: "Can you imagine?" "What do YOU think happened?"
 
@@ -256,13 +256,13 @@ Age-appropriate emotional depth:
     complexity: {
         0: `**Complexity Level: Simple**
 Keep stories extremely simple:
-- ONE main character with ONE problem
+- ONE focal main character with ONE problem; preserve any additional user-supplied characters as simple helpers
 - Linear plot: beginning → one event → happy end
-- Maximum 3 named characters
+- Add no extra named characters beyond those the user supplied; otherwise use a maximum of 3
 - Single, simple setting
 - NO subplots or secondary storylines
 - Crystal-clear cause and effect
-- ONE simple, obvious lesson`,
+- ONE simple takeaway shown through events; state it only when the selected framework requires a moral`,
 
         1: `**Complexity Level: Easy**
 Simple but with some depth:
@@ -272,7 +272,7 @@ Simple but with some depth:
 - ONE helper or friend can assist
 - Setting can change once
 - One small twist or surprise is okay
-- Clear, stated moral at the end`,
+- One clear takeaway; state it explicitly only when the selected framework calls for a moral`,
 
         2: `**Complexity Level: Standard**
 Age-appropriate narrative complexity:
@@ -326,7 +326,7 @@ export function getSensitivityGuidance(settings: { conflict?: number; scary?: nu
     
     return `
 ## 🛡️ PARENTAL CONTENT GUIDANCE
-The following sensitivity settings have been specified. These take PRIORITY over default story conventions.
+The following settings take priority over framework, style, narrator, and tone conventions wherever they conflict. They may narrow the core safety policy but never relax it.
 
 ${parts.filter(Boolean).join('\n\n')}
 `;

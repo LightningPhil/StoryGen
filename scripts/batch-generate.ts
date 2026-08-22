@@ -16,20 +16,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // ── Import existing StoryGen modules ────────────────────────────────────────
-import { STORY_CRAFTING_GUIDES } from '../src/prompts/story_crafting_guides';
-import { STORY_STYLE_GUIDES } from '../src/prompts/author_styles';
-import { NARRATOR_PERSONAS } from '../src/prompts/narrator_personas';
+import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from '../src/prompts/story_crafting_guides';
+import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from '../src/prompts/author_styles';
+import { NARRATOR_PERSONAS, PERSONA_SUMMARIES } from '../src/prompts/narrator_personas';
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from '../src/prompts/adjustment_modules';
-import {
-  READING_AGE_ADJUSTMENT_TEXT_TEMPLATE,
-  PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
-  PROMPT_AGENT_2_ELABORATOR_TEMPLATE,
-  PROMPT_AGENT_3_REVIEWER_TEMPLATE,
-  PROMPT_AGENT_4_POLISHER_TEMPLATE,
-  PROMPT_AGENT_5_CLEANER_TEMPLATE,
-  PROMPT_AGENT_6_TITLER_TEMPLATE,
-  PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE,
-} from '../src/prompts/agent_prompts';
+import { AGE_GROUP_LABELS, canonicalizeFrameworkKey, resolveFrameworkGuide } from '../src/storyMetadata';
+import { lookupByNormalizedKey } from '../src/lookupKeys';
+import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from '../src/prompts/agent_prompts';
+import { STORY_SYSTEM_INSTRUCTION } from '../src/prompts/system_policy';
+import { getStoryGenerationPipelineConfig } from '../src/pipeline';
+import { constructAgentPrompt, formatUserStoryRequirements, sanitizeGeneratedTitle } from '../src/utils';
+import type { AgentDefinition } from '../src/types';
 import { SENSITIVITY_LEVELS } from '../src/appState';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -86,17 +83,6 @@ const SENSITIVITY_SHORTCUTS: Record<string, string> = {
   'gentle':       'gentle',
   'standard':     'standard',
   'adventurous':  'adventurous',
-};
-
-const AGE_GROUP_LABELS: Record<string, string> = {
-  '3-4':   'children aged 3-4',
-  '5-6':   'children aged 5-6',
-  '7-8':   'children aged 7-8',
-  '9-10':  'children aged 9-10',
-  '11-12': 'children aged 11-12',
-  '13-15': 'teenagers aged 13-15',
-  '16-18': 'young adults aged 16-18',
-  '18+':   'adults',
 };
 
 // ── CSV parsing ─────────────────────────────────────────────────────────────
@@ -162,13 +148,14 @@ function resolveFramework(shortName: string): { key: string; text: string } {
     const key = "Dan Harmon's Story Circle";
     return { key, text: STORY_CRAFTING_GUIDES[key] || '' };
   }
-  const fullKey = FRAMEWORK_SHORTCUTS[shortName.toLowerCase()];
-  if (fullKey) {
-    return { key: fullKey, text: STORY_CRAFTING_GUIDES[fullKey] || '' };
+  const shortcutKey = FRAMEWORK_SHORTCUTS[shortName.toLowerCase()];
+  const resolved = lookupByNormalizedKey(STORY_CRAFTING_GUIDES, shortcutKey || shortName);
+  if (resolved) {
+    return { key: canonicalizeFrameworkKey(resolved.key), text: resolved.value };
   }
-  // Try direct match against full names
-  if (STORY_CRAFTING_GUIDES[shortName]) {
-    return { key: shortName, text: STORY_CRAFTING_GUIDES[shortName] };
+  const guideText = resolveFrameworkGuide(shortName);
+  if (guideText) {
+    return { key: canonicalizeFrameworkKey(shortName), text: guideText };
   }
   console.warn(`  ⚠ Unknown framework "${shortName}", falling back to Story Circle`);
   const key = "Dan Harmon's Story Circle";
@@ -230,12 +217,17 @@ function buildAdjustmentModulesText(row: CsvRow): string {
 }
 
 function buildSensitivityText(shortName: string): string {
-  if (!shortName || shortName === 'standard' || shortName === 'default') return '';
-  const key = SENSITIVITY_SHORTCUTS[shortName.toLowerCase()] || shortName.toLowerCase();
-  const preset = SENSITIVITY_LEVELS[key];
+  const normalized = shortName?.toLowerCase();
+  const key = !normalized || normalized === 'default'
+    ? 'standard'
+    : (SENSITIVITY_SHORTCUTS[normalized] || normalized);
+  const preset = SENSITIVITY_LEVELS[key] || SENSITIVITY_LEVELS.standard;
   if (!preset) {
-    console.warn(`  ⚠ Unknown sensitivity "${shortName}", using standard`);
+    console.warn('  ⚠ Standard sensitivity preset is unavailable');
     return '';
+  }
+  if (!SENSITIVITY_LEVELS[key]) {
+    console.warn(`  ⚠ Unknown sensitivity "${shortName}", using standard`);
   }
   return getSensitivityGuidance({
     conflict: preset.conflict,
@@ -284,6 +276,9 @@ async function callApi(
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
 
   const body = {
+    systemInstruction: {
+      parts: [{ text: STORY_SYSTEM_INSTRUCTION }],
+    },
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {},
     safetySettings: [
@@ -349,44 +344,8 @@ async function callApi(
 
 // ── Pipeline runner ─────────────────────────────────────────────────────────
 
-interface AgentDef {
-  name: string;
-  promptTemplate: string;
-  dataKeys: string[];
-  outputKey: string;
-  step?: string;
-}
-
-function constructPrompt(template: string, data: Record<string, string>): string {
-  let prompt = template;
-  for (const key in data) {
-    const value = typeof data[key] === 'string' ? data[key] : '';
-    const placeholder = new RegExp(`\\$\\{${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g');
-    prompt = prompt.replace(placeholder, value);
-  }
-  return prompt;
-}
-
-function buildPipeline(enableConsolidator: boolean): AgentDef[] {
-  const crafter: AgentDef  = { name: "Agent 1: Story Crafter",  promptTemplate: PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE, dataKeys: ['charactersList', 'audience', 'USER_SUGGESTIONS_TEXT', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT', 'NARRATOR_PERSONA_TEXT', 'SENSITIVITY_GUIDANCE_TEXT'], outputKey: 'storyText' };
-  const elaborator: AgentDef = { name: "Agent 2: Elaborator",   promptTemplate: PROMPT_AGENT_2_ELABORATOR_TEMPLATE,    dataKeys: ['storyText', 'audience', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT', 'NARRATOR_PERSONA_TEXT', 'SENSITIVITY_GUIDANCE_TEXT'], outputKey: 'storyText' };
-  const consolidator: AgentDef = { name: "Agent C: Consolidator", promptTemplate: PROMPT_AGENT_X_CONSOLIDATOR_TEMPLATE, dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT', 'NARRATOR_PERSONA_TEXT', 'SENSITIVITY_GUIDANCE_TEXT'], outputKey: 'storyText' };
-  const reviewer: AgentDef = { name: "Agent 3: Reviewer",       promptTemplate: PROMPT_AGENT_3_REVIEWER_TEMPLATE,      dataKeys: ['storyText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT', 'NARRATOR_PERSONA_TEXT', 'SENSITIVITY_GUIDANCE_TEXT'], outputKey: 'reviewText' };
-  const polisher: AgentDef = { name: "Agent 4: Polisher",       promptTemplate: PROMPT_AGENT_4_POLISHER_TEMPLATE,      dataKeys: ['storyText', 'reviewText', 'READING_AGE_NOTE', 'CRAFT_GUIDE_TEXT', 'AUTHOR_STYLE_GUIDE', 'ADJUSTMENT_MODULES_TEXT', 'NARRATOR_PERSONA_TEXT', 'SENSITIVITY_GUIDANCE_TEXT'], outputKey: 'storyText' };
-  const cleaner: AgentDef  = { name: "Agent 5: Cleaner",        promptTemplate: PROMPT_AGENT_5_CLEANER_TEMPLATE,       dataKeys: ['storyText'], outputKey: 'storyText' };
-  const titler: AgentDef   = { name: "Agent 6: Titler",         promptTemplate: PROMPT_AGENT_6_TITLER_TEMPLATE,        dataKeys: ['storyText', 'READING_AGE_NOTE'], outputKey: 'titleText' };
-
-  const pipeline: AgentDef[] = [crafter, elaborator];
-  if (enableConsolidator) pipeline.push(consolidator);
-  pipeline.push(reviewer, polisher);
-  if (enableConsolidator) pipeline.push(consolidator);
-  pipeline.push(cleaner, titler);
-
-  return pipeline.map((a, i) => ({ ...a, step: `${i + 1}/${pipeline.length}` }));
-}
-
 async function runPipeline(
-  pipeline: AgentDef[],
+  pipeline: AgentDefinition[],
   commonInputs: Record<string, string>,
   pipelineData: Record<string, string>,
   apiKey: string,
@@ -404,7 +363,7 @@ async function runPipeline(
       else agentData[key] = '';
     }
 
-    const prompt = constructPrompt(agent.promptTemplate, agentData);
+    const prompt = constructAgentPrompt(agent.promptTemplate, agentData);
     const result = await callApi(prompt, apiKey, MODEL_ID, agent.name);
     data[agent.outputKey] = result;
 
@@ -426,10 +385,10 @@ function saveStoryToInbox(
   row: CsvRow,
   frameworkKey: string,
   styleKey: string,
+  narratorKey: string,
   index: number,
 ): string {
-  // Clean up the title (remove quotes, markdown, etc.)
-  let title = titleText.replace(/^["'#*]+|["'#*]+$/g, '').trim();
+  let title = sanitizeGeneratedTitle(titleText);
   if (!title) title = `Batch Story ${index + 1}`;
 
   const story = {
@@ -439,6 +398,7 @@ function saveStoryToInbox(
     audience: buildAudience(row.age_group, row.audience),
     framework: frameworkKey,
     style: styleKey,
+    narrator: narratorKey,
     date: new Date().toISOString(),
     tone: row.tone || undefined,
     pacing: row.pacing || undefined,
@@ -449,6 +409,7 @@ function saveStoryToInbox(
     consolidator: (row.consolidator || '').toLowerCase() === 'true' || (row.consolidator || '').toLowerCase() === 'yes',
     wordCount: countWords(storyText),
     ageGroup: row.age_group || undefined,
+    plotPoints: formatUserStoryRequirements(row.user_suggestions) || undefined,
   };
 
   // Clean undefined values
@@ -541,11 +502,14 @@ async function main() {
       const commonInputs: Record<string, string> = {
         audience: buildAudience(row.age_group, row.audience),
         CRAFT_GUIDE_TEXT: craftGuideText,
+        FRAMEWORK_SUMMARY_TEXT: STORY_FRAMEWORK_SUMMARIES[framework.key] || '',
         READING_AGE_NOTE: buildReadingAgeNote(row.reading_age),
-        USER_SUGGESTIONS_TEXT: row.user_suggestions || '',
+        USER_SUGGESTIONS_TEXT: formatUserStoryRequirements(row.user_suggestions),
         AUTHOR_STYLE_GUIDE: style.text,
+        AUTHOR_STYLE_SUMMARY_TEXT: STORY_STYLE_SUMMARIES[style.key] || '',
         ADJUSTMENT_MODULES_TEXT: buildAdjustmentModulesText(row),
         NARRATOR_PERSONA_TEXT: narrator.text,
+        NARRATOR_PERSONA_SUMMARY_TEXT: PERSONA_SUMMARIES[narrator.key] || '',
         SENSITIVITY_GUIDANCE_TEXT: buildSensitivityText(row.sensitivity),
       };
 
@@ -556,15 +520,15 @@ async function main() {
         titleText: '',
       };
 
-      const pipeline = buildPipeline(enableConsolidator);
+      const pipeline = getStoryGenerationPipelineConfig(enableConsolidator, framework.key);
       const result = await runPipeline(pipeline, commonInputs, initialData, apiKey);
 
       if (!result.storyText || result.storyText.trim().length < 100) {
         throw new Error('Story text too short or empty — likely a generation failure');
       }
 
-      const filename = saveStoryToInbox(result.storyText, result.titleText || '', row, framework.key, style.key, i);
-      const title = (result.titleText || '').replace(/^["'#*]+|["'#*]+$/g, '').trim();
+      const filename = saveStoryToInbox(result.storyText, result.titleText || '', row, framework.key, style.key, narrator.key, i);
+      const title = sanitizeGeneratedTitle(result.titleText || '');
       console.log(`${storyNum} ✓ Saved: "${title || 'Untitled'}" → ${filename} (${countWords(result.storyText)} words)`);
       successCount++;
 

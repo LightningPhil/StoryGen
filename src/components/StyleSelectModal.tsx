@@ -1,4 +1,5 @@
 import { ADJUSTMENT_MODULES } from '../prompts/adjustment_modules';
+import { useEscapeKey } from '../useEscapeKey';
 
 interface StyleSelectModalProps {
   selectedStyle: string;
@@ -25,6 +26,8 @@ export function StyleSelectModal({
   toneAdj, pacingAdj, humorAdj, emotionAdj,
   onToneChange, onPacingChange, onHumorChange, onEmotionChange,
 }: StyleSelectModalProps) {
+  useEscapeKey(onClose);
+
   return (
     <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-content modal-xl">

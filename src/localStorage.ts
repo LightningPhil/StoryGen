@@ -16,6 +16,7 @@ export const LS_TARGET_READING_AGE = 'targetReadingAge_storyCircle';       // Fo
 export const LS_READING_AGE_MIN = 'readingAgeMin_storyCircle'; 
 export const LS_READING_AGE_MAX = 'readingAgeMax_storyCircle'; 
 export const LS_ENABLE_CONSOLIDATOR = 'enableConsolidator_storyCircle';
+export const LS_EXPERIMENTAL_FAST_MODE = 'experimentalFastMode_storyCircle';
 
 // --- Keys for Stylistic Controls ---
 export const LS_SELECTED_AUTHOR_STYLE = 'storySelectedAuthorStyle_storyCircle';
@@ -60,6 +61,7 @@ export const LS_THINKING_AGENT_4_POLISHER = 'thinkingAgent4_storyCircle';
 export const LS_THINKING_AGENT_5_CLEANER = 'thinkingAgent5_storyCircle';
 export const LS_THINKING_AGENT_6_TITLER = 'thinkingAgent6_storyCircle';
 export const LS_THINKING_AGENT_C_CONSOLIDATOR = 'thinkingAgentC_storyCircle';
+export const LS_THINKING_AGENT_FAST = 'thinkingAgentFast_storyCircle';
 
 
 export function saveToLocalStorage(key: string, value: string): void {
@@ -145,7 +147,7 @@ export function clearAllAppData(includeApiKey: boolean = false): void {
         LS_CHARACTERS, LS_AUDIENCE, LS_AGE_GROUP, LS_SELECTED_FRAMEWORK, LS_SELECTED_MODEL,
         LS_USE_ENGINE_SUGGESTIONS, LS_USER_SUGGESTIONS, LS_MIN_API_INTERVAL,
         LS_ADJUST_READING_AGE_ENABLED, LS_TARGET_READING_AGE, LS_READING_AGE_MIN, LS_READING_AGE_MAX,
-        LS_ENABLE_CONSOLIDATOR, LS_SELECTED_AUTHOR_STYLE,
+        LS_ENABLE_CONSOLIDATOR, LS_EXPERIMENTAL_FAST_MODE, LS_SELECTED_AUTHOR_STYLE,
         LS_ADJUSTMENT_TONE, LS_ADJUSTMENT_PACING, LS_ADJUSTMENT_HUMOR, LS_ADJUSTMENT_EMOTION,
         LS_STEM_CONCEPT, LS_INCLUDE_PLOT_POINTS, LS_NARRATOR_PERSONA,
         LS_SENSITIVITY_PRESET, LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
@@ -155,7 +157,7 @@ export function clearAllAppData(includeApiKey: boolean = false): void {
         LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
         LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
         LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
-        LS_THINKING_AGENT_C_CONSOLIDATOR
+        LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THINKING_AGENT_FAST
     ];
     
     if (includeApiKey) {

@@ -16,14 +16,14 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
 
             <ol>
                 <li>A <strong>Story Crafter</strong> writes the first draft from your characters and ideas</li>
-                <li>An <strong>Elaborator</strong> enriches the draft with sensory details, dialogue, and emotion</li>
+                <li>An <strong>Elaborator</strong> enriches the draft where the selected framework benefits from expansion (concise fables skip this stage)</li>
                 <li>A <strong>Reviewer</strong> reads the story critically and provides feedback</li>
                 <li>A <strong>Polisher</strong> rewrites the story incorporating the reviewer's suggestions</li>
                 <li>A <strong>Cleaner</strong> tidies up any leftover formatting or notes</li>
                 <li>A <strong>Titler</strong> gives the finished story a fitting title</li>
             </ol>
 
-            <p>An optional <strong>Consolidator</strong> can step in to tighten wordy passages. The result is a story that feels considered and crafted rather than generated — one that children actually enjoy hearing at bedtime.</p>
+            <p>An optional <strong>Consolidator</strong> can make one careful tightening pass after polishing. The result is a story that feels considered and crafted rather than generated — one that children actually enjoy hearing at bedtime.</p>
 
             <div class="tip">
                 <div class="tip-title">📖 Open Source</div>
@@ -119,7 +119,7 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
 
             <h4>How It Works</h4>
             <ol>
-                <li><strong>Prompt-level guardrails</strong> — The Story Crafter agent receives firm content guidelines as part of every request. These prohibit sexual content, graphic violence, discriminatory themes, and strong gender stereotypes.</li>
+                <li><strong>Pipeline-wide system guardrails</strong> — Every agent receives the same instruction hierarchy and content policy. These prohibit sexual content, graphic violence, discriminatory themes, and strong stereotypes, while preserving audience and parental settings through later edits.</li>
                 <li><strong>Gemini API safety filters</strong> — Google's own content filters are set to strict levels. Sexually explicit content is blocked at the lowest threshold. Hate speech, harassment, and dangerous content are blocked at medium-and-above thresholds.</li>
                 <li><strong>Sensitivity presets</strong> — The Content Sensitivity setting (Options tab) further tunes conflict, scary elements, sadness, and complexity for younger audiences.</li>
             </ol>
@@ -258,6 +258,10 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
             
             <h4>Reading Age Range</h4>
             <p>Set the min/max for the reading age slider in the Options tab.</p>
+
+            <h4>Experimental Fast Mode</h4>
+            <p>Fast Mode generates the title and complete story with one Gemini request. It silently combines planning, drafting, selective enrichment, review, polishing, optional consolidation, cleanup, and titling while still applying every active framework, style, narrator, sensitivity, reading-age, and plot-point option.</p>
+            <p>It is faster and uses fewer API calls, but the full multi-agent pipeline may catch more subtle problems. Fast Mode applies to <strong>Generate Story</strong>; the separate <strong>Elaborate</strong> action continues to use the editor pipeline.</p>
             
             <h4>Agent Thinking Modes</h4>
             <p>Enable "thinking" for individual AI agents. Thinking mode produces higher quality output but uses more tokens. Only available with compatible models.</p>
@@ -273,7 +277,7 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
             <h4>The Agent Pipeline</h4>
             <ol>
                 <li><strong>Story Crafter</strong> - Creates the initial story draft based on your inputs</li>
-                <li><strong>Elaborator</strong> - Expands descriptions, enriches dialogue, adds sensory details</li>
+                <li><strong>Elaborator</strong> - Enriches descriptions, dialogue, and sensory detail when the framework permits expansion; concise fables skip this step</li>
                 <li><strong>Reviewer</strong> - Checks for consistency, age-appropriateness, and plot holes</li>
                 <li><strong>Polisher</strong> - Refines prose, improves flow, enhances language</li>
                 <li><strong>Cleaner</strong> - Final pass: removes artifacts, fixes formatting</li>
@@ -281,7 +285,10 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
             </ol>
             
             <h4>Consolidator Agent</h4>
-            <p>Enable <strong>Use Story Consolidator</strong> in the Options tab for longer stories. This agent manages context across the pipeline to maintain consistency.</p>
+            <p>Enable <strong>Use Story Consolidator</strong> in the Options tab for longer stories. It runs once after polishing and removes genuine redundancy while preserving deliberate repetition, calm pacing, framework beats, names, and reading-level choices.</p>
+
+            <h4>Experimental Fast Mode</h4>
+            <p>When enabled in Settings, Agent F performs the whole publishing workflow internally and returns a structured title and story in one request. Use the full pipeline when maximum consistency matters; use Fast Mode when speed and fewer API calls matter more.</p>
             
             <h4>Thinking Mode</h4>
             <p>In Settings, you can enable "thinking" for each agent. This allows the AI to reason through its task before responding, improving quality at the cost of more tokens.</p>
