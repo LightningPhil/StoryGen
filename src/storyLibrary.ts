@@ -17,6 +17,7 @@ export interface SavedStory {
     model?: string;
     readingAge?: number | null;
     consolidator?: boolean;
+    fastMode?: boolean;
     wordCount?: number;
     plotPoints?: string;
     ageGroup?: string;

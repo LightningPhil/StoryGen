@@ -1,14 +1,15 @@
 import { normalizeLookupKey } from '../lookupKeys';
 
 const UNIVERSAL_CRAFT_STANDARDS = `
-## ✨ Universal Craft Standards  (apply no matter which framework you choose)
+## ✨ Universal Craft Defaults
+Apply these unless the selected framework, audience, reading-accessibility note, or sensitivity guidance gives a more specific rule.
 
-1. **Show, *then* name** every key emotion or object. *(E.g., “A tremor rippled through Pika’s whiskers” → “*This is fear,* she realised.”)*
-2. **Sensory Trios:** When stakes peak, layer **three** senses (sound • texture • smell/visual) in one sentence cluster.
-3. **Limit exclamation marks** to **≤ 8** per story.
+1. **Show emotions before explaining them:** Use action, dialogue, thought, or physical sensation. Name an emotion afterward only when that genuinely helps the target reader; do not repeat a “This is…” formula.
+2. **Purposeful sensory detail:** At an important moment, combine up to three relevant senses when it improves immersion. Do not force a sensory checklist into every scene.
+3. **Limit exclamation marks** to **≤ 8** per story unless an active tone module explicitly permits a different cap.
 4. Avoid generic adjectives (e.g., *magical, glowing, scary*). Swap with precise verbs or concrete images.
 5. Keep dialogue tags simple (*said, asked, whispered*), unless a vivid alternative truly adds colour.
-6. Maximum word count guidance for short stories aimed at ages 5‑8: **800–1 200 words**.
+6. When no framework or user requirement supplies a length, short stories for ages 5-8 generally work well at **800-1,200 words**. A framework-specific target overrides this default.
 
 ---
 ### 🎭 Narrative Voice Consistency
@@ -30,7 +31,7 @@ Your narrator is a CHARACTER with a consistent personality. Maintain this voice 
 **Red Flags to Avoid:**
 - ❌ Starting whimsical, ending preachy
 - ❌ Mixing slang with archaic language ("totally cool" + "thou shalt")
-- ❌ Narrator becoming a moral lecturer in the last paragraph
+- ❌ Narrator becoming a moral lecturer in the last paragraph, unless a concise explicit moral is required by the selected fable framework
 - ❌ Jokes that clash with emotional beats (silly one-liner during sad moment)
 
 **Self-Check:** After drafting, ask: Could the same person have narrated every paragraph? Does the VOICE feel like one storyteller throughout?
@@ -48,18 +49,18 @@ Your story MUST follow this 8-step structure:
 3.  **Go (Enter unfamiliar situation):** The character(s) cross a threshold, leaving their comfort zone to pursue their 'Need'. Describe this new, unfamiliar situation.
 4.  **Search (Adapt to it):** The character(s) face challenges, obstacles, or trials in this new situation. They learn, adapt, and acquire new skills or understanding.
 5.  **Find (Get what they wanted):** The character(s) achieve their initial goal or find what they were searching for. However, this success often comes with a complication or a 'catch'.
-6.  **Take (Pay a heavy price for it):** The character(s) face the consequences, costs, or sacrifices associated with their achievement in step 5. This is often a difficult part of their journey.
+6.  **Take (Make an effort or accept a cost):** The character(s) invest age-appropriate effort, make a meaningful choice, or accept a consequence associated with step 5. Under gentle settings this can be patience, sharing, or giving up a preference rather than danger or suffering.
 7.  **Return (To their familiar situation):** The character(s) journey back towards their original world or a new state of normalcy, bringing with them what they've gained or learned.
 8.  **Change (Having changed):** The character(s) are demonstrably transformed by their journey. Show how they have grown, what lessons they've learned, and how their perspective or life is different now.
 
 **CRAFT GUIDE (must-follow):**
 
-1.  After **Step 2** you MUST state the hero's **internal flaw/fear** in one line.  Introduce the protagonist's core fear or flaw **in scene**, not as an author aside. Show it with at least one physical cue (e.g., sweaty paws, quivering whiskers) *and* one anxious thought.
-2.  Before **Step 3** add a clear **ticking clock or consequence** if the quest is ignored.  
-3.  In **Step 4**: Include at least one obstacle that directly tests the flaw/fear.  Let that fear shape a choice or mistake. Include a brief beat where the hero almost turns back or freezes.  
-4.  In **Step 6**: Show a *tangible sacrifice* in **3 or more sentences** (hesitation, then sensory detail, then immediate consequence).  During the sacrifice, amplify the fear: use **three sensory details** (sound, texture, smell, etc.) to make the cost visceral. Show a moment of doubt *before* the commitment.  
-5.  In **Step 8**: Illustrate the transformed fear. The hero should respond to a small echo of the original trigger, but with new confidence or wisdom. This section should include a vivid sensory image (no moral summary).
-6.  Style: less than 8 exclamation marks; replace generic adjectives such as ('magical', 'glowing') with precise verbs & fresh sense details.
+1. After **Step 2**, establish a growth need, hesitation, or fear in-scene through behavior and thought. Under no-fear settings, use curiosity, uncertainty, or a skill the hero wants to develop.
+2. Before **Step 3**, give the hero a clear reason to act now. A gentle story may use anticipation or a closing opportunity instead of a threatening consequence.
+3. In **Step 4**, include an obstacle or puzzle that tests the growth need and shapes a meaningful choice.
+4. In **Step 6**, show a meaningful commitment through effort, patience, sharing, or an age-appropriate sacrifice. Use only the sensory detail the moment needs.
+5. In **Step 8**, echo the opening growth need and show changed behavior through action and a vivid image rather than an added moral summary.
+6. Style: follow the active exclamation cap and replace generic adjectives such as “magical” or “glowing” with precise verbs and fresh concrete detail.
 `;
 
 const THREE_ACT_STRUCTURE_GUIDE = `
@@ -74,10 +75,10 @@ const THREE_ACT_STRUCTURE_GUIDE = `
 | **Act 3 – Resolution** | Climax (inner + outer), immediate fallout, short denouement |
 
 ### **Craft Checklist (MUST‑FOLLOW)**  
-1. **Internal Flaw Reveal** ⟶ Immediately *after* inciting incident, show the hero’s fear or flaw in **< 30 words** using one physical cue + one anxious thought.  
-2. **Ticking Clock** ⟶ State or imply a consequence if goal isn’t met **before midpoint.**  
-3. **Midpoint Mirror** ⟶ Present a choice that tempts the hero to repeat their old flaw; they must *fail or falter.*  
-4. **Climactic Sacrifice** ⟶ Use **3+ sentences** of sensory detail as the hero willingly risks or gives up something dear.  
+1. **Growth Need Reveal** ⟶ Immediately after the inciting incident, show a fear, hesitation, misconception, or skill the hero needs to develop in fewer than 30 words. Use non-frightening uncertainty under no-fear settings.
+2. **Reason to Act** ⟶ State or imply before the midpoint why the goal matters now. Use opportunity rather than threat when sensitivity requires it.
+3. **Midpoint Mirror** ⟶ Present a choice that tests the old pattern; the hero may falter, or under extra-gentle settings simply try an approach that needs adjustment.
+4. **Climactic Commitment** ⟶ Show the hero choosing effort, honesty, sharing, courage, or another age-appropriate cost. Use focused sensory detail rather than forced danger.
 5. **Transformation Echo** ⟶ In the denouement, revisit the original trigger; hero responds with new confidence—*no moralising summary.*
 `;
 
@@ -141,10 +142,11 @@ const HEROS_JOURNEY_GUIDE = `
 const BUT_THEREFORE_CHAIN_GUIDE = `
 ## 5. **“But, Therefore” Chain**
 
-> A pacing algorithm rather than full structure—bolt onto any framework.
+> A cause-and-effect pacing framework. When selected on its own, place the chain inside a simple setup → escalating problem/puzzle → climax → resolution arc.
 
 ### **Usage**
 - Replace “and then…” transitions with **“BUT…”** (obstacle) or **“THEREFORE…”** (consequence).
+- Do not print the connector words mechanically in every paragraph; use the causal logic in natural prose.
 
 ### **Craft Checklist**
 1. Write outline as bullet chain; test every beat—if you can replace connector with “and then,” rewrite.  
@@ -164,9 +166,9 @@ const PIXAR_STORY_SPINE_GUIDE = `
 6. *Ever since then …*
 
 ### **Craft Checklist (MUST‑FOLLOW)**
-1. Opening two lines must spotlight hero’s routine **and** hint at flaw.  
+1. Opening two lines must spotlight the hero’s routine and hint at a growth need or desire.
 2. Each “Because of that” must escalate stakes; last one pushes hero to toughest choice.  
-3. “Until finally” = sacrifice moment; apply sensory trio.  
+3. “Until finally” is the commitment moment: the hero chooses effort, honesty, courage, sharing, or another age-appropriate cost. Add only useful sensory detail.
 4. “Ever since then” = 1‑sentence echo of opening image, transformed.
 `;
 
@@ -191,30 +193,25 @@ const CHEKHOVS_SKETCH_GUIDE = `
 // --- New Frameworks from .md file ---
 
 const SAVE_THE_CAT_GUIDE = `
-## Save the Cat! Beat Sheet
+## Save the Cat! — Condensed Short-Story Beat Sheet
 
-#### Step Outline (15 beats)
-1. Opening Image  
-2. Theme Stated  
-3. Set-up  
-4. Catalyst (≈ 12%)  
-5. Debate  
-6. Break into 2 (Act 2)  
-7. B-Story  
-8. Fun & Games  
-9. Midpoint (50%)  
-10. Bad Guys Close In  
-11. All Is Lost (≈ 75%)  
-12. Dark Night of the Soul  
-13. Break into 3 (Act 3)  
-14. Finale  
-15. Final Image  
+Use this eight-beat adaptation rather than trying to force all fifteen screenplay beats into a short children's story.
+
+#### Step Outline
+1. **Opening Image + Set-up** — Show the ordinary world and one unmet need.
+2. **Theme Hint + Catalyst** — Hint at the theme through dialogue or action, then disrupt the routine.
+3. **Debate + Choice** — Let the hero hesitate briefly and choose to act.
+4. **Promise of the Premise** — Deliver one or two engaging sequences that explore the story's central idea.
+5. **Midpoint Shift** — Reveal new information, a success with a catch, or a changed goal near the middle.
+6. **Pressure Builds** — Remove an easy option and make the central choice harder.
+7. **Low Point + New Insight** — Use a symbolic or emotional loss appropriate to sensitivity settings; death imagery is never required.
+8. **Finale + Final Image** — Apply the new insight, resolve the story, and echo the opening image.
 
 #### Craft Checklist (Must-Follow)
-- State the **theme** in Beat 2 (≤ 15 words).  
-- Provide three escalating **Fun & Games** set-pieces.  
-- Include a **“whiff of death”** in All Is Lost.  
-- Mirror the Opening Image in the Finale.
+- Hint at the theme in no more than 15 words; do not lecture.
+- Use at most two “promise of the premise” sequences so the short story does not become episodic.
+- Keep the low point inside active audience and sensitivity limits.
+- Mirror or meaningfully transform the opening image in the final image.
 `;
 
 const SEVEN_POINT_STRUCTURE_GUIDE = `
@@ -225,41 +222,40 @@ const SEVEN_POINT_STRUCTURE_GUIDE = `
 2. First Plot Point  
 3. First Pinch (pressure)  
 4. Midpoint (shift)  
-5. Second Pinch (worst loss)  
+5. Second Pinch (strongest pressure)
 6. Second Plot Point  
 7. Resolution  
 
 #### Craft Checklist (Must-Follow)
-- Reveal protagonist’s **core flaw** in the Hook through action.  
-- Each **Pinch** removes an ally or resource and doubles stakes.  
-- Force an internal reversal at the **Midpoint**.  
+- Reveal a growth need, misconception, or hesitation in the Hook through action.
+- Each **Pinch** removes an easy option or adds a complication. Under extra-gentle settings, do not remove a source of safety or support.
+- Create an internal realization or change of approach at the **Midpoint**.
 - Echo the Hook image in the Resolution.
 `;
 
 const SNOWFLAKE_METHOD_GUIDE = `
-## Snowflake Method (Iterative Expansion)
+## Snowflake Method — Condensed Generation Blueprint
 
-#### Step Outline (10 passes)
-1. One-Sentence Summary  
-2. One-Paragraph Blurb  
-3. Character Summaries  
-4. Expanded Synopsis (1 page)  
-5. Character Deep-Dives (1 page each)  
-6. Four-Page Story Synopsis  
-7. Detailed Character Charts  
-8. Scene-List Spreadsheet  
-9. Full Narrative Description  
-10. Draft Manuscript  
+The Snowflake Method is a planning process, not an in-story beat structure. Use the following plan silently, then output only the finished narrative requested by the current agent.
+
+#### Silent Planning Passes
+1. **Core sentence** — In no more than 25 words, identify protagonist, goal, obstacle or puzzle, and hook.
+2. **Short paragraph** — Expand that sentence into setup, two or three developments, climax, and resolution.
+3. **Character anchors** — Give each main character one want, one useful trait, and one growth need.
+4. **Scene chain** — Choose only scenes with a clear purpose and connect them through cause and effect.
+5. **Narrative draft** — Write the story with sensory and emotional detail appropriate to each scene.
 
 #### Craft Checklist (Must-Follow)
-- Cap **Step 1** at 25 words: protagonist + conflict + hook.  
-- After Step 4, add a **ticking clock** sentence.  
-- Cut or merge scenes lacking conflict in Step 8.  
-- Delay rich sensory detail until Step 9+.
+- Do not print the planning passes, summaries, character sheets, or scene list.
+- Give the hero a clear reason to act; use opportunity rather than threat under gentle settings.
+- Merge scenes that repeat the same purpose.
+- Keep all expansion inside the active length, audience, and sensitivity guidance.
 `;
 
 const FICHTEAN_CURVE_GUIDE = `
 ## Fichtean Curve (“Crisis Ladder”)
+
+For gentle settings, interpret each “crisis” as an increasingly demanding puzzle, effort, or decision rather than danger or distress.
 
 #### Step Outline
 1. Inciting Incident  
@@ -273,7 +269,7 @@ const FICHTEAN_CURVE_GUIDE = `
 
 #### Craft Checklist (Must-Follow)
 - Begin **in medias res** within three paragraphs.  
-- Each crisis **forces a new decision** that deepens the flaw.  
+- Each crisis or challenge **forces a new decision** that tests the protagonist's growth need.
 - Keep reflections under 150 words, ending on forward momentum.  
 - Resolve the **emotional arc** before plot loose ends.
 `;
@@ -288,21 +284,21 @@ const GRIMMS_FOREST_PATH_GUIDE = `
 4. Trial #1  
 5. Trial #2  
 6. Trial #3  
-7. Descent / Darkest Peril  
+7. Descent / Hardest Trial
 8. Clever or Compassionate Act  
 9. Magical Reward / Transformation  
-10. Punishment of the Wrongdoer  
+10. Proportionate Consequence for the Wrongdoer
 11. Moral Glimmer  
-12. Closing Formula (“…and if they haven’t died…”)  
+12. Closing Formula (“…and their tale is still told…”)
 
 #### Craft Checklist (Must-Follow)
-1. Add an archaic word every ~120 words (“thither”, “quoth”).  
+1. Use at most one lightly archaic word about every 120 words, and only when the audience and reading-accessibility note allow it. Clarity takes priority.
 2. Use the **rule of three** to escalate trials with a repeated motif.  
-3. Hint at genuine peril—abandonment, dismemberment, or death.  
+3. Create age-appropriate fairy-tale stakes such as separation, a fading spell, a lost home, or failure to complete a task. Never use graphic injury, dismemberment, or cruel death.
 4. Give one line of dialogue to a **talking creature/object**.  
-5. Describe the villain’s punishment in one vivid sentence.  
+5. Describe the wrongdoer’s non-violent, proportionate consequence in one vivid sentence; under gentle settings prefer restitution or changed behavior.
 6. Finish with a moral ≤ 25 words.  
-7. Target sentences ~15 % longer than default.
+7. A classic cadence may use slightly longer sentences, but the reading-accessibility note controls final sentence complexity.
 `;
 
 const GRIMMS_WISH_MIRROR_GUIDE = `
@@ -315,36 +311,36 @@ const GRIMMS_WISH_MIRROR_GUIDE = `
 4. First Boon  
 5. Subtle Consequence  
 6. Second Boon  
-7. Dire Consequence (mirror twist)  
+7. Serious Consequence (mirror twist)
 8. Third Boon  
-9. Catastrophic Reversal  
+9. Major Reversal
 10. Atonement or Cunning Escape  
 11. Moral Echo  
 
 #### Craft Checklist (Must-Follow)
-1. Employ archaic verbs (“beseeched”, “abideth”).  
+1. Use an occasional accessible archaic verb such as “beseeched” only when the reading level permits it; avoid obscure constructions such as “abideth” for early readers.
 2. Reference **mirrors, water, or reflections** at least three times.  
 3. Keep a triadic rhythm: three boons/wishes doubling stakes.  
-4. Make final punishment the **inverse** of the desire.  
+4. Make the final, non-violent consequence the **inverse** of the desire.
 5. Let the granter speak one **rhymed couplet**.  
-6. Include an unsettling tactile detail.  
-7. Average sentence length ≈ 20 words.
+6. Include one unusual tactile detail only if the scary-elements setting allows it.
+7. Use a classic flowing cadence, while allowing the reading-accessibility note to control sentence length.
 `;
 
 const GRIMMS_HIDDEN_BEAST_GUIDE = `
-## Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)
+## Grimms’ Hidden-Beast Pattern (“Enchanted Companion”)
 
 #### Step Outline (12 beats)
 1. Enchanted Beast Encounter  
-2. Pact or Marriage under Condition  
-3. Life with the Beast in Secrecy  
+2. Pact or Promise under a Condition
+3. Life with the Enchanted Companion in Secrecy
 4. Forbidden Act / Broken Taboo  
 5. Sudden Separation and Lament  
-6. Quest for Lost Bridegroom  
+6. Quest for the Lost Companion
 7. Trio of Impossible Tasks  
 8. Aid from Secret Helpers  
 9. Disenchantment / True Form Revealed  
-10. Reunion and Wedding Feast  
+10. Reunion and Celebration
 11. Humbling of Betrayer  
 12. Moral of Constancy  
 
@@ -353,8 +349,8 @@ const GRIMMS_HIDDEN_BEAST_GUIDE = `
 - Establish a strict **taboo** (no light, no questions, etc.).  
 - Present exactly **three impossible tasks**, solved through kindness.  
 - Transform the beast in a single, colorful paragraph.  
-- Maintain romantic-gothic tone; no modern humor.  
-- Close with a moral praising loyalty.
+- Maintain a mysterious, warm fairy-tale tone without romance or modern humor.
+- Close with a moral about loyalty, trust, or keeping promises.
 `;
 
 const GRIMMS_SIBLING_QUEST_GUIDE = `
@@ -365,21 +361,21 @@ const GRIMMS_SIBLING_QUEST_GUIDE = `
 2. Sole Survivor’s Rescue Vow  
 3. Flight into the Wild Wood  
 4. Meeting Benevolent Helper  
-5. Gathering Painful Materials  
-6. Silent Toil and Sacrifice  
+5. Gathering Difficult-to-Find Materials
+6. Silent Toil and Perseverance
 7. Villain’s Interference  
-8. Trial by Fire or Execution  
+8. Public Trial or Final Deadline
 9. Final Moment of Transformation  
 10. Liberation of Siblings  
-11. Punishment of Malefactor  
+11. Proportionate Consequence for the Wrongdoer
 12. Harmonious Reign  
 
 #### Craft Checklist (Must-Follow)
 - Repeat a sibling-bond phrase three times (“blood of my blood”).  
-- Include one full scene of **silent suffering** (no dialogue).  
+- Include one focused scene of **silent perseverance** (no dialogue).
 - Use vivid nature imagery: moonlit reeds, starlit wings.  
-- Time the transformation with the execution stroke.  
-- Mirror cruelty in the villain’s punishment.  
+- Time the transformation with the decisive final moment or deadline.
+- Give the villain a safe, proportionate consequence; under gentle settings prefer repair, restitution, or loss of unfair power.
 - End on a pastoral image of restored family.
 `;
 
@@ -394,11 +390,11 @@ const GRIMMS_TRICKSTER_TRIUMPH_GUIDE = `
 5. Task #2 and Mischievous Fix  
 6. Task #3 and Daring Bluff  
 7. Rivals Turned on Each Other  
-8. Reward (Marriage, Wealth, Kingdom)  
+8. Reward (Recognition, Belonging, a Home, or a Safe Prize)
 9. Winking Epilogue  
 
 #### Craft Checklist (Must-Follow)
-- Open with an archaic exclamation (“Gadzooks!”).  
+- When the reading level permits, open with one playful, understandable old-fashioned exclamation such as “Gadzooks!”
 - Ensure each trick fools both mighty and simple.  
 - Use humorous hyperbole (“seven with one blow”).  
 - Keep trickster’s methods mysterious.  
@@ -425,6 +421,7 @@ const FABLE_GUIDE = `
    - The conflict directly tests the characters' defining traits
    - Stakes are proportionate: food, safety, status—not life or death
    - Make the test clear and immediate
+   - Under no-conflict settings, make this a shared puzzle or contrasting approaches without disagreement, meanness, or an adversary
 
 3. **The Choice & Consequence** — 100-150 words
    - Characters choose different approaches based on their nature
@@ -442,7 +439,7 @@ const FABLE_GUIDE = `
 
 1. **Target Length:** 400-500 words maximum. Fables must be concise—every sentence earns its place.
 
-2. **Character Naming:** Use species with simple descriptors:
+2. **Character Naming:** Preserve all supplied names. For unnamed characters, use species with simple descriptors:
    - ✓ GOOD: "The Clever Fox", "A Proud Peacock", "The Humble Mouse"
    - ✗ AVOID: "Fennec the Firetail", "Sir Reginald Fluffington III"
 
@@ -461,7 +458,7 @@ const FABLE_GUIDE = `
    - Themes: sharing, honesty, humility, wisdom, patience, kindness, hard work
    - Frame positively: "Hard work brings reward" over "Laziness leads to failure"
 
-6. **Binary Outcome:** One character's approach succeeds; another's fails. This contrast reinforces the lesson.
+6. **Contrasting Outcome:** Show why one approach works better. Under extra-gentle settings, use different degrees of success and learning rather than humiliation, punishment, or harsh failure.
 
 7. **No Excessive Description:** Skip elaborate scenery, weather, or internal monologue. Describe only what advances the moral.
 
@@ -491,7 +488,7 @@ const LEARNING_FABLE_GUIDE = `
 1. **The Setup (Introduce the Problem):** (80-120 words)
    - Introduce 1-2 animal characters facing a practical challenge
    - The challenge MUST be solvable using a specific STEM concept
-   - Show initial failed attempts that don't use the concept
+   - Show initial attempts that do not yet solve the problem; under no-sadness settings, frame these as useful experiments rather than failures
    - Make the stakes clear: food, shelter, safety, helping a friend
 
 2. **The Discovery (Introduce the Concept):** (100-150 words)
@@ -552,7 +549,7 @@ const LEARNING_FABLE_GUIDE = `
 | Counting/Math | Squirrel, Ant | Storing, organizing |
 | Camouflage | Chameleon, Octopus, Moth | Adaptation |
 | Buoyancy | Duck, Otter | Floating |
-| Magnetism | Migratory Bird | Navigation |
+| Earth's magnetic field / magnetoreception | Migratory Bird | Navigation; explain sensing a field, not attraction to a household magnet |
 | Sound Waves | Bat, Dolphin | Echolocation |
 | Friction | Snake, Snail | Movement |
 
@@ -606,14 +603,14 @@ export const STORY_FRAMEWORK_SUMMARIES: Record<string, string> = {
     "Pixar Story Spine": "A simple sentence-scaffold ('Once upon a time... Every day... Until one day...') that outlines a character-driven story arc with escalating stakes. Used by Pixar.",
     "Chekhov’s Sketch": "A short, impressionistic narrative focusing on mood, character insight, and a subtle internal shift, rather than a strong plot. Often open-ended.",
     // New summaries
-    "Save the Cat! Beat Sheet": "A detailed 15-beat story structure, popular in screenwriting, that maps out key plot points from opening image to finale.",
+    "Save the Cat! Beat Sheet": "A condensed eight-beat, child-safe short-story adaptation that moves from opening image and catalyst through midpoint, low point, finale, and a mirrored final image.",
     "Seven-Point Story Structure": "A plot structure focusing on two major turning points (Plot Points) and two pressure points (Pinches) that frame the story's Midpoint.",
-    "Snowflake Method (Iterative Expansion)": "A design process for writing stories where you start with a single sentence and build it out into a full narrative through ten iterative passes.",
+    "Snowflake Method (Iterative Expansion)": "A silent five-pass planning blueprint: core sentence, short plot paragraph, character anchors, purposeful scene chain, then narrative draft. Planning artifacts must not appear in the story.",
     "Fichtean Curve (“Crisis Ladder”)": "A plot structure that begins in the middle of the action and follows a character through a series of escalating crises, with brief moments of reflection, leading to a climax.",
     "Grimms’ Fairy-Tale Pattern (“Forest Path”)": "A classic fairy-tale template following a protagonist through hardship, a series of three trials, and a magical resolution, often with a clear moral.",
     "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
-    "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
-    "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
+    "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": "A child-safe enchanted-companion tale about a conditional promise, a broken taboo, and a loyal quest to restore a friend to their true form.",
+    "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": "A fairy-tale framework centered on a protagonist's selfless quest and quiet perseverance to rescue their cursed siblings.",
     "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery.",
     // Fable summary
     "Fable (Aesop Style)": "A short, moral tale with animal characters (400-500 words). Features a clear conflict and an explicit lesson. Based on classical Aesop tradition.",

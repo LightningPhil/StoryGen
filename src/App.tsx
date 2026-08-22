@@ -22,6 +22,7 @@ import {
   LS_ADJUST_READING_AGE_ENABLED,
   LS_TARGET_READING_AGE,
   LS_ENABLE_CONSOLIDATOR,
+  LS_EXPERIMENTAL_FAST_MODE,
   LS_SENSITIVITY_PRESET,
   LS_SENSITIVITY_CONFLICT,
   LS_SENSITIVITY_SCARY,
@@ -38,6 +39,7 @@ import {
   LS_THINKING_AGENT_5_CLEANER,
   LS_THINKING_AGENT_6_TITLER,
   LS_THINKING_AGENT_C_CONSOLIDATOR,
+  LS_THINKING_AGENT_FAST,
   LS_ADJUSTMENT_TONE,
   LS_ADJUSTMENT_PACING,
   LS_ADJUSTMENT_HUMOR,
@@ -53,13 +55,20 @@ import {
 } from './localStorage';
 import appState from './appState';
 import { SENSITIVITY_LEVELS } from './appState';
-import { parseCharacters, countWords } from './utils';
+import { parseCharacters, countWords, formatUserStoryRequirements, sanitizeGeneratedTitle } from './utils';
 import { STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides';
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles';
-import { NARRATOR_PERSONAS } from './prompts/narrator_personas';
+import { NARRATOR_PERSONAS, PERSONA_SUMMARIES } from './prompts/narrator_personas';
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules';
 import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts';
-import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline';
+import {
+  runPipeline,
+  runFastStoryGeneration,
+  getStoryGenerationPipelineConfig,
+  getElaborationPipelineConfig,
+  frameworkUsesConcisePipeline,
+  FAST_STORY_AGENT_NAME,
+} from './pipeline';
 import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
@@ -88,7 +97,11 @@ type AgentThinkingKey =
   | 'polisher'
   | 'cleaner'
   | 'titler'
-  | 'consolidator';
+  | 'consolidator'
+  | 'fast';
+
+const DEFAULT_FRAMEWORK = "Dan Harmon's Story Circle";
+const DEFAULT_STYLE = 'Default (No Specific Style)';
 
 function clampNumber(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -156,8 +169,14 @@ export default function App() {
   const [characters, setCharacters] = useState(() => loadFromLocalStorage(LS_CHARACTERS) || '');
   const [audience, setAudience] = useState(() => loadFromLocalStorage(LS_AUDIENCE) || '');
   const [ageGroup, setAgeGroup] = useState(() => loadFromLocalStorage(LS_AGE_GROUP) || '');
-  const [selectedFramework, setSelectedFramework] = useState(() => canonicalizeFrameworkKey(loadFromLocalStorage(LS_SELECTED_FRAMEWORK) || ''));
-  const [selectedStyle, setSelectedStyle] = useState(() => loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || '');
+  const [selectedFramework, setSelectedFramework] = useState(() => {
+    const key = canonicalizeFrameworkKey(loadFromLocalStorage(LS_SELECTED_FRAMEWORK) || DEFAULT_FRAMEWORK);
+    return resolveFrameworkGuide(key) ? key : DEFAULT_FRAMEWORK;
+  });
+  const [selectedStyle, setSelectedStyle] = useState(() => {
+    const key = loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || DEFAULT_STYLE;
+    return STORY_STYLE_GUIDES[key] ? key : DEFAULT_STYLE;
+  });
   const [selectedNarrator, setSelectedNarrator] = useState(() => loadFromLocalStorage(LS_NARRATOR_PERSONA) || 'Default (No Narrator Persona)');
   const [userSuggestions, setUserSuggestions] = useState(() => loadFromLocalStorage(LS_USER_SUGGESTIONS) || '');
   const [includePlotPoints, setIncludePlotPoints] = useState(() => loadFromLocalStorage(LS_INCLUDE_PLOT_POINTS) === 'true');
@@ -171,6 +190,7 @@ export default function App() {
   const [readingAgeMin, setReadingAgeMin] = useState(() => loadReadingAgeRange().min);
   const [readingAgeMax, setReadingAgeMax] = useState(() => loadReadingAgeRange().max);
   const [enableConsolidator, setEnableConsolidator] = useState(() => loadFromLocalStorage(LS_ENABLE_CONSOLIDATOR) === 'true');
+  const [experimentalFastMode, setExperimentalFastMode] = useState(() => loadFromLocalStorage(LS_EXPERIMENTAL_FAST_MODE) === 'true');
 
   // Sensitivity
   const [sensitivityPreset, setSensitivityPreset] = useState(() => loadFromLocalStorage(LS_SENSITIVITY_PRESET) || 'adventurous');
@@ -183,9 +203,15 @@ export default function App() {
   const [stemConcept, setStemConcept] = useState(() => loadFromLocalStorage(LS_STEM_CONCEPT) || '');
 
   // Adjustments
-  const [toneAdj, setToneAdj] = useState(() => loadFromLocalStorage(LS_ADJUSTMENT_TONE) || 'default');
+  const [toneAdj, setToneAdj] = useState(() => {
+    const saved = loadFromLocalStorage(LS_ADJUSTMENT_TONE);
+    return !saved || saved === 'default' ? 'none' : saved;
+  });
   const [pacingAdj, setPacingAdj] = useState(() => loadFromLocalStorage(LS_ADJUSTMENT_PACING) || 'default');
-  const [humorAdj, setHumorAdj] = useState(() => loadFromLocalStorage(LS_ADJUSTMENT_HUMOR) || 'default');
+  const [humorAdj, setHumorAdj] = useState(() => {
+    const saved = loadFromLocalStorage(LS_ADJUSTMENT_HUMOR);
+    return !saved || saved === 'default' ? 'none' : saved;
+  });
   const [emotionAdj, setEmotionAdj] = useState(() => loadFromLocalStorage(LS_ADJUSTMENT_EMOTION) || 'default');
 
   // ─── Settings state ───────────────────────────────────────────────────
@@ -201,6 +227,7 @@ export default function App() {
     cleaner: loadFromLocalStorage(LS_THINKING_AGENT_5_CLEANER) === 'true',
     titler: loadFromLocalStorage(LS_THINKING_AGENT_6_TITLER) === 'true',
     consolidator: loadFromLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR) !== 'false',
+    fast: loadFromLocalStorage(LS_THINKING_AGENT_FAST) === 'true',
   }));
   const [ttsSource, setTtsSource] = useState(() => loadFromLocalStorage(LS_TTS_SOURCE) || 'browser');
   const [ttsGender, setTtsGender] = useState(() => loadFromLocalStorage(LS_TTS_GENDER) || 'female');
@@ -329,6 +356,7 @@ export default function App() {
       cleaner: 'Agent 5: Cleaner',
       titler: 'Agent 6: Titler',
       consolidator: 'Agent C: Consolidator',
+      fast: FAST_STORY_AGENT_NAME,
     };
 
     return (Object.keys(agentNames) as AgentThinkingKey[]).reduce<Record<string, boolean>>((config, key) => {
@@ -373,29 +401,35 @@ export default function App() {
     }
   }, []);
 
-  const getCurrentSensitivitySettings = useCallback((): SensitivitySettings | null => {
-    if (sensitivityPreset === 'adventurous' || sensitivityPreset === 'standard') {
-      // Check if actually at preset defaults
-      const presetData = SENSITIVITY_LEVELS[sensitivityPreset];
-      if (presetData && conflictLevel === presetData.conflict && scaryLevel === presetData.scary
-        && sadnessLevel === presetData.sadness && complexityLevel === presetData.complexity) {
-        return null;
-      }
-    }
-    return { conflict: conflictLevel, scary: scaryLevel, sadness: sadnessLevel, complexity: complexityLevel };
-  }, [sensitivityPreset, conflictLevel, scaryLevel, sadnessLevel, complexityLevel]);
+  const getCurrentSensitivitySettings = useCallback((): SensitivitySettings => ({
+    conflict: conflictLevel,
+    scary: scaryLevel,
+    sadness: sadnessLevel,
+    complexity: complexityLevel,
+  }), [conflictLevel, scaryLevel, sadnessLevel, complexityLevel]);
 
   const buildCommonInputs = useCallback((modelConfig?: ModelConfig, abortSignal?: AbortSignal): CommonInputs => {
-    let frameworkGuide = resolveFrameworkGuide(selectedFramework);
-    if (selectedFramework === 'Learning Fable (STEM)' && stemConcept) {
+    const frameworkKey = selectedFramework || DEFAULT_FRAMEWORK;
+    const styleKey = selectedStyle || DEFAULT_STYLE;
+    const frameworkSummary = STORY_FRAMEWORK_SUMMARIES[frameworkKey]
+      || STORY_FRAMEWORK_SUMMARIES[DEFAULT_FRAMEWORK]
+      || '';
+    let frameworkGuide = resolveFrameworkGuide(frameworkKey) || resolveFrameworkGuide(DEFAULT_FRAMEWORK);
+    if (frameworkKey === 'Learning Fable (STEM)' && stemConcept) {
       frameworkGuide += `\n\nSTEM Concept to teach: ${stemConcept}`;
     }
 
     const userSuggestionsText = includePlotPoints && userSuggestions.trim()
-      ? `\n\nUser-provided plot points and story directions:\n${userSuggestions.trim()}`
+      ? formatUserStoryRequirements(userSuggestions)
       : '';
     const sensitivitySettings = getCurrentSensitivitySettings();
     const narratorText = NARRATOR_PERSONAS[selectedNarrator] || '';
+    const consolidationGuidanceText = enableConsolidator
+      ? 'After polishing, perform one restrained consolidation pass: remove genuine redundancy and tighten weak sentences without cutting purposeful repetition, quiet pauses, required framework beats, educational explanation, or emotional payoff. Never shorten below an explicit framework minimum word count or remove required beats.'
+      : 'Do not perform a separate shortening pass. Remove only accidental repetition during normal polishing, preserve purposeful detail and pacing, and still obey every explicit framework length range and required beat.';
+    const fastEnrichmentGuidanceText = frameworkUsesConcisePipeline(frameworkKey)
+      ? 'Skip a separate enrichment pass. Draft directly to the concise framework target, keep only details and dialogue needed for the lesson or STEM discovery, and do not add any extra scene.'
+      : 'Strengthen thin moments with useful sensory detail, thought, or dialogue. Add at most one brief scene and only when the framework, pacing, and length target permit it. Do not add filler, a detached subplot, or length for its own sake.';
 
     return {
       apiKey,
@@ -403,13 +437,18 @@ export default function App() {
       minApiIntervalMs: minApiInterval * 1000,
       audience: buildAudience(),
       CRAFT_GUIDE_TEXT: frameworkGuide,
+      FRAMEWORK_SUMMARY_TEXT: frameworkSummary,
       READING_AGE_NOTE: buildReadingAgeNote(),
       USER_SUGGESTIONS_TEXT: userSuggestionsText,
       enableConsolidator,
-      AUTHOR_STYLE_GUIDE: STORY_STYLE_GUIDES[selectedStyle] || '',
+      CONSOLIDATION_GUIDANCE_TEXT: consolidationGuidanceText,
+      FAST_ENRICHMENT_GUIDANCE_TEXT: fastEnrichmentGuidanceText,
+      AUTHOR_STYLE_GUIDE: STORY_STYLE_GUIDES[styleKey] || STORY_STYLE_GUIDES[DEFAULT_STYLE] || '',
+      AUTHOR_STYLE_SUMMARY_TEXT: STORY_STYLE_SUMMARIES[styleKey] || STORY_STYLE_SUMMARIES[DEFAULT_STYLE] || '',
       ADJUSTMENT_MODULES_TEXT: buildAdjustmentModulesText(),
       NARRATOR_PERSONA_TEXT: narratorText,
-      SENSITIVITY_GUIDANCE_TEXT: sensitivitySettings ? getSensitivityGuidance(sensitivitySettings) : '',
+      NARRATOR_PERSONA_SUMMARY_TEXT: PERSONA_SUMMARIES[selectedNarrator] || '',
+      SENSITIVITY_GUIDANCE_TEXT: getSensitivityGuidance(sensitivitySettings),
       agentThinkingConfig: buildAgentThinkingConfig(modelConfig),
       abortSignal,
     };
@@ -447,12 +486,13 @@ export default function App() {
     model: selectedModel,
     readingAge: adjustReadingAge ? targetReadingAge : null,
     consolidator: enableConsolidator,
+    fastMode: experimentalFastMode,
     wordCount: countWords(markdown),
     plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
   }), [
     characters, buildAudience, ageGroup, selectedFramework, selectedStyle, selectedNarrator,
     toneAdj, pacingAdj, humorAdj, emotionAdj, selectedModel, adjustReadingAge, targetReadingAge,
-    enableConsolidator, includePlotPoints, userSuggestions,
+    enableConsolidator, experimentalFastMode, includePlotPoints, userSuggestions,
   ]);
 
   const handleCancelGenerate = useCallback(() => {
@@ -488,7 +528,6 @@ export default function App() {
 
     try {
       const charactersList = parseCharacters(characters);
-      const pipelineConfig = getStoryGenerationPipelineConfig(enableConsolidator);
       const initialData = {
         charactersList: charactersList.join(', ') || 'a brave little mouse',
         storyText: '',
@@ -496,14 +535,17 @@ export default function App() {
         titleText: '',
       };
 
-      const result = await runPipeline(
-        pipelineConfig,
-        initialData,
-        commonInputs,
-        (msg: string) => setStatusText(prev => prev + msg)
-      );
+      const statusCallback = (msg: string) => setStatusText(prev => prev + msg);
+      const result = experimentalFastMode
+        ? await runFastStoryGeneration(initialData, commonInputs, statusCallback)
+        : await runPipeline(
+          getStoryGenerationPipelineConfig(enableConsolidator, selectedFramework || DEFAULT_FRAMEWORK),
+          initialData,
+          commonInputs,
+          statusCallback,
+        );
 
-      const title = (result.titleText || 'Untitled Story').trim();
+      const title = sanitizeGeneratedTitle(result.titleText || '') || 'Untitled Story';
       const story = (result.storyText || '').trim();
 
       loadStoryIntoApp(title, story);
@@ -537,7 +579,7 @@ export default function App() {
       if (abortRef.current === controller) abortRef.current = null;
       setIsGenerating(false);
     }
-  }, [apiKey, characters, ageGroup, selectedModel, availableModels, buildCommonInputs, enableConsolidator, collectStoryFields, loadStoryIntoApp, showToast]);
+  }, [apiKey, characters, ageGroup, selectedModel, selectedFramework, availableModels, buildCommonInputs, enableConsolidator, experimentalFastMode, collectStoryFields, loadStoryIntoApp, showToast]);
 
   // ─── Elaborate story ──────────────────────────────────────────────────
   const handleElaborateStory = useCallback(async () => {
@@ -576,7 +618,7 @@ export default function App() {
       const nextTitle = appState.latestGeneratedStoryTitle || storyTitle || 'Untitled Story';
       loadStoryIntoApp(nextTitle, story);
       setLoadedStoryMeta(buildStoryMetadata({
-        ...(loadedStoryMeta || collectStoryFields(nextTitle, story)),
+        ...(loadedStoryMeta || { ...collectStoryFields(nextTitle, story), fastMode: undefined }),
         title: nextTitle,
         markdown: story,
         date: new Date().toISOString(),
@@ -704,6 +746,7 @@ export default function App() {
           onHumorChange={(v) => { setHumorAdj(v); saveToLocalStorage(LS_ADJUSTMENT_HUMOR, v); }}
           onEmotionChange={(v) => { setEmotionAdj(v); saveToLocalStorage(LS_ADJUSTMENT_EMOTION, v); }}
           // Generate
+          experimentalFastMode={experimentalFastMode}
           isGenerating={isGenerating}
           onGenerate={handleGenerateStory}
           onCancelGenerate={handleCancelGenerate}
@@ -746,6 +789,7 @@ export default function App() {
           selectedModel={selectedModel}
           minApiInterval={minApiInterval}
           thinkingEnabled={thinkingEnabled}
+          experimentalFastMode={experimentalFastMode}
           agentThinking={agentThinking}
           availableModels={availableModels}
           modelsLoading={modelsLoading}
@@ -770,6 +814,7 @@ export default function App() {
             setSelectedModel(settings.selectedModel); saveToLocalStorage(LS_SELECTED_MODEL, settings.selectedModel);
             setMinApiInterval(settings.minApiInterval); saveToLocalStorage(LS_MIN_API_INTERVAL, String(settings.minApiInterval));
             setThinkingEnabled(settings.thinkingEnabled); saveToLocalStorage(LS_THINKING_ENABLED, String(settings.thinkingEnabled));
+            setExperimentalFastMode(settings.experimentalFastMode); saveToLocalStorage(LS_EXPERIMENTAL_FAST_MODE, String(settings.experimentalFastMode));
             setAgentThinking(settings.agentThinking);
             saveToLocalStorage(LS_THINKING_AGENT_1_CRAFTER, String(settings.agentThinking.crafter));
             saveToLocalStorage(LS_THINKING_AGENT_2_ELABORATOR, String(settings.agentThinking.elaborator));
@@ -778,6 +823,7 @@ export default function App() {
             saveToLocalStorage(LS_THINKING_AGENT_5_CLEANER, String(settings.agentThinking.cleaner));
             saveToLocalStorage(LS_THINKING_AGENT_6_TITLER, String(settings.agentThinking.titler));
             saveToLocalStorage(LS_THINKING_AGENT_C_CONSOLIDATOR, String(settings.agentThinking.consolidator));
+            saveToLocalStorage(LS_THINKING_AGENT_FAST, String(settings.agentThinking.fast));
             setTtsSource(settings.ttsSource); saveToLocalStorage(LS_TTS_SOURCE, settings.ttsSource);
             setTtsGender(settings.ttsGender); saveToLocalStorage(LS_TTS_GENDER, settings.ttsGender);
             setTtsVoice(settings.ttsVoice); saveToLocalStorage(LS_TTS_VOICE, settings.ttsVoice);
@@ -845,6 +891,7 @@ export default function App() {
               model: story.model,
               readingAge: story.readingAge,
               consolidator: story.consolidator,
+              fastMode: story.fastMode,
               wordCount: story.wordCount,
               plotPoints: story.plotPoints,
               narrator: story.narrator,

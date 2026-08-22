@@ -86,6 +86,7 @@ interface ControlsPanelProps {
   onPacingChange: (v: string) => void;
   onHumorChange: (v: string) => void;
   onEmotionChange: (v: string) => void;
+  experimentalFastMode: boolean;
   isGenerating: boolean;
   onGenerate: () => void;
   onCancelGenerate: () => void;
@@ -115,6 +116,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
     readingAgeMin, readingAgeMax,
     enableConsolidator, onEnableConsolidatorChange,
     stemConcept, onStemConceptChange, selectedFrameworkForSTEM,
+    experimentalFastMode,
     isGenerating, onGenerate, onCancelGenerate,
   } = props;
 
@@ -322,7 +324,11 @@ export function ControlsPanel(props: ControlsPanelProps) {
                 <input type="checkbox" checked={enableConsolidator} onChange={e => onEnableConsolidatorChange(e.target.checked)} />
                 <span>Consolidate for conciseness</span>
               </label>
-              <div className="field-hint">Adds two tightening passes during generation (after drafting and after polishing) and one pass when elaborating.</div>
+              <div className="field-hint">
+                {experimentalFastMode
+                  ? 'Adds consolidation guidance to the single Fast Mode request.'
+                  : 'Adds one tightening pass after polishing, and one pass when elaborating.'}
+              </div>
             </div>
           </div>
 
@@ -342,7 +348,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
       <footer className="panel-footer">
         <button className={`btn btn-primary btn-generate${isGenerating ? ' btn-cancel' : ''}`} onClick={isGenerating ? onCancelGenerate : onGenerate}>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-          {isGenerating ? 'Cancel Generation' : 'Generate Story'}
+          {isGenerating ? 'Cancel Generation' : experimentalFastMode ? 'Generate Story — Fast' : 'Generate Story'}
         </button>
       </footer>
     </aside>

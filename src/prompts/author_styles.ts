@@ -4,13 +4,13 @@
 // Each guide provides a set of actionable instructions for the AI to emulate a specific authorial voice or thematic approach.
 
 const UNIVERSAL_STYLE_INTRO = `
-You are a master storyteller. In addition to the structural framework, you must adopt the following authorial style for the tone, mood, and literary techniques of the story.
+Treat the following as an authorial-technique overlay, not a new role. It controls imagery, cadence, characterization, and literary technique. The narrator persona controls the narrator's verbal personality, while tone and pacing modules control energy and speed. Higher-priority safety, sensitivity, audience, user facts, and framework requirements still apply.
 `;
 
 // --- Style Guides based on DeepResearch.md ---
 
 const DEFAULT_STYLE = `
-// No specific authorial style selected. Focus on the core structural guide and general best practices for children's storytelling.
+No specific authorial style is selected. Use clear, engaging children's prose and follow the active framework and craft defaults.
 `;
 
 const DAHL_WALLIAMS_STYLE = `

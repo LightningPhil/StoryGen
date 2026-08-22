@@ -31,12 +31,17 @@ export interface CommonInputs {
     minApiIntervalMs: number;
     audience: string;
     CRAFT_GUIDE_TEXT: string;
+    FRAMEWORK_SUMMARY_TEXT: string;
     READING_AGE_NOTE: string;
     USER_SUGGESTIONS_TEXT: string;
     enableConsolidator: boolean;
+    CONSOLIDATION_GUIDANCE_TEXT: string;
+    FAST_ENRICHMENT_GUIDANCE_TEXT: string;
     AUTHOR_STYLE_GUIDE: string;
+    AUTHOR_STYLE_SUMMARY_TEXT: string;
     ADJUSTMENT_MODULES_TEXT: string;
     NARRATOR_PERSONA_TEXT: string;
+    NARRATOR_PERSONA_SUMMARY_TEXT: string;
     SENSITIVITY_GUIDANCE_TEXT: string;
     agentThinkingConfig: Record<string, boolean>;
     abortSignal?: AbortSignal;
@@ -141,6 +146,7 @@ export interface StoryMetadata {
     model?: string;
     readingAge?: number | null;
     consolidator?: boolean;
+    fastMode?: boolean;
     wordCount?: number;
     plotPoints?: string;
     author?: string;

@@ -132,6 +132,12 @@ export function StoryInfoPanel({ story, onBack, backLabel }: StoryInfoPanelProps
               <span className="lib-info-value">{story.consolidator ? 'Enabled' : 'Disabled'}</span>
             </div>
           )}
+          {story.fastMode != null && (
+            <div className="lib-info-item">
+              <span className="lib-info-label">Generation Mode</span>
+              <span className="lib-info-value">{story.fastMode ? 'Experimental Fast' : 'Full Agent Pipeline'}</span>
+            </div>
+          )}
         </div>
       </div>
 

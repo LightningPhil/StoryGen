@@ -49,6 +49,7 @@ export interface StoryFieldSnapshot {
   model?: string;
   readingAge?: number | null;
   consolidator?: boolean;
+  fastMode?: boolean;
   wordCount?: number;
   plotPoints?: string;
   date?: string;
@@ -73,6 +74,7 @@ export function buildStoryMetadata(fields: StoryFieldSnapshot): StoryMetadata {
     model: fields.model,
     readingAge: fields.readingAge ?? null,
     consolidator: fields.consolidator,
+    fastMode: fields.fastMode,
     wordCount: fields.wordCount,
     plotPoints: fields.plotPoints,
     author: fields.author,
@@ -97,6 +99,7 @@ export function buildSavedStory(fields: StoryFieldSnapshot & { markdown: string 
     model: fields.model,
     readingAge: fields.readingAge ?? null,
     consolidator: fields.consolidator,
+    fastMode: fields.fastMode,
     wordCount: fields.wordCount,
     plotPoints: fields.plotPoints,
     ageGroup: fields.ageGroup || undefined,

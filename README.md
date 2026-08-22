@@ -11,13 +11,13 @@
    StoryGen also began life as an experiment in doing something genuinely useful with AI agents. Rather than asking a single AI to write an entire story in one go, StoryGen uses a team of specialist agents that each handle one part of the writing process — much like a real publishing team:
 
    1. A **Story Crafter** writes the first draft from your characters and ideas
-   2. An **Elaborator** enriches the draft with sensory details, dialogue, and emotion
+   2. An **Elaborator** enriches the draft where the selected framework benefits from expansion (concise fables skip this step)
    3. A **Reviewer** reads the story critically and provides feedback
    4. A **Polisher** rewrites the story incorporating the reviewer's suggestions
    5. A **Cleaner** tidies up any leftover formatting or notes
    6. A **Titler** gives the finished story a fitting title
 
-   An optional **Consolidator** can step in to tighten wordy passages. The result is a story that feels considered and crafted rather than generated — one that children actually enjoy hearing at bedtime.
+   An optional **Consolidator** can make one careful tightening pass after polishing. The result is a story that feels considered and crafted rather than generated — one that children actually enjoy hearing at bedtime.
 
    ---
 
@@ -37,7 +37,8 @@
 
    ## Features
 
-   - **Multi-agent story pipeline** — 6–8 specialised AI agents collaborate to draft, enrich, review, polish, clean, and title each story
+   - **Multi-agent story pipeline** — 5–7 specialised AI agents collaborate to draft, enrich where appropriate, review, polish, clean, and title each story
+   - **Experimental Fast Mode** — generate the same title-and-story deliverable with one structured Gemini request while retaining every creative and parental option
    - **19 narrative frameworks** — Dan Harmon's Story Circle, Three-Act Structure, Kishōtenketsu, Hero's Journey, Pixar Story Spine, Grimm fairy-tale patterns, STEM Learning Fables, and more
    - **6 authorial styles** — Imaginative & Bold (Dahl/Walliams), Musical & Warm (Donaldson), Gentle & Reassuring (Kerr/Bond), Classic Adventure (Grimm/Lewis), Atmospheric & Empathetic (Studio Ghibli), or a neutral default
    - **Content sensitivity controls** — Adjustable conflict, scariness, sadness, and complexity levels with age-appropriate presets
@@ -86,7 +87,7 @@
    | **Content Sensitivity** | Preset or custom conflict/scary/sadness/complexity levels |
    | **STEM Concept** | Science/maths concept to weave in (Learning Fable framework only) |
    | **Adjust Vocabulary for Difficulty** | Slider to scale language complexity |
-   | **Consolidate** | Enable tightening passes in the pipeline |
+   | **Consolidate** | Enable one careful post-polish tightening pass |
    | **Tone / Pacing / Humour / Emotion** | Fine-tuning dials via the style modal |
 
    ### Assist Tab
@@ -110,6 +111,7 @@
    | **Reading Age Bounds** | Min/max for the vocabulary difficulty slider |
    | **Pronunciation** | Choose dictionary recordings or browser voice; pick a specific voice |
    | **Agent Thinking** | Per-agent toggle for extended reasoning mode |
+   | **Experimental Fast Mode** | Replace the generation pipeline with one structured Gemini request; faster, but potentially less consistent |
 
    ---
 
@@ -170,10 +172,20 @@
    ### The Multi-Agent Pipeline
 
    ```
-   Crafter → Elaborator → [Consolidator] → Reviewer → Polisher → [Consolidator] → Cleaner → Titler
+   Standard:       Crafter → Elaborator → Reviewer → Polisher → [Consolidator] → Cleaner → Titler
+   Concise fables: Crafter → Reviewer → Polisher → [Consolidator] → Cleaner → Titler
+   Fast Mode:      Agent F performs all stages internally → structured title + story
    ```
 
-   Each agent receives layered prompts built from: role identity → story context → adjustment modules → sensitivity guidance → authorial style guide → story framework guide. After pipeline completion, a voice-consistency validator runs heuristic checks for formality drift, vocabulary shifts, preachy endings, and energy inconsistency.
+   Every agent receives the same system-level safety policy and instruction hierarchy. Crafter and Reviewer receive the full selected guides; editing stages receive concise summaries to reduce token use and instruction conflicts. Dynamic story data is clearly delimited. After pipeline completion, a voice-consistency validator runs heuristic checks for formality drift, vocabulary shifts, preachy endings, and energy inconsistency.
+
+   Experimental Fast Mode uses the same system policy and full option set, but performs silent planning, drafting, review, revision, optional consolidation, cleanup, and titling in a single request. Gemini's JSON response schema keeps the title and story body reliably separated. The separate Elaborate action still uses the editor pipeline.
+
+   Prompt assembly and framework compatibility can be checked locally with:
+
+   ```bash
+   npm run test:prompts
+   ```
 
    ---
 
