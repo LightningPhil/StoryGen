@@ -49,12 +49,14 @@ import {
   LS_TTS_SOURCE,
   LS_TTS_GENDER,
   LS_TTS_VOICE,
+  LS_NARRATOR_PERSONA,
 } from './localStorage';
 import appState from './appState';
 import { SENSITIVITY_LEVELS } from './appState';
 import { parseCharacters, countWords } from './utils';
-import { STORY_CRAFTING_GUIDES, STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides';
+import { STORY_FRAMEWORK_SUMMARIES } from './prompts/story_crafting_guides';
 import { STORY_STYLE_GUIDES, STORY_STYLE_SUMMARIES } from './prompts/author_styles';
+import { NARRATOR_PERSONAS } from './prompts/narrator_personas';
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from './prompts/adjustment_modules';
 import { READING_AGE_ADJUSTMENT_TEXT_TEMPLATE } from './prompts/agent_prompts';
 import { runPipeline, getStoryGenerationPipelineConfig, getElaborationPipelineConfig } from './pipeline';
@@ -62,8 +64,16 @@ import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
 import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
+import { isAbortError } from './api';
 import { StoryMetadataModal } from './components/StoryMetadataModal';
-import type { StoryMetadata } from './components/StoryInfoPanel';
+import type { StoryMetadata } from './types';
+import {
+  canonicalizeFrameworkKey,
+  resolveFrameworkGuide,
+  buildAudienceLabel,
+  buildStoryMetadata,
+  buildSavedStory,
+} from './storyMetadata';
 
 export interface ToastMessage {
   id: number;
@@ -84,12 +94,25 @@ function clampNumber(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+/**
+ * Reads an integer setting, falling back when the stored value is missing or
+ * unparseable. A bare parseInt would yield NaN and break sliders and labels.
+ */
+function loadNumber(key: string, fallback: number): number {
+  const parsed = parseInt(loadFromLocalStorage(key) ?? '', 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function normalizeReadingAgeRange(min: number, max: number): { min: number; max: number } {
   const safeMin = clampNumber(Number.isFinite(min) ? min : 5, 3, 18);
   const safeMax = clampNumber(Number.isFinite(max) ? max : 12, 3, 18);
   return safeMin <= safeMax
     ? { min: safeMin, max: safeMax }
     : { min: safeMax, max: safeMin };
+}
+
+function loadReadingAgeRange(): { min: number; max: number } {
+  return normalizeReadingAgeRange(loadNumber(LS_READING_AGE_MIN, 5), loadNumber(LS_READING_AGE_MAX, 12));
 }
 
 export default function App() {
@@ -133,24 +156,28 @@ export default function App() {
   const [characters, setCharacters] = useState(() => loadFromLocalStorage(LS_CHARACTERS) || '');
   const [audience, setAudience] = useState(() => loadFromLocalStorage(LS_AUDIENCE) || '');
   const [ageGroup, setAgeGroup] = useState(() => loadFromLocalStorage(LS_AGE_GROUP) || '');
-  const [selectedFramework, setSelectedFramework] = useState(() => loadFromLocalStorage(LS_SELECTED_FRAMEWORK) || '');
+  const [selectedFramework, setSelectedFramework] = useState(() => canonicalizeFrameworkKey(loadFromLocalStorage(LS_SELECTED_FRAMEWORK) || ''));
   const [selectedStyle, setSelectedStyle] = useState(() => loadFromLocalStorage(LS_SELECTED_AUTHOR_STYLE) || '');
+  const [selectedNarrator, setSelectedNarrator] = useState(() => loadFromLocalStorage(LS_NARRATOR_PERSONA) || 'Default (No Narrator Persona)');
   const [userSuggestions, setUserSuggestions] = useState(() => loadFromLocalStorage(LS_USER_SUGGESTIONS) || '');
   const [includePlotPoints, setIncludePlotPoints] = useState(() => loadFromLocalStorage(LS_INCLUDE_PLOT_POINTS) === 'true');
 
   // ─── Options state ────────────────────────────────────────────────────
   const [adjustReadingAge, setAdjustReadingAge] = useState(() => loadFromLocalStorage(LS_ADJUST_READING_AGE_ENABLED) === 'true');
-  const [targetReadingAge, setTargetReadingAge] = useState(() => parseInt(loadFromLocalStorage(LS_TARGET_READING_AGE) || '7'));
-  const [readingAgeMin, setReadingAgeMin] = useState(() => parseInt(loadFromLocalStorage(LS_READING_AGE_MIN) || '5'));
-  const [readingAgeMax, setReadingAgeMax] = useState(() => parseInt(loadFromLocalStorage(LS_READING_AGE_MAX) || '12'));
+  const [targetReadingAge, setTargetReadingAge] = useState(() => {
+    const range = loadReadingAgeRange();
+    return clampNumber(loadNumber(LS_TARGET_READING_AGE, 7), range.min, range.max);
+  });
+  const [readingAgeMin, setReadingAgeMin] = useState(() => loadReadingAgeRange().min);
+  const [readingAgeMax, setReadingAgeMax] = useState(() => loadReadingAgeRange().max);
   const [enableConsolidator, setEnableConsolidator] = useState(() => loadFromLocalStorage(LS_ENABLE_CONSOLIDATOR) === 'true');
 
   // Sensitivity
   const [sensitivityPreset, setSensitivityPreset] = useState(() => loadFromLocalStorage(LS_SENSITIVITY_PRESET) || 'adventurous');
-  const [conflictLevel, setConflictLevel] = useState(() => parseInt(loadFromLocalStorage(LS_SENSITIVITY_CONFLICT) || '3'));
-  const [scaryLevel, setScaryLevel] = useState(() => parseInt(loadFromLocalStorage(LS_SENSITIVITY_SCARY) || '2'));
-  const [sadnessLevel, setSadnessLevel] = useState(() => parseInt(loadFromLocalStorage(LS_SENSITIVITY_SADNESS) || '2'));
-  const [complexityLevel, setComplexityLevel] = useState(() => parseInt(loadFromLocalStorage(LS_SENSITIVITY_COMPLEXITY) || '3'));
+  const [conflictLevel, setConflictLevel] = useState(() => clampNumber(loadNumber(LS_SENSITIVITY_CONFLICT, 3), 0, 3));
+  const [scaryLevel, setScaryLevel] = useState(() => clampNumber(loadNumber(LS_SENSITIVITY_SCARY, 2), 0, 3));
+  const [sadnessLevel, setSadnessLevel] = useState(() => clampNumber(loadNumber(LS_SENSITIVITY_SADNESS, 2), 0, 3));
+  const [complexityLevel, setComplexityLevel] = useState(() => clampNumber(loadNumber(LS_SENSITIVITY_COMPLEXITY, 3), 0, 3));
 
   // STEM
   const [stemConcept, setStemConcept] = useState(() => loadFromLocalStorage(LS_STEM_CONCEPT) || '');
@@ -164,7 +191,7 @@ export default function App() {
   // ─── Settings state ───────────────────────────────────────────────────
   const [apiKey, setApiKey] = useState(() => loadFromLocalStorage(LS_API_KEY) || '');
   const [selectedModel, setSelectedModel] = useState(() => loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_MODEL);
-  const [minApiInterval, setMinApiInterval] = useState(() => parseInt(loadFromLocalStorage(LS_MIN_API_INTERVAL) || '5'));
+  const [minApiInterval, setMinApiInterval] = useState(() => Math.max(0, loadNumber(LS_MIN_API_INTERVAL, 5)));
   const [thinkingEnabled, setThinkingEnabled] = useState(() => loadFromLocalStorage(LS_THINKING_ENABLED) !== 'false');
   const [agentThinking, setAgentThinking] = useState(() => ({
     crafter: loadFromLocalStorage(LS_THINKING_AGENT_1_CRAFTER) !== 'false',
@@ -182,6 +209,13 @@ export default function App() {
   // ─── Dynamic model discovery ───────────────────────────────────────────
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>([DEFAULT_MODEL_CONFIG]);
   const [modelsLoading, setModelsLoading] = useState(false);
+  const selectedModelRef = useRef(selectedModel);
+  selectedModelRef.current = selectedModel;
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
 
   // Fetch models when API key changes
   useEffect(() => {
@@ -192,7 +226,7 @@ export default function App() {
       if (cancelled) return;
       setAvailableModels(models);
       // If current selected model isn't in the list, pick the first one
-      if (models.length > 0 && !models.find(m => m.name === selectedModel)) {
+      if (models.length > 0 && !models.find(m => m.name === selectedModelRef.current)) {
         const first = models[0].name;
         setSelectedModel(first);
         saveToLocalStorage(LS_SELECTED_MODEL, first);
@@ -207,6 +241,7 @@ export default function App() {
   // ─── Story display state ──────────────────────────────────────────────
   const [storyTitle, setStoryTitle] = useState('');
   const [storyHtml, setStoryHtml] = useState('');
+  const [storyMarkdown, setStoryMarkdown] = useState('');
   const [storyFontSize, setStoryFontSize] = useState(1.1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusText, setStatusText] = useState('');
@@ -242,6 +277,7 @@ export default function App() {
     appState.latestGeneratedStoryTitle = nextTitle;
     appState.latestGeneratedStoryText = markdown;
     setStoryTitle(nextTitle);
+    setStoryMarkdown(markdown);
     setStoryHtml(formatStoryAsHtml(markdown));
     setStatusText('');
     setHasStory(true);
@@ -251,41 +287,13 @@ export default function App() {
     setActiveTab('assist');
   }, []);
 
-  useEffect(() => {
-    const handleFileLoaded = (event: Event) => {
-      const detail = (event as CustomEvent<{ title?: string; text?: string }>).detail;
-      if (!detail?.text) return;
-      loadStoryIntoApp(detail.title || 'Untitled Story', detail.text);
-      setLoadedStoryMeta(null);
-    };
-
-    window.addEventListener('storygen:file-loaded', handleFileLoaded as EventListener);
-    return () => {
-      window.removeEventListener('storygen:file-loaded', handleFileLoaded as EventListener);
-    };
+  const handleFileLoaded = useCallback((title: string, text: string) => {
+    loadStoryIntoApp(title || 'Untitled Story', text);
+    setLoadedStoryMeta(null);
   }, [loadStoryIntoApp]);
 
-  // Combine age group and audience text into a single audience string for the pipeline
   const buildAudience = useCallback((): string => {
-    const AGE_LABELS: Record<string, string> = {
-      '3-4': 'children aged 3-4',
-      '5-6': 'children aged 5-6',
-      '7-8': 'children aged 7-8',
-      '9-10': 'children aged 9-10',
-      '11-12': 'children aged 11-12',
-      '13-15': 'teenagers aged 13-15',
-      '16-18': 'young adults aged 16-18',
-      '18+': 'adults',
-    };
-    const label = AGE_LABELS[ageGroup] || '';
-    if (label && audience.trim()) {
-      return `${label}, ${audience.trim()}`;
-    } else if (label) {
-      return label;
-    } else if (audience.trim()) {
-      return audience.trim();
-    }
-    return 'children aged 5-7';
+    return buildAudienceLabel(ageGroup, audience);
   }, [ageGroup, audience]);
 
   const buildReadingAgeNote = useCallback((): string => {
@@ -332,13 +340,19 @@ export default function App() {
   const updateUserSuggestions = useCallback((v: string) => { setUserSuggestions(v); saveToLocalStorage(LS_USER_SUGGESTIONS, v); }, []);
   
   const updateFramework = useCallback((v: string) => {
-    setSelectedFramework(v);
-    saveToLocalStorage(LS_SELECTED_FRAMEWORK, v);
+    const canonical = canonicalizeFrameworkKey(v);
+    setSelectedFramework(canonical);
+    saveToLocalStorage(LS_SELECTED_FRAMEWORK, canonical);
   }, []);
   
   const updateStyle = useCallback((v: string) => {
     setSelectedStyle(v);
     saveToLocalStorage(LS_SELECTED_AUTHOR_STYLE, v);
+  }, []);
+
+  const updateNarrator = useCallback((v: string) => {
+    setSelectedNarrator(v);
+    saveToLocalStorage(LS_NARRATOR_PERSONA, v);
   }, []);
 
   const updateIncludePlotPoints = useCallback((v: boolean) => {
@@ -371,8 +385,8 @@ export default function App() {
     return { conflict: conflictLevel, scary: scaryLevel, sadness: sadnessLevel, complexity: complexityLevel };
   }, [sensitivityPreset, conflictLevel, scaryLevel, sadnessLevel, complexityLevel]);
 
-  const buildCommonInputs = useCallback((modelConfig?: ModelConfig): CommonInputs => {
-    let frameworkGuide = STORY_CRAFTING_GUIDES[selectedFramework] || '';
+  const buildCommonInputs = useCallback((modelConfig?: ModelConfig, abortSignal?: AbortSignal): CommonInputs => {
+    let frameworkGuide = resolveFrameworkGuide(selectedFramework);
     if (selectedFramework === 'Learning Fable (STEM)' && stemConcept) {
       frameworkGuide += `\n\nSTEM Concept to teach: ${stemConcept}`;
     }
@@ -381,6 +395,7 @@ export default function App() {
       ? `\n\nUser-provided plot points and story directions:\n${userSuggestions.trim()}`
       : '';
     const sensitivitySettings = getCurrentSensitivitySettings();
+    const narratorText = NARRATOR_PERSONAS[selectedNarrator] || '';
 
     return {
       apiKey,
@@ -393,9 +408,10 @@ export default function App() {
       enableConsolidator,
       AUTHOR_STYLE_GUIDE: STORY_STYLE_GUIDES[selectedStyle] || '',
       ADJUSTMENT_MODULES_TEXT: buildAdjustmentModulesText(),
-      NARRATOR_PERSONA_TEXT: '',
+      NARRATOR_PERSONA_TEXT: narratorText,
       SENSITIVITY_GUIDANCE_TEXT: sensitivitySettings ? getSensitivityGuidance(sensitivitySettings) : '',
       agentThinkingConfig: buildAgentThinkingConfig(modelConfig),
+      abortSignal,
     };
   }, [
     apiKey,
@@ -409,10 +425,39 @@ export default function App() {
     userSuggestions,
     enableConsolidator,
     selectedStyle,
+    selectedNarrator,
     buildAdjustmentModulesText,
     getCurrentSensitivitySettings,
     buildAgentThinkingConfig,
   ]);
+
+  const collectStoryFields = useCallback((title: string, markdown: string) => ({
+    title,
+    markdown,
+    characters,
+    audience: buildAudience(),
+    ageGroup: ageGroup || undefined,
+    framework: selectedFramework,
+    style: selectedStyle,
+    narrator: selectedNarrator,
+    tone: toneAdj,
+    pacing: pacingAdj,
+    humor: humorAdj,
+    emotion: emotionAdj,
+    model: selectedModel,
+    readingAge: adjustReadingAge ? targetReadingAge : null,
+    consolidator: enableConsolidator,
+    wordCount: countWords(markdown),
+    plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
+  }), [
+    characters, buildAudience, ageGroup, selectedFramework, selectedStyle, selectedNarrator,
+    toneAdj, pacingAdj, humorAdj, emotionAdj, selectedModel, adjustReadingAge, targetReadingAge,
+    enableConsolidator, includePlotPoints, userSuggestions,
+  ]);
+
+  const handleCancelGenerate = useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
 
   // ─── Generate story ───────────────────────────────────────────────────
   const handleGenerateStory = useCallback(async () => {
@@ -420,10 +465,15 @@ export default function App() {
     if (!characters.trim()) { showToast('Please enter at least one character.', 'error'); return; }
     if (!ageGroup) { showToast('Please select an age group.', 'error'); return; }
 
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setIsGenerating(true);
     setHasStory(false);
     setStoryTitle('Generating...');
     setStoryHtml('');
+    setStoryMarkdown('');
     setStatusText('');
     setAssistEnabled(true);
     setSelectedWord('');
@@ -434,7 +484,7 @@ export default function App() {
     appState.clearChatLog();
 
     const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
-    const commonInputs = buildCommonInputs(modelConfig);
+    const commonInputs = buildCommonInputs(modelConfig, controller.signal);
 
     try {
       const charactersList = parseCharacters(characters);
@@ -459,54 +509,24 @@ export default function App() {
       loadStoryIntoApp(title, story);
       showToast('Story generated successfully!', 'success');
 
-      const wordCount = countWords(story);
-      console.log(`Story generated: "${title}" (${wordCount} words)`);
+      const fields = collectStoryFields(title, story);
+      setLoadedStoryMeta(buildStoryMetadata(fields));
 
-      // Store metadata for the info modal
-      setLoadedStoryMeta({
-        title,
-        date: new Date().toISOString(),
-        characters,
-        audience: buildAudience(),
-        framework: selectedFramework,
-        style: selectedStyle,
-        tone: toneAdj,
-        pacing: pacingAdj,
-        humor: humorAdj,
-        emotion: emotionAdj,
-        model: selectedModel,
-        readingAge: adjustReadingAge ? targetReadingAge : null,
-        consolidator: enableConsolidator,
-        wordCount,
-        plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
-        ageGroup: ageGroup || undefined,
-      });
-
-      // Auto-save to IndexedDB
       try {
-        await saveStoryToLibrary({
-          title,
-          markdown: story,
-          characters,
-          audience: buildAudience(),
-          framework: selectedFramework,
-          style: selectedStyle,
-          date: new Date().toISOString(),
-          tone: toneAdj,
-          pacing: pacingAdj,
-          humor: humorAdj,
-          emotion: emotionAdj,
-          model: selectedModel,
-          readingAge: adjustReadingAge ? targetReadingAge : null,
-          consolidator: enableConsolidator,
-          wordCount,
-          plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
-          ageGroup: ageGroup || undefined,
-        });
+        await saveStoryToLibrary(buildSavedStory(fields));
       } catch (e) {
         console.warn('Could not auto-save story:', e);
       }
     } catch (error: unknown) {
+      if (isAbortError(error)) {
+        setStoryTitle('');
+        setStoryHtml('');
+        setStoryMarkdown('');
+        setStatusText('');
+        setHasStory(false);
+        showToast('Story generation cancelled', 'info');
+        return;
+      }
       const msg = error instanceof Error ? error.message : String(error);
       setStoryTitle('Error Occurred');
       setStoryHtml('<p>An error occurred. Please check the browser console for details.</p>');
@@ -514,14 +534,20 @@ export default function App() {
       showToast('Story generation failed', 'error');
       console.error('Pipeline error:', msg);
     } finally {
+      if (abortRef.current === controller) abortRef.current = null;
       setIsGenerating(false);
     }
-  }, [apiKey, characters, ageGroup, selectedModel, availableModels, buildCommonInputs, loadStoryIntoApp, showToast]);
+  }, [apiKey, characters, ageGroup, selectedModel, availableModels, buildCommonInputs, enableConsolidator, collectStoryFields, loadStoryIntoApp, showToast]);
 
   // ─── Elaborate story ──────────────────────────────────────────────────
   const handleElaborateStory = useCallback(async () => {
-    if (!appState.latestGeneratedStoryText) return;
+    const sourceStory = storyMarkdown || appState.latestGeneratedStoryText;
+    if (!sourceStory) return;
     if (!apiKey) { showToast('Please set your API key in Settings.', 'error'); return; }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setIsGenerating(true);
     setStatusText('');
@@ -530,12 +556,12 @@ export default function App() {
     appState.clearChatLog();
 
     const modelConfig = availableModels.find(m => m.name === selectedModel) || availableModels[0];
-    const commonInputs = buildCommonInputs(modelConfig);
+    const commonInputs = buildCommonInputs(modelConfig, controller.signal);
 
     try {
       const pipelineConfig = getElaborationPipelineConfig(enableConsolidator);
       const initialData = {
-        storyText: appState.latestGeneratedStoryText,
+        storyText: sourceStory,
         reviewText: '',
       };
 
@@ -549,37 +575,27 @@ export default function App() {
       const story = (result.storyText || '').trim();
       const nextTitle = appState.latestGeneratedStoryTitle || storyTitle || 'Untitled Story';
       loadStoryIntoApp(nextTitle, story);
-      setLoadedStoryMeta({
-        ...(loadedStoryMeta || {
-          title: nextTitle,
-          date: new Date().toISOString(),
-          characters,
-          audience: buildAudience(),
-          ageGroup: ageGroup || undefined,
-          framework: selectedFramework,
-          style: selectedStyle,
-          tone: toneAdj,
-          pacing: pacingAdj,
-          humor: humorAdj,
-          emotion: emotionAdj,
-          model: selectedModel,
-          readingAge: adjustReadingAge ? targetReadingAge : null,
-          consolidator: enableConsolidator,
-          plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
-        }),
+      setLoadedStoryMeta(buildStoryMetadata({
+        ...(loadedStoryMeta || collectStoryFields(nextTitle, story)),
         title: nextTitle,
+        markdown: story,
         date: new Date().toISOString(),
         wordCount: countWords(story),
-      });
+      }));
       showToast('Story elaborated successfully!', 'success');
     } catch (error: unknown) {
+      if (isAbortError(error)) {
+        showToast('Elaboration cancelled', 'info');
+        return;
+      }
       const msg = error instanceof Error ? error.message : String(error);
       showToast('Elaboration failed', 'error');
       console.error('Elaboration error:', msg);
     } finally {
+      if (abortRef.current === controller) abortRef.current = null;
       setIsGenerating(false);
     }
-  }, [apiKey, selectedModel, availableModels, buildCommonInputs, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, characters, buildAudience, ageGroup, selectedFramework, selectedStyle, toneAdj, pacingAdj, humorAdj, emotionAdj, adjustReadingAge, targetReadingAge, enableConsolidator, includePlotPoints, userSuggestions]);
+  }, [storyMarkdown, apiKey, selectedModel, availableModels, buildCommonInputs, enableConsolidator, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, collectStoryFields]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
@@ -587,42 +603,27 @@ export default function App() {
 
   // ─── Export JSON ──────────────────────────────────────────────────────
   const handleExportJson = useCallback(() => {
-    if (!appState.latestGeneratedStoryText) return;
-    const storyTitle = appState.latestGeneratedStoryTitle || 'Untitled Story';
-    const storyData = {
-      title: storyTitle,
-      markdown: appState.latestGeneratedStoryText,
-      characters,
-      audience: buildAudience(),
-      ageGroup: ageGroup || undefined,
-      framework: selectedFramework,
-      style: selectedStyle,
-      tone: toneAdj,
-      pacing: pacingAdj,
-      humor: humorAdj,
-      emotion: emotionAdj,
-      model: selectedModel,
-      readingAge: adjustReadingAge ? targetReadingAge : null,
-      consolidator: enableConsolidator,
-      wordCount: countWords(appState.latestGeneratedStoryText),
-      plotPoints: includePlotPoints && userSuggestions.trim() ? userSuggestions.trim() : undefined,
-      date: new Date().toISOString(),
-    };
+    const markdown = storyMarkdown || appState.latestGeneratedStoryText;
+    if (!markdown) return;
+    const exportTitle = storyTitle || appState.latestGeneratedStoryTitle || 'Untitled Story';
+    // A story loaded from the library carries its own settings; exporting the
+    // live form state instead would mislabel it with whatever is on screen now.
+    const storyData = buildSavedStory(loadedStoryMeta
+      ? { ...loadedStoryMeta, title: exportTitle, markdown }
+      : collectStoryFields(exportTitle, markdown));
     const json = JSON.stringify(storyData, null, 2);
     const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const safeFilename = storyTitle.replace(/[^a-z0-9\s]/gi, '').trim().replace(/\s+/g, '_').toLowerCase() || 'untitled_story';
+    const safeFilename = exportTitle.replace(/[^a-z0-9\s]/gi, '').trim().replace(/\s+/g, '_').toLowerCase() || 'untitled_story';
     a.download = `${safeFilename}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast('Story exported as JSON!', 'success');
-  }, [characters, buildAudience, ageGroup, selectedFramework, selectedStyle, toneAdj, pacingAdj,
-    humorAdj, emotionAdj, selectedModel, adjustReadingAge, targetReadingAge, enableConsolidator,
-    includePlotPoints, userSuggestions, showToast]);
+  }, [storyMarkdown, storyTitle, loadedStoryMeta, collectStoryFields, showToast]);
 
   // ─── Keyboard shortcuts ───────────────────────────────────────────────
   useEffect(() => {
@@ -665,6 +666,8 @@ export default function App() {
           onOpenFrameworkModal={() => setFrameworkModalOpen(true)}
           selectedStyle={selectedStyle}
           onOpenStyleModal={() => setStyleModalOpen(true)}
+          selectedNarrator={selectedNarrator}
+          onNarratorChange={updateNarrator}
           includePlotPoints={includePlotPoints}
           onIncludePlotPointsChange={updateIncludePlotPoints}
           userSuggestions={userSuggestions}
@@ -703,6 +706,7 @@ export default function App() {
           // Generate
           isGenerating={isGenerating}
           onGenerate={handleGenerateStory}
+          onCancelGenerate={handleCancelGenerate}
           // Assist - pass through for now
           storyOutputRef={storyContentRef}
           selectedWord={selectedWord}
@@ -717,6 +721,7 @@ export default function App() {
           ref={storyContentRef}
           title={storyTitle}
           storyHtml={storyHtml}
+          storyMarkdown={storyMarkdown}
           statusText={statusText}
           hasStory={hasStory}
           isGenerating={isGenerating}
@@ -729,6 +734,7 @@ export default function App() {
           onExportJson={handleExportJson}
           onWordClick={handleWordClick}
           onShowInfo={loadedStoryMeta ? () => setMetadataModalOpen(true) : undefined}
+          onFileLoaded={handleFileLoaded}
           showToast={showToast}
         />
       </div>
@@ -841,6 +847,7 @@ export default function App() {
               consolidator: story.consolidator,
               wordCount: story.wordCount,
               plotPoints: story.plotPoints,
+              narrator: story.narrator,
             });
             setLibraryOpen(false);
             showToast(`Loaded: ${story.title}`, 'success');

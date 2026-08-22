@@ -20,6 +20,8 @@ import { STORY_CRAFTING_GUIDES } from '../src/prompts/story_crafting_guides';
 import { STORY_STYLE_GUIDES } from '../src/prompts/author_styles';
 import { NARRATOR_PERSONAS } from '../src/prompts/narrator_personas';
 import { ADJUSTMENT_MODULES, getSensitivityGuidance } from '../src/prompts/adjustment_modules';
+import { AGE_GROUP_LABELS, canonicalizeFrameworkKey, resolveFrameworkGuide } from '../src/storyMetadata';
+import { lookupByNormalizedKey } from '../src/lookupKeys';
 import {
   READING_AGE_ADJUSTMENT_TEXT_TEMPLATE,
   PROMPT_AGENT_1_STORY_CRAFTER_TEMPLATE,
@@ -88,17 +90,6 @@ const SENSITIVITY_SHORTCUTS: Record<string, string> = {
   'adventurous':  'adventurous',
 };
 
-const AGE_GROUP_LABELS: Record<string, string> = {
-  '3-4':   'children aged 3-4',
-  '5-6':   'children aged 5-6',
-  '7-8':   'children aged 7-8',
-  '9-10':  'children aged 9-10',
-  '11-12': 'children aged 11-12',
-  '13-15': 'teenagers aged 13-15',
-  '16-18': 'young adults aged 16-18',
-  '18+':   'adults',
-};
-
 // ── CSV parsing ─────────────────────────────────────────────────────────────
 
 interface CsvRow {
@@ -162,13 +153,14 @@ function resolveFramework(shortName: string): { key: string; text: string } {
     const key = "Dan Harmon's Story Circle";
     return { key, text: STORY_CRAFTING_GUIDES[key] || '' };
   }
-  const fullKey = FRAMEWORK_SHORTCUTS[shortName.toLowerCase()];
-  if (fullKey) {
-    return { key: fullKey, text: STORY_CRAFTING_GUIDES[fullKey] || '' };
+  const shortcutKey = FRAMEWORK_SHORTCUTS[shortName.toLowerCase()];
+  const resolved = lookupByNormalizedKey(STORY_CRAFTING_GUIDES, shortcutKey || shortName);
+  if (resolved) {
+    return { key: canonicalizeFrameworkKey(resolved.key), text: resolved.value };
   }
-  // Try direct match against full names
-  if (STORY_CRAFTING_GUIDES[shortName]) {
-    return { key: shortName, text: STORY_CRAFTING_GUIDES[shortName] };
+  const guideText = resolveFrameworkGuide(shortName);
+  if (guideText) {
+    return { key: canonicalizeFrameworkKey(shortName), text: guideText };
   }
   console.warn(`  ⚠ Unknown framework "${shortName}", falling back to Story Circle`);
   const key = "Dan Harmon's Story Circle";

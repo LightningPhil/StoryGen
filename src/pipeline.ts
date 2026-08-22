@@ -62,22 +62,28 @@ export function getElaborationPipelineConfig(enableConsolidator: boolean): Agent
  * @param {Array<Object>} pipelineConfig - The array of agent definitions for the pipeline.
  * @param {Object} pipelineData - The initial data for the pipeline (e.g., charactersList).
  * @param {Object} commonInputs - The common data available to all agents (API key, guides, etc.).
- * @param {HTMLElement} storyOutputDiv - The DOM element to display status updates.
- * @returns {Promise<Object>} A promise that resolves with the final data object from the pipeline.
+ * @param statusCallback - Receives progress messages for the UI.
+ * @returns The final data object from the pipeline.
  */
 export async function runPipeline(pipelineConfig: AgentDefinition[], pipelineData: PipelineData, commonInputs: CommonInputs, statusCallback: ((msg: string) => void) | null): Promise<PipelineData> {
     let currentPipelineData: PipelineData = { ...pipelineData };
+    const commonRecord = commonInputs as unknown as Record<string, unknown>;
 
     for (const agentDef of pipelineConfig) {
+        if (commonInputs.abortSignal?.aborted) {
+            throw new DOMException('Story generation was cancelled.', 'AbortError');
+        }
+
         if (statusCallback) statusCallback(`Step ${agentDef.step}: ${agentDef.name.substring(agentDef.name.indexOf(':') + 2).replace('(Elaboration Cycle)', '').trim().replace('Story ', '')}...\n`);
         
         const agentDataObject: Record<string, string> = {};
 
         agentDef.dataKeys.forEach(key => {
-            if (commonInputs.hasOwnProperty(key)) {
-                agentDataObject[key] = (commonInputs as Record<string, any>)[key];
-            } else if (currentPipelineData.hasOwnProperty(key)) {
-                agentDataObject[key] = currentPipelineData[key];
+            if (Object.prototype.hasOwnProperty.call(commonInputs, key)) {
+                const value = commonRecord[key];
+                agentDataObject[key] = typeof value === 'string' ? value : '';
+            } else if (Object.prototype.hasOwnProperty.call(currentPipelineData, key)) {
+                agentDataObject[key] = currentPipelineData[key] || '';
             } else {
                 console.warn(`Data key "${key}" for agent "${agentDef.name}" not found in commonInputs or pipelineData. Using empty string.`);
                 agentDataObject[key] = ''; 
@@ -98,7 +104,9 @@ export async function runPipeline(pipelineConfig: AgentDefinition[], pipelineDat
             appState.lastRunChatLog, 
             statusCallback, 
             commonInputs.minApiIntervalMs,
-            enableThinking
+            enableThinking,
+            '',
+            commonInputs.abortSignal
         );
 
         if (agentDef.outputKey) {

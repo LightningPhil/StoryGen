@@ -984,6 +984,10 @@ input[type="range"]::-moz-range-thumb {
     letter-spacing: 0.04em;
 }
 
+.btn-generate.btn-cancel {
+    background: var(--color-error, #c33);
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Story Display Panel (Right Side)
    ───────────────────────────────────────────────────────────────────────────── */

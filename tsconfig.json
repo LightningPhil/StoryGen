@@ -16,5 +16,5 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "src/script.ts", "src/ui.ts"]
+  "exclude": ["node_modules", "dist"]
 }

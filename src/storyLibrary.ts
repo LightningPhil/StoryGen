@@ -20,6 +20,7 @@ export interface SavedStory {
     wordCount?: number;
     plotPoints?: string;
     ageGroup?: string;
+    narrator?: string;
 }
 
 const DB_NAME = 'storyGen_library';

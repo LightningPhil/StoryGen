@@ -1,3 +1,6 @@
+import { normalizeLookupKey } from '../lookupKeys';
+import { useEscapeKey } from '../useEscapeKey';
+
 interface FrameworkSelectModalProps {
   selectedFramework: string;
   frameworks: Record<string, string>;
@@ -6,6 +9,8 @@ interface FrameworkSelectModalProps {
 }
 
 export function FrameworkSelectModal({ selectedFramework, frameworks, onSelect, onClose }: FrameworkSelectModalProps) {
+  useEscapeKey(onClose);
+
   return (
     <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-content modal-xl">
@@ -19,7 +24,7 @@ export function FrameworkSelectModal({ selectedFramework, frameworks, onSelect, 
             {Object.entries(frameworks).map(([key, summary]) => (
               <div
                 key={key}
-                className={`selection-card${key === selectedFramework ? ' selected' : ''}`}
+                className={`selection-card${normalizeLookupKey(key) === normalizeLookupKey(selectedFramework) ? ' selected' : ''}`}
                 onClick={() => onSelect(key)}
               >
                 <div className="selection-card-title">{key}</div>

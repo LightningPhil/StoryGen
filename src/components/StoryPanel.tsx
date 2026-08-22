@@ -6,6 +6,7 @@ import type { ToastMessage } from '../App';
 interface StoryPanelProps {
   title: string;
   storyHtml: string;
+  storyMarkdown: string;
   statusText: string;
   hasStory: boolean;
   isGenerating: boolean;
@@ -18,6 +19,7 @@ interface StoryPanelProps {
   onExportJson?: () => void;
   onWordClick?: (word: string, wordIndex: number | null) => void;
   onShowInfo?: () => void;
+  onFileLoaded?: (title: string, text: string) => void;
   showToast: (msg: string, type?: ToastMessage['type']) => void;
 }
 
@@ -25,9 +27,9 @@ const WELCOME_TEXT = 'Welcome to StoryGen!\n\nStoryGen was created to help child
 
 export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function StoryPanel(props, ref) {
   const {
-    title, storyHtml, statusText, hasStory, isGenerating,
+    title, storyHtml, storyMarkdown, statusText, hasStory, isGenerating,
     fontSize, onIncreaseFontSize, onDecreaseFontSize,
-    onElaborate, onOpenLibrary, onOpenOnlineBrowser, onExportJson, onWordClick, onShowInfo, showToast,
+    onElaborate, onOpenLibrary, onOpenOnlineBrowser, onExportJson, onWordClick, onShowInfo, onFileLoaded, showToast,
   } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,16 +71,16 @@ export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function Stor
   }, [onWordClick, storyHtml]);
 
   const handleCopy = useCallback(() => {
-    if (appState.latestGeneratedStoryText) {
-      navigator.clipboard.writeText(appState.latestGeneratedStoryText)
+    if (storyMarkdown) {
+      navigator.clipboard.writeText(storyMarkdown)
         .then(() => showToast('Story copied to clipboard!', 'success'))
         .catch(() => showToast('Failed to copy story.', 'error'));
     }
-  }, [showToast]);
+  }, [showToast, storyMarkdown]);
 
   const handleSave = useCallback(() => {
-    if (!appState.latestGeneratedStoryText) return;
-    const storyTitle = appState.latestGeneratedStoryTitle || 'Untitled Story';
+    if (!storyMarkdown) return;
+    const storyTitle = title || 'Untitled Story';
     const dateStr = new Date().toISOString().split('T')[0];
 
     let md = '---\n';
@@ -86,7 +88,7 @@ export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function Stor
     md += `date: ${dateStr}\n`;
     md += '---\n\n';
     md += `# ${storyTitle}\n\n`;
-    md += appState.latestGeneratedStoryText;
+    md += storyMarkdown;
 
     const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -99,7 +101,7 @@ export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function Stor
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast('Story saved as markdown!', 'success');
-  }, [showToast]);
+  }, [showToast, storyMarkdown, title]);
 
   const handleOpenFile = useCallback(() => {
     fileInputRef.current?.click();
@@ -142,16 +144,18 @@ export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function Stor
         return;
       }
 
-      appState.latestGeneratedStoryTitle = fileTitle;
-      appState.latestGeneratedStoryText = storyBody;
-      // Force re-render by dispatching event (parent handles via state)
-      window.dispatchEvent(new CustomEvent('storygen:file-loaded', { detail: { title: fileTitle, text: storyBody } }));
+      if (onFileLoaded) {
+        onFileLoaded(fileTitle, storyBody);
+      } else {
+        appState.latestGeneratedStoryTitle = fileTitle;
+        appState.latestGeneratedStoryText = storyBody;
+      }
       showToast(`Loaded: ${fileTitle}`, 'success');
     };
     reader.onerror = () => showToast('Could not read the file.', 'error');
     reader.readAsText(file);
     e.target.value = '';
-  }, [showToast]);
+  }, [onFileLoaded, showToast]);
 
   // Determine what to show
   const showContent = storyHtml || hasStory;

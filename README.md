@@ -1,6 +1,6 @@
    # StoryGen
 
-   An AI-powered children's story generator that creates personalised, age-appropriate stories through a team of specialised AI agents. Built as a zero-dependency browser app using Google's Gemini API.
+   An AI-powered children's story generator that creates personalised, age-appropriate stories through a team of specialised AI agents. The app is a React + Vite client that calls Google's Gemini API from the browser.
 
    ## About
 
@@ -44,27 +44,22 @@
    - **Vocabulary Assist** — Tap any word in a story to see its definition, part of speech, phonetics, and example sentences via the Free Dictionary API and Wiktionary
    - **Pronunciation** — Hear words spoken aloud using dictionary recordings (real human audio from Wikimedia) or your browser's text-to-speech engine
    - **Reading difficulty adjustment** — A slider scales vocabulary complexity for younger or older readers
+   - **Narrator personas** — Optional voices such as Wise Grandfather, Adventurer, Silly Friend, Wise Owl, or Epic Bard
    - **Tone, pacing, humour, and emotion controls** — Fine-tune the feel of each story
-   - **Story series** — Generate multi-episode arcs (3, 5, or 7 parts) with automatic continuity between chapters
-   - **Save & load** — Download stories as markdown files with metadata; re-open them later with full markdown rendering
+   - **Save & load** — Download stories as markdown or JSON; keep a local IndexedDB library; browse a pre-generated story database
    - **Light and dark themes** — Automatic or manual switching
    - **Built-in Help Wiki** — Searchable guides on every feature
-   - **Zero dependencies** — Pure vanilla JavaScript, no build step, no npm packages
 
    ---
 
    ## Getting Started
 
-   1. **Serve the app** via HTTP (not `file://`) — a simple local server is needed for ES module imports
+   1. **Install and run the app**
       ```bash
-      # Python 3
-      python -m http.server 8000
-
-      # Node.js
-      npx serve .
-
-      # Then open http://localhost:8000
+      npm install
+      npm run dev
       ```
+      Then open the local URL Vite prints (usually `http://localhost:5173`).
    2. **Open Settings** (⚙️) → Enter your [Gemini API key](https://aistudio.google.com/app/apikey) → Save
    3. **Configure your story** — enter characters, choose an audience age, pick a framework and style
    4. **Click Generate Story** and watch the agents work
@@ -81,6 +76,7 @@
    | **Target Audience** | Age range, e.g. "children aged 5-7" |
    | **Story Framework** | Narrative structure blueprint (19 options) |
    | **Authorial Style** | Voice and tone template (6 options) |
+   | **Narrator Persona** | Optional narrative voice for the agents |
    | **Include Plot Points** | Toggle for optional scene ideas or directions |
 
    ### Options Tab
@@ -93,15 +89,6 @@
    | **Consolidate** | Enable tightening passes in the pipeline |
    | **Tone / Pacing / Humour / Emotion** | Fine-tuning dials via the style modal |
 
-   ### Series Tab
-
-   Create multi-episode story arcs:
-   - **3-Part Mini-Series** — Quick arc for shorter attention spans
-   - **5-Part Adventure** — Classic hero's journey structure
-   - **7-Night Epic Journey** — Extended world-building series
-
-   Each episode auto-generates continuity metadata for injection into subsequent chapters.
-
    ### Assist Tab
 
    Tap any word in a generated story to:
@@ -111,18 +98,7 @@
 
    ### Changing the Gemini Model
 
-   The available models and default are defined in a single place at the top of `src/script.js`. To add or change models:
-
-   1. Open `src/script.js` and search for **`AVAILABLE_MODELS`**
-   2. Add a new entry to the object using the model's API ID (the identifier from the [Gemini API docs](https://ai.google.dev/gemini-api/docs/models)), for example:
-      ```js
-      "gemini-2.0-pro": { name: "Gemini 2.0 Pro", supportsThinking: false }
-      ```
-   3. Set `supportsThinking` to `true` if the model supports extended reasoning, or `false` if it doesn't
-   4. To change the **default** model, update the `DEFAULT_GEMINI_MODEL_ID` constant just above
-   5. No other files need changing — the Settings dropdown and API calls are built dynamically from this object
-
-   The API URL is constructed as `generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent`, so any model compatible with that endpoint will work.
+   Models are discovered dynamically from the Gemini ListModels API when you save an API key. The fallback default lives in `src/modelDiscovery.ts`. Any model compatible with `generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent` can appear in Settings.
 
    ### Settings Modal
 
@@ -172,18 +148,15 @@
 
    ```
    ┌─────────────────────────────────────────────────────────────┐
-   │                        Browser Client                        │
+   │                     Browser Client (React + Vite)            │
    ├─────────────────────────────────────────────────────────────┤
-   │  index.html          │  UI Layer (tabs, modals, output)     │
-   │  src/script.js       │  Orchestrator (events, prompt build) │
-   │  src/pipeline.js     │  Agent engine (sequencing, checks)   │
-   │  src/api.js          │  API layer (rate limit, retry)       │
-   │  src/ui.js           │  Rendering (markdown, toasts)        │
-   │  src/wiktionary.js   │  Dictionary lookups (2 APIs)         │
-   │  src/utils.js        │  Prompt helpers, voice analysis      │
-   │  src/localStorage.js │  Persistence key/value helpers       │
-   │  src/appState.js     │  Runtime state container             │
-   │  src/prompts/*.js    │  Prompt templates & content library  │
+   │  src/App.tsx         │  Settings, generation, persistence   │
+   │  src/pipeline.ts     │  Agent engine (sequencing, checks)   │
+   │  src/api.ts          │  Gemini fetch, rate limit, retry     │
+   │  src/formatStory.ts  │  Markdown → HTML + word spans        │
+   │  src/wiktionary.ts   │  Dictionary lookups (2 APIs)         │
+   │  src/storyLibrary.ts │  IndexedDB local library             │
+   │  src/prompts/*.ts    │  Prompt templates & content library  │
    └─────────────────────────────────────────────────────────────┘
                │                            │
                ▼                            ▼
@@ -235,7 +208,7 @@
 
    ### Why MIT?
 
-   - **The app is 100% original code** — no npm packages, no bundled libraries, no build step. Every line of JavaScript, HTML, and CSS was written for this project.
+   - **The app is original application code** — React and Vite are used to build the UI; story generation still happens through the user's own Gemini API key.
    - **External services are consumed at runtime**, not bundled. The Google Gemini API, Free Dictionary API, Wiktionary REST API, and Web Speech API are all accessed via HTTP requests or browser built-ins — their terms apply to their own services, not to this codebase.
    - **Wiktionary content** displayed to users is CC-BY-SA, but that licence covers the *data* (definitions, audio), not our application code.
    - **MIT is maximally permissive** — anyone can use, modify, or distribute StoryGen for any purpose with minimal friction.
@@ -246,10 +219,9 @@
 
    | Issue | Notes |
    |-------|-------|
-   | Grimm framework key mismatch | Curly quotes vs straight quotes in framework keys cause selection desync |
-   | Plot points leak | Hiding the textarea doesn't clear its value — text still injects into prompts |
-   | Consolidator labelling | UI implies one pass but enables two in full pipeline |
-   | API key in URL | Key is sent as a query parameter (visible in logs/history); no server proxy |
+   | API key in URL | Key is sent as a query parameter (visible in DevTools and some logs); there is no server proxy |
+   | API key in localStorage | A XSS bug in the page could expose the key. Treat this as a personal BYOK tool |
+   | RiTa via CDN | Phonics loads RiTa from unpkg without Subresource Integrity |
 
    ---
 

@@ -1,3 +1,5 @@
+import { normalizeLookupKey } from '../lookupKeys';
+
 const UNIVERSAL_CRAFT_STANDARDS = `
 ## ✨ Universal Craft Standards  (apply no matter which framework you choose)
 
@@ -608,13 +610,19 @@ export const STORY_FRAMEWORK_SUMMARIES: Record<string, string> = {
     "Seven-Point Story Structure": "A plot structure focusing on two major turning points (Plot Points) and two pressure points (Pinches) that frame the story's Midpoint.",
     "Snowflake Method (Iterative Expansion)": "A design process for writing stories where you start with a single sentence and build it out into a full narrative through ten iterative passes.",
     "Fichtean Curve (“Crisis Ladder”)": "A plot structure that begins in the middle of the action and follows a character through a series of escalating crises, with brief moments of reflection, leading to a climax.",
-    "Grimms' Fairy-Tale Pattern (\"Forest Path\")": "A classic fairy-tale template following a protagonist through hardship, a series of three trials, and a magical resolution, often with a clear moral.",
-    "Grimms' Wish-Mirror Pattern (\"Rippled Lake\")": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
-    "Grimms' Hidden-Beast Pattern (\"Animal Bridegroom\")": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
-    "Grimms' Sibling-Quest Pattern (\"Swans & Stars\")": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
-    "Grimms' Trickster-Triumph Pattern (\"Clever Tailor\")": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery.",
+    "Grimms’ Fairy-Tale Pattern (“Forest Path”)": "A classic fairy-tale template following a protagonist through hardship, a series of three trials, and a magical resolution, often with a clear moral.",
+    "Grimms’ Wish-Mirror Pattern (“Rippled Lake”)": "A cautionary tale structure where a character's wishes are granted with increasingly dire, ironic consequences.",
+    "Grimms’ Hidden-Beast Pattern (“Animal Bridegroom”)": "A romantic fairy-tale structure about a pact with an enchanted beast, a broken taboo, and a quest to restore the beast to their true form.",
+    "Grimms’ Sibling-Quest Pattern (“Swans & Stars”)": "A fairy-tale framework centered on a protagonist's selfless quest and silent suffering to rescue their cursed siblings.",
+    "Grimms’ Trickster-Triumph Pattern (“Clever Tailor”)": "A comedic fairy-tale pattern where a humble but witty protagonist overcomes impossible tasks through cleverness, bluffing, and trickery.",
     // Fable summary
     "Fable (Aesop Style)": "A short, moral tale with animal characters (400-500 words). Features a clear conflict and an explicit lesson. Based on classical Aesop tradition.",
     // Learning Fable summary
     "Learning Fable (STEM)": "A fable where the 'moral' is a science or math concept. Animal characters discover and apply STEM principles through experimentation. (~400-550 words)"
 };
+
+const guideKeys = Object.keys(STORY_CRAFTING_GUIDES).map(normalizeLookupKey).sort();
+const summaryKeys = Object.keys(STORY_FRAMEWORK_SUMMARIES).map(normalizeLookupKey).sort();
+if (guideKeys.join('\n') !== summaryKeys.join('\n')) {
+    console.warn('Story framework guides and summaries have mismatched keys.');
+}

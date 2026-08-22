@@ -199,7 +199,7 @@ export const PERSONA_RECOMMENDATIONS = {
 };
 
 // Export personas as an object for dropdown population
-export const NARRATOR_PERSONAS = {
+export const NARRATOR_PERSONAS: Record<string, string> = {
     "Default (No Narrator Persona)": "",
     "Wise Grandfather": PERSONA_WISE_GRANDFATHER,
     "Adventurer": PERSONA_ADVENTURER,
@@ -209,7 +209,7 @@ export const NARRATOR_PERSONAS = {
 };
 
 // Export summaries for UI display
-export const PERSONA_SUMMARIES = {
+export const PERSONA_SUMMARIES: Record<string, string> = {
     "Default (No Narrator Persona)": "Let the story engine choose an appropriate voice based on the framework and settings.",
     "Wise Grandfather": "A warm, seasoned storyteller with quiet wisdom and gentle authority—perfect for bedtime.",
     "Adventurer": "An enthusiastic explorer sharing tales from expeditions with infectious energy and wonder.",

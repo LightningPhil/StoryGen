@@ -2,43 +2,6 @@
 
 import type { ChatLogEntry, SensitivityPreset } from './types';
 
-// Bedtime Mode Preset - optimal settings for calming sleep-time stories
-export const BEDTIME_MODE_PRESET: {
-    framework: string;
-    authorStyle: string;
-    adjustments: { tone: string; pacing: string; humor: string; emotion: string };
-    consolidator: boolean;
-    readingAge: number;
-    useEngineSuggestions: boolean;
-} = {
-    framework: "Dan Harmon's Story Circle", // Circular journey fits bedtime well
-    authorStyle: "Gentle & Reassuring (Kerr/Bond)",
-    adjustments: {
-        tone: "calm_bedtime",
-        pacing: "slow_soothing",
-        humor: "none",
-        emotion: "heartwarming"
-    },
-    consolidator: false, // Keep natural length for pacing
-    readingAge: 5, // Younger audience
-    useEngineSuggestions: true
-};
-
-// Morning Energizer Preset - optimal settings for exciting wake-up stories
-export const MORNING_ENERGIZER_PRESET: typeof BEDTIME_MODE_PRESET = {
-    framework: "Three-Act Structure", // Action-oriented structure
-    authorStyle: "Whimsical & Playful (Dahl/Seuss)",
-    adjustments: {
-        tone: "energetic_morning",
-        pacing: "fast_dynamic",
-        humor: "light_silly",
-        emotion: "empowering"
-    },
-    consolidator: false, // Preserve natural energy
-    readingAge: 6, // Slightly higher for comprehension
-    useEngineSuggestions: true
-};
-
 // Sensitivity Level Presets for Parental Controls
 export const SENSITIVITY_LEVELS: Record<string, SensitivityPreset & { label: string; description: string }> = {
     'extra_gentle': {
@@ -109,10 +72,6 @@ const appState = {
     clearChatLog() {
         this._lastRunChatLog = [] as ChatLogEntry[];
     },
-
-    // Potentially, methods to manage loading/saving settings could be added here later
-    // if more complex state orchestration around settings is needed.
-    // For now, localStorage.js and script.js handle this directly.
 };
 
 export default appState;

@@ -39,6 +39,7 @@ export interface CommonInputs {
     NARRATOR_PERSONA_TEXT: string;
     SENSITIVITY_GUIDANCE_TEXT: string;
     agentThinkingConfig: Record<string, boolean>;
+    abortSignal?: AbortSignal;
 }
 
 // ─── Dictionary / Wiktionary ─────────────────────────────────────────────────
@@ -87,24 +88,6 @@ export interface PhonicsAssist {
     confidence: number;
 }
 
-// ─── UI ──────────────────────────────────────────────────────────────────────
-
-export interface UIElements {
-    storyTitleDiv: HTMLElement;
-    storyOutputDiv: HTMLElement;
-    generateButton: HTMLButtonElement;
-    elaborateStoryButton: HTMLButtonElement | null;
-    copyStoryButton: HTMLButtonElement | null;
-    saveStoryButton: HTMLButtonElement | null;
-    decreaseFontButton: HTMLButtonElement | null;
-    increaseFontButton: HTMLButtonElement | null;
-    craftingFrameworkSelect: HTMLSelectElement;
-    frameworkSummaryDiv: HTMLElement | null;
-    userSuggestionsTextarea: HTMLTextAreaElement;
-    authorStyleSelect: HTMLSelectElement;
-    styleSummaryDiv: HTMLElement | null;
-}
-
 // ─── Sensitivity ─────────────────────────────────────────────────────────────
 
 export interface SensitivitySettings {
@@ -140,6 +123,28 @@ export type VocabularyLookupData = Record<string, VocabularyEntry>;
 export interface ModelConfig {
     name: string;
     supportsThinking: boolean;
+}
+
+export interface StoryMetadata {
+    title: string;
+    date: string;
+    characters?: string;
+    audience?: string;
+    ageGroup?: string;
+    framework?: string;
+    style?: string;
+    narrator?: string;
+    tone?: string;
+    pacing?: string;
+    humor?: string;
+    emotion?: string;
+    model?: string;
+    readingAge?: number | null;
+    consolidator?: boolean;
+    wordCount?: number;
+    plotPoints?: string;
+    author?: string;
+    tags?: string[];
 }
 
 // ─── STEM Concept ────────────────────────────────────────────────────────────
