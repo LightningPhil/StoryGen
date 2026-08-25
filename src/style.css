@@ -776,6 +776,19 @@ body {
     gap: var(--space-sm);
 }
 
+.toggle-label:has(input:disabled) {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.toggle-label input[type="checkbox"]:disabled {
+    cursor: default;
+}
+
+.toggle-grid.is-disabled {
+    opacity: 0.72;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Sliders
    ───────────────────────────────────────────────────────────────────────────── */

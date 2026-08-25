@@ -359,10 +359,13 @@ export default function App() {
       fast: FAST_STORY_AGENT_NAME,
     };
 
-    return (Object.keys(agentNames) as AgentThinkingKey[]).reduce<Record<string, boolean>>((config, key) => {
-      config[agentNames[key]] = agentThinking[key];
-      return config;
+    const config = (Object.keys(agentNames) as AgentThinkingKey[]).reduce<Record<string, boolean>>((next, key) => {
+      next[agentNames[key]] = agentThinking[key];
+      return next;
     }, {});
+    // Fast Mode has no per-agent toggle; the master thinking switch applies to the single request.
+    config[FAST_STORY_AGENT_NAME] = thinkingEnabled;
+    return config;
   }, [agentThinking, thinkingEnabled]);
 
   const updateUserSuggestions = useCallback((v: string) => { setUserSuggestions(v); saveToLocalStorage(LS_USER_SUGGESTIONS, v); }, []);

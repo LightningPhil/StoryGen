@@ -285,18 +285,22 @@ export function SettingsModal(props: SettingsModalProps) {
               <span>Enable Thinking</span>
             </label>
             {showAgentToggles && (
-              <div className="toggle-grid" style={{ marginTop: '0.75rem' }}>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.crafter} onChange={e => updateAgentToggle('crafter', e.target.checked)} /><span>Agent 1: Crafter</span></label>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.elaborator} onChange={e => updateAgentToggle('elaborator', e.target.checked)} /><span>Agent 2: Elaborator</span></label>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.reviewer} onChange={e => updateAgentToggle('reviewer', e.target.checked)} /><span>Agent 3: Reviewer</span></label>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.polisher} onChange={e => updateAgentToggle('polisher', e.target.checked)} /><span>Agent 4: Polisher</span></label>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.cleaner} onChange={e => updateAgentToggle('cleaner', e.target.checked)} /><span>Agent 5: Cleaner</span></label>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.titler} onChange={e => updateAgentToggle('titler', e.target.checked)} /><span>Agent 6: Titler</span></label>
-                <label className="toggle-label"><input type="checkbox" checked={agentThinking.consolidator} onChange={e => updateAgentToggle('consolidator', e.target.checked)} /><span>Agent C: Consolidator</span></label>
+              <>
                 {experimentalFastMode && (
-                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.fast} onChange={e => updateAgentToggle('fast', e.target.checked)} /><span>Agent F: Fast Generator</span></label>
+                  <p className="field-group-hint">
+                    Fast Mode uses a single request, so per-agent thinking is unused. The Enable Thinking switch above still applies to that request.
+                  </p>
                 )}
-              </div>
+                <div className={`toggle-grid${experimentalFastMode ? ' is-disabled' : ''}`} style={{ marginTop: '0.75rem' }}>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.crafter} disabled={experimentalFastMode} onChange={e => updateAgentToggle('crafter', e.target.checked)} /><span>Agent 1: Crafter</span></label>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.elaborator} disabled={experimentalFastMode} onChange={e => updateAgentToggle('elaborator', e.target.checked)} /><span>Agent 2: Elaborator</span></label>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.reviewer} disabled={experimentalFastMode} onChange={e => updateAgentToggle('reviewer', e.target.checked)} /><span>Agent 3: Reviewer</span></label>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.polisher} disabled={experimentalFastMode} onChange={e => updateAgentToggle('polisher', e.target.checked)} /><span>Agent 4: Polisher</span></label>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.cleaner} disabled={experimentalFastMode} onChange={e => updateAgentToggle('cleaner', e.target.checked)} /><span>Agent 5: Cleaner</span></label>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.titler} disabled={experimentalFastMode} onChange={e => updateAgentToggle('titler', e.target.checked)} /><span>Agent 6: Titler</span></label>
+                  <label className="toggle-label"><input type="checkbox" checked={agentThinking.consolidator} disabled={experimentalFastMode} onChange={e => updateAgentToggle('consolidator', e.target.checked)} /><span>Agent C: Consolidator</span></label>
+                </div>
+              </>
             )}
           </div>
         </div>
