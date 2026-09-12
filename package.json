@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prepare": "node scripts/install-git-hooks.cjs",
     "test": "npm run test:prompts",
     "test:prompts": "tsx --test scripts/prompt-regression.test.ts",
     "typecheck": "tsc --noEmit",
