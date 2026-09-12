@@ -6,6 +6,14 @@ export default defineConfig({
   root: 'src',
   base: './',
   publicDir: '../public',
+  server: {
+    port: 8002,
+    strictPort: true,
+  },
+  preview: {
+    port: 8002,
+    strictPort: true,
+  },
   build: {
     outDir: '../dist',
   },

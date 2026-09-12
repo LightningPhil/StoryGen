@@ -1,5 +1,9 @@
+import { useEffect, useRef, useState } from 'react';
 import { NARRATOR_PERSONAS, PERSONA_SUMMARIES } from '../prompts/narrator_personas';
 import { AssistPanel } from './AssistPanel';
+import { ReadingPalettePicker } from './ReadingPalettePicker';
+import type { ReadingPaletteState } from '../readingPalette';
+import type { SelectionLength } from '../readAloud';
 import type { ToastMessage } from '../App';
 
 const SENSITIVITY_LABELS: string[] = ['None', 'Gentle', 'Standard', 'Adventurous'];
@@ -37,8 +41,10 @@ interface ControlsPanelProps {
   activeTab: 'story' | 'options' | 'assist';
   onTabChange: (tab: 'story' | 'options' | 'assist') => void;
   assistEnabled: boolean;
-  theme: string;
+  theme: 'light' | 'dark';
   onToggleTheme: () => void;
+  readingPalette: ReadingPaletteState;
+  onReadingPaletteChange: (next: ReadingPaletteState) => void;
   onOpenSettings: () => void;
   onOpenHelp: () => void;
   characters: string;
@@ -97,13 +103,14 @@ interface ControlsPanelProps {
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
+  selectionLength: SelectionLength;
   showToast: (msg: string, type?: ToastMessage['type']) => void;
 }
 
 export function ControlsPanel(props: ControlsPanelProps) {
   const {
     activeTab, onTabChange,
-    theme, onToggleTheme, onOpenSettings, onOpenHelp,
+    theme, onToggleTheme, readingPalette, onReadingPaletteChange, onOpenSettings, onOpenHelp,
     characters, onCharactersChange, audience, onAudienceChange,
     ageGroup, onAgeGroupChange,
     selectedFramework, onOpenFrameworkModal, selectedStyle, onOpenStyleModal,
@@ -119,6 +126,18 @@ export function ControlsPanel(props: ControlsPanelProps) {
     experimentalFastMode,
     isGenerating, onGenerate, onCancelGenerate,
   } = props;
+
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const paletteWrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!paletteOpen) return;
+    const handlePointer = (event: MouseEvent) => {
+      if (!paletteWrapRef.current?.contains(event.target as Node)) setPaletteOpen(false);
+    };
+    document.addEventListener('mousedown', handlePointer);
+    return () => document.removeEventListener('mousedown', handlePointer);
+  }, [paletteOpen]);
 
   const isLearningFable = selectedFrameworkForSTEM === 'Learning Fable (STEM)';
 
@@ -141,7 +160,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
       <header className="panel-header">
         <h1>StoryGen</h1>
         <div className="header-actions">
-          <button className="icon-button" aria-label="Toggle theme" title="Toggle light/dark mode" onClick={onToggleTheme}>
+          <button id="themeToggle" className="icon-button" aria-label="Toggle theme" title="Toggle light/dark mode" onClick={onToggleTheme}>
             <svg className="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
             </svg>
@@ -149,6 +168,30 @@ export function ControlsPanel(props: ControlsPanelProps) {
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
           </button>
+          <div className="reading-palette-wrap" ref={paletteWrapRef}>
+            <button
+              className={`icon-button${paletteOpen ? ' is-active' : ''}`}
+              aria-label="Reading colours"
+              title="Reading colours"
+              aria-expanded={paletteOpen}
+              aria-haspopup="dialog"
+              onClick={() => setPaletteOpen(open => !open)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 21a9 9 0 1 1 9-9c0 1.7-1.3 3-3 3h-1.5a1.5 1.5 0 0 0-1.3 2.25 1.8 1.8 0 0 1-1.6 2.75H12z" />
+                <circle cx="7.5" cy="10.5" r="1.1" fill="currentColor" stroke="none" />
+                <circle cx="10.5" cy="7.5" r="1.1" fill="currentColor" stroke="none" />
+                <circle cx="14.2" cy="8.2" r="1.1" fill="currentColor" stroke="none" />
+                <circle cx="16.2" cy="11.5" r="1.1" fill="currentColor" stroke="none" />
+              </svg>
+            </button>
+            <ReadingPalettePicker
+              open={paletteOpen}
+              palette={readingPalette}
+              onChange={onReadingPaletteChange}
+              onClose={() => setPaletteOpen(false)}
+            />
+          </div>
           <button className="icon-button" aria-label="Settings" title="Settings" onClick={onOpenSettings}>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
@@ -340,6 +383,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
               onWordLookup={props.onWordLookup}
               ttsSource={props.ttsSource}
               ttsVoice={props.ttsVoice}
+              selectionLength={props.selectionLength}
             />
           </div>
         </div>

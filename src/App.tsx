@@ -13,6 +13,7 @@ import {
   loadFromLocalStorage,
   clearAllAppData,
   LS_THEME,
+  LS_READING_PALETTE,
   LS_CHARACTERS,
   LS_AUDIENCE,
   LS_SELECTED_FRAMEWORK,
@@ -51,6 +52,7 @@ import {
   LS_TTS_SOURCE,
   LS_TTS_GENDER,
   LS_TTS_VOICE,
+  LS_READ_ALOUD_SELECTION_LENGTH,
   LS_NARRATOR_PERSONA,
 } from './localStorage';
 import appState from './appState';
@@ -72,6 +74,8 @@ import {
 import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
+import { parseReadingPalette, resolveReadingColors, type ReadingPaletteState } from './readingPalette';
+import type { SelectionLength } from './readAloud';
 import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
 import { isAbortError } from './api';
 import { StoryMetadataModal } from './components/StoryMetadataModal';
@@ -133,6 +137,10 @@ export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
   });
+  const [readingPalette, setReadingPalette] = useState<ReadingPaletteState>(
+    () => parseReadingPalette(loadFromLocalStorage(LS_READING_PALETTE)),
+  );
+  const readingColors = resolveReadingColors(readingPalette);
 
   const toggleTheme = useCallback(() => {
     const next = theme === 'light' ? 'dark' : 'light';
@@ -140,6 +148,11 @@ export default function App() {
     saveToLocalStorage(LS_THEME, next);
     setTheme(next);
   }, [theme]);
+
+  const updateReadingPalette = useCallback((next: ReadingPaletteState) => {
+    setReadingPalette(next);
+    saveToLocalStorage(LS_READING_PALETTE, JSON.stringify(next));
+  }, []);
 
   // ─── Modal state ──────────────────────────────────────────────────────
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -232,6 +245,9 @@ export default function App() {
   const [ttsSource, setTtsSource] = useState(() => loadFromLocalStorage(LS_TTS_SOURCE) || 'browser');
   const [ttsGender, setTtsGender] = useState(() => loadFromLocalStorage(LS_TTS_GENDER) || 'female');
   const [ttsVoice, setTtsVoice] = useState(() => loadFromLocalStorage(LS_TTS_VOICE) || 'Google UK English Female');
+  const [selectionLength, setSelectionLength] = useState<SelectionLength>(() => (
+    loadFromLocalStorage(LS_READ_ALOUD_SELECTION_LENGTH) === 'long' ? 'long' : 'short'
+  ));
 
   // ─── Dynamic model discovery ───────────────────────────────────────────
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>([DEFAULT_MODEL_CONFIG]);
@@ -698,6 +714,8 @@ export default function App() {
           // Header
           theme={theme}
           onToggleTheme={toggleTheme}
+          readingPalette={readingPalette}
+          onReadingPaletteChange={updateReadingPalette}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenHelp={() => setHelpModalOpen(true)}
           // Story tab
@@ -761,6 +779,7 @@ export default function App() {
           ttsSource={ttsSource}
           ttsGender={ttsGender}
           ttsVoice={ttsVoice}
+          selectionLength={selectionLength}
           showToast={showToast}
         />
         <StoryPanel
@@ -772,6 +791,8 @@ export default function App() {
           hasStory={hasStory}
           isGenerating={isGenerating}
           fontSize={storyFontSize}
+          readingBg={readingColors.bg}
+          readingFg={readingColors.fg}
           onIncreaseFontSize={increaseFont}
           onDecreaseFontSize={decreaseFont}
           onElaborate={handleElaborateStory}
@@ -807,6 +828,7 @@ export default function App() {
           ttsSource={ttsSource}
           ttsGender={ttsGender}
           ttsVoice={ttsVoice}
+          selectionLength={selectionLength}
           readingAgeMin={readingAgeMin}
           readingAgeMax={readingAgeMax}
           onSave={(settings) => {
@@ -830,6 +852,7 @@ export default function App() {
             setTtsSource(settings.ttsSource); saveToLocalStorage(LS_TTS_SOURCE, settings.ttsSource);
             setTtsGender(settings.ttsGender); saveToLocalStorage(LS_TTS_GENDER, settings.ttsGender);
             setTtsVoice(settings.ttsVoice); saveToLocalStorage(LS_TTS_VOICE, settings.ttsVoice);
+            setSelectionLength(settings.selectionLength); saveToLocalStorage(LS_READ_ALOUD_SELECTION_LENGTH, settings.selectionLength);
             setReadingAgeMin(normalizedRange.min); saveToLocalStorage(LS_READING_AGE_MIN, String(normalizedRange.min));
             setReadingAgeMax(normalizedRange.max); saveToLocalStorage(LS_READING_AGE_MAX, String(normalizedRange.max));
             setTargetReadingAge(normalizedTargetReadingAge); saveToLocalStorage(LS_TARGET_READING_AGE, String(normalizedTargetReadingAge));

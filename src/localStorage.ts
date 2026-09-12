@@ -46,12 +46,15 @@ export const LS_THINKING_ENABLED = 'thinkingEnabled_storyCircle';
 
 // --- Theme ---
 export const LS_THEME = 'storyTheme_storyCircle';
+export const LS_READING_PALETTE = 'storyReadingPalette_storyCircle';
 
 // --- Vocabulary Assist ---
 export const LS_VOCAB_LOOKUPS = 'storyVocabLookups_storyCircle';
 export const LS_TTS_VOICE = 'storyTtsVoice_storyCircle';
 export const LS_TTS_GENDER = 'storyTtsGender_storyCircle';
 export const LS_TTS_SOURCE = 'storyTtsSource_storyCircle';
+export const LS_READ_ALOUD_FOLLOW = 'storyReadAloudFollow_storyCircle';
+export const LS_READ_ALOUD_SELECTION_LENGTH = 'storyReadAloudSelectionLength_storyCircle';
 
 // --- New Keys for Agent Thinking Toggles ---
 export const LS_THINKING_AGENT_1_CRAFTER = 'thinkingAgent1_storyCircle';
@@ -152,9 +155,10 @@ export function clearAllAppData(includeApiKey: boolean = false): void {
         LS_STEM_CONCEPT, LS_INCLUDE_PLOT_POINTS, LS_NARRATOR_PERSONA,
         LS_SENSITIVITY_PRESET, LS_SENSITIVITY_CONFLICT, LS_SENSITIVITY_SCARY, LS_SENSITIVITY_SADNESS, LS_SENSITIVITY_COMPLEXITY,
         LS_THINKING_ENABLED,
-        LS_THEME,
+        LS_THEME, LS_READING_PALETTE,
         LS_VOCAB_LOOKUPS,
         LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
+        LS_READ_ALOUD_FOLLOW, LS_READ_ALOUD_SELECTION_LENGTH,
         LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
         LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
         LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THINKING_AGENT_FAST

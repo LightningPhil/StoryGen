@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { lookupWord } from '../wiktionary';
 import { buildPhonicsAssist, ensureRitaLoaded } from '../phonics';
-import { trackVocabularyLookup } from '../localStorage';
+import { trackVocabularyLookup, loadFromLocalStorage, saveToLocalStorage, LS_READ_ALOUD_FOLLOW } from '../localStorage';
 import { normalizeVocabularyWord } from '../utils';
+import { buildReadChunks, clearReadAloudFollow, showReadAloudChunk, type ReadChunk, type SelectionLength } from '../readAloud';
 import type { AssistData, PhonicsAssist } from '../types';
 
 interface AssistPanelProps {
@@ -12,6 +13,7 @@ interface AssistPanelProps {
   onWordLookup?: (word: string) => void;
   ttsSource?: string;
   ttsVoice?: string;
+  selectionLength?: SelectionLength;
 }
 
 const SOURCE_NAMES: Record<string, string> = {
@@ -22,13 +24,16 @@ const SOURCE_NAMES: Record<string, string> = {
 
 const DIALECT_LABELS: Record<string, string> = { uk: 'UK', us: 'US' };
 
-export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, onWordLookup, ttsSource, ttsVoice }: AssistPanelProps) {
+export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, onWordLookup, ttsSource, ttsVoice, selectionLength = 'short' }: AssistPanelProps) {
   const [assistData, setAssistData] = useState<AssistData | null>(null);
   const [phonicsData, setPhonicsData] = useState<PhonicsAssist | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isReading, setIsReading] = useState(false);
   const isReadingRef = useRef(false);
+  const [followAlong, setFollowAlong] = useState(() => loadFromLocalStorage(LS_READ_ALOUD_FOLLOW) !== 'false');
+  const followAlongRef = useRef(followAlong);
+  const currentChunkRef = useRef<ReadChunk | null>(null);
   const [highlightedChunk, setHighlightedChunk] = useState<number | null>(null);
   const requestTokenRef = useRef(0);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -109,6 +114,23 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     }
   }, []);
 
+  const stopReadAloud = useCallback(() => {
+    isReadingRef.current = false;
+    currentChunkRef.current = null;
+    stopPlayback();
+    clearReadAloudFollow(storyContentRef.current);
+    setIsReading(false);
+  }, [stopPlayback, storyContentRef]);
+
+  useEffect(() => {
+    followAlongRef.current = followAlong;
+    if (isReading) {
+      showReadAloudChunk(storyContentRef.current, currentChunkRef.current, followAlong);
+    } else {
+      clearReadAloudFollow(storyContentRef.current);
+    }
+  }, [followAlong, isReading, storyContentRef]);
+
   const speakWord = useCallback((word: string) => {
     if (!('speechSynthesis' in window)) return;
     stopPlayback();
@@ -146,72 +168,15 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     if (!('speechSynthesis' in window)) return;
 
     if (isReading) {
-      isReadingRef.current = false;
-      stopPlayback();
-      setIsReading(false);
+      stopReadAloud();
       return;
     }
 
     const el = storyContentRef.current;
     if (!el) return;
 
-    // ── Extract text from the selected word onward ──
-    // Walk the DOM to find offset of the selected word, then slice the full
-    // textContent from that position. This preserves all punctuation and spacing.
-    let text = '';
-    const storyWords = Array.from(el.querySelectorAll('.story-word')) as HTMLElement[];
-    const selectedEl = selectedWordIndex !== null ? storyWords[selectedWordIndex] || null : null;
-    if (selectedEl) {
-      // Find the character offset of selectedEl within el's textContent
-      const treeWalker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      let charOffset = 0;
-      let found = false;
-      while (treeWalker.nextNode()) {
-        const node = treeWalker.currentNode as Text;
-        if (selectedEl.contains(node)) {
-          found = true;
-          break;
-        }
-        charOffset += node.length;
-      }
-      if (found) {
-        const full = el.textContent || '';
-        text = full.slice(charOffset).trim();
-      }
-    }
-
-    if (!text) {
-      text = el.textContent?.trim() || '';
-    }
-    if (!text) return;
-
-    // ── Split into paragraph-sized chunks for natural prosody ──
-    // Split on double-newlines (paragraph boundaries) first, then break any
-    // very long paragraphs at sentence boundaries. This lets the browser TTS
-    // engine handle comma pauses, semicolons, and dialogue naturally within
-    // each chunk, rather than us stripping that context by splitting per-sentence.
-    const MAX_CHUNK = 800;
-    const rawParagraphs = text.split(/\n\s*\n/).map(p => p.replace(/\s+/g, ' ').trim()).filter(Boolean);
-    const chunks: string[] = [];
-    for (const para of rawParagraphs) {
-      if (para.length <= MAX_CHUNK) {
-        chunks.push(para);
-      } else {
-        // Break long paragraphs at sentence boundaries
-        const sentences = para.match(/[^.!?]+[.!?]+[\s"]*/g) || [para];
-        let current = '';
-        for (const s of sentences) {
-          if (current && (current + s).length > MAX_CHUNK) {
-            chunks.push(current.trim());
-            current = s;
-          } else {
-            current += s;
-          }
-        }
-        if (current.trim()) chunks.push(current.trim());
-      }
-    }
-
+    const startIndex = selectedWordIndex !== null && selectedWordIndex >= 0 ? selectedWordIndex : 0;
+    const chunks = buildReadChunks(el, startIndex, selectionLength);
     if (chunks.length === 0) return;
 
     stopPlayback();
@@ -221,33 +186,43 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
 
     const speakNext = () => {
       if (currentIdx >= chunks.length || !isReadingRef.current) {
+        currentChunkRef.current = null;
+        clearReadAloudFollow(el);
         setIsReading(false);
         isReadingRef.current = false;
         return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(chunks[currentIdx]);
+      const chunk = chunks[currentIdx];
+      currentChunkRef.current = chunk;
+      showReadAloudChunk(el, chunk, followAlongRef.current);
+
+      const utterance = new SpeechSynthesisUtterance(chunk.text);
       const voice = findVoice();
       if (voice) utterance.voice = voice;
       utterance.lang = voice?.lang || 'en-GB';
       utterance.rate = 0.92;
 
-      utterance.onend = () => {
+      let advanced = false;
+      const advance = () => {
+        if (advanced) return;
+        advanced = true;
         currentIdx++;
         speakNext();
       };
-      utterance.onerror = () => {
-        currentIdx++;
-        speakNext();
-      };
+      utterance.onend = advance;
+      utterance.onerror = advance;
 
       window.speechSynthesis.speak(utterance);
     };
 
     speakNext();
-  }, [isReading, storyContentRef, findVoice, selectedWordIndex, stopPlayback]);
+  }, [isReading, storyContentRef, findVoice, selectedWordIndex, selectionLength, stopPlayback, stopReadAloud]);
 
-  useEffect(() => stopPlayback, [stopPlayback]);
+  useEffect(() => () => {
+    stopPlayback();
+    clearReadAloudFollow(storyContentRef.current);
+  }, [stopPlayback, storyContentRef]);
 
   // Keep the audio pipeline primed with a silent oscillator so TTS doesn't
   // fade-in/ramp at the start of every sentence.
@@ -308,6 +283,18 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
           {isReading ? '\u23F9' : '\uD83D\uDD08'}{' '}
           <span>{isReading ? 'Stop reading' : (selectedWordIndex !== null && selectedWord ? `Read story from "${selectedWord}"` : 'Read story from start')}</span>
         </button>
+        <label className="assist-follow-toggle" title="Lighten the story and darken the words being read">
+          <input
+            type="checkbox"
+            checked={followAlong}
+            onChange={event => {
+              const next = event.target.checked;
+              setFollowAlong(next);
+              saveToLocalStorage(LS_READ_ALOUD_FOLLOW, String(next));
+            }}
+          />
+          <span>Follow</span>
+        </label>
       </div>
 
       {selectedWord && !loading && (

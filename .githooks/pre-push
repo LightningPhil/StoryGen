@@ -1,0 +1,31 @@
+#!/bin/sh
+# Rebuild dist before every push so GitHub Pages always has the compiled app.
+# If the build changes dist/, this commits it and asks you to push again.
+
+if [ "${SKIP_DIST_HOOK-}" = "1" ]; then
+  exit 0
+fi
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+echo "Building dist so the compiled app is included in this push..."
+if ! npm run build; then
+  echo "Build failed. Push aborted."
+  exit 1
+fi
+
+git add -A -- dist
+
+if git diff --cached --quiet -- dist; then
+  echo "Compiled dist is already up to date."
+  exit 0
+fi
+
+if ! git commit --only -m "Update compiled dist" -- dist; then
+  echo "Could not commit compiled dist. Push aborted."
+  exit 1
+fi
+
+echo "Compiled dist was rebuilt and committed. Run git push again to send it."
+exit 1
