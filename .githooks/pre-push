@@ -1,6 +1,6 @@
 #!/bin/sh
 # Rebuild dist before every push so GitHub Pages always has the compiled app.
-# If the build changes dist/, this commits it and asks you to push again.
+# If the build changes published files, this commits them and asks you to push again.
 
 if [ "${SKIP_DIST_HOOK-}" = "1" ]; then
   exit 0
@@ -15,14 +15,17 @@ if ! npm run build; then
   exit 1
 fi
 
-git add -A -- dist
+git add -A -- dist index.html .nojekyll
 
-if git diff --cached --quiet -- dist; then
-  echo "Compiled dist is already up to date."
+if git diff --cached --quiet -- dist index.html .nojekyll; then
+  echo "Compiled Pages files are already up to date."
   exit 0
 fi
 
-if ! git commit --only -m "Update compiled dist" -- dist; then
+author_name=$(git log -1 --format='%an')
+author_email=$(git log -1 --format='%ae')
+
+if ! git -c user.name="$author_name" -c user.email="$author_email" commit --only -m "Update compiled dist" -- dist index.html .nojekyll; then
   echo "Could not commit compiled dist. Push aborted."
   exit 1
 fi

@@ -9,7 +9,7 @@
     "test": "npm run test:prompts",
     "test:prompts": "tsx --test scripts/prompt-regression.test.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/publish-pages.cjs",
     "preview": "vite preview",
     "batch": "tsx scripts/batch-generate.ts",
     "ingest": "node scripts/ingest-stories.cjs"
