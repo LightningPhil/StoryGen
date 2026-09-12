@@ -3,6 +3,7 @@ import { NARRATOR_PERSONAS, PERSONA_SUMMARIES } from '../prompts/narrator_person
 import { AssistPanel } from './AssistPanel';
 import { ReadingPalettePicker } from './ReadingPalettePicker';
 import type { ReadingPaletteState } from '../readingPalette';
+import type { SelectionLength } from '../readAloud';
 import type { ToastMessage } from '../App';
 
 const SENSITIVITY_LABELS: string[] = ['None', 'Gentle', 'Standard', 'Adventurous'];
@@ -102,6 +103,7 @@ interface ControlsPanelProps {
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
+  selectionLength: SelectionLength;
   showToast: (msg: string, type?: ToastMessage['type']) => void;
 }
 
@@ -381,6 +383,7 @@ export function ControlsPanel(props: ControlsPanelProps) {
               onWordLookup={props.onWordLookup}
               ttsSource={props.ttsSource}
               ttsVoice={props.ttsVoice}
+              selectionLength={props.selectionLength}
             />
           </div>
         </div>

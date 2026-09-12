@@ -53,6 +53,8 @@ export const LS_VOCAB_LOOKUPS = 'storyVocabLookups_storyCircle';
 export const LS_TTS_VOICE = 'storyTtsVoice_storyCircle';
 export const LS_TTS_GENDER = 'storyTtsGender_storyCircle';
 export const LS_TTS_SOURCE = 'storyTtsSource_storyCircle';
+export const LS_READ_ALOUD_FOLLOW = 'storyReadAloudFollow_storyCircle';
+export const LS_READ_ALOUD_SELECTION_LENGTH = 'storyReadAloudSelectionLength_storyCircle';
 
 // --- New Keys for Agent Thinking Toggles ---
 export const LS_THINKING_AGENT_1_CRAFTER = 'thinkingAgent1_storyCircle';
@@ -156,6 +158,7 @@ export function clearAllAppData(includeApiKey: boolean = false): void {
         LS_THEME, LS_READING_PALETTE,
         LS_VOCAB_LOOKUPS,
         LS_TTS_VOICE, LS_TTS_GENDER, LS_TTS_SOURCE,
+        LS_READ_ALOUD_FOLLOW, LS_READ_ALOUD_SELECTION_LENGTH,
         LS_THINKING_AGENT_1_CRAFTER, LS_THINKING_AGENT_2_ELABORATOR, LS_THINKING_AGENT_3_REVIEWER,
         LS_THINKING_AGENT_4_POLISHER, LS_THINKING_AGENT_5_CLEANER, LS_THINKING_AGENT_6_TITLER,
         LS_THINKING_AGENT_C_CONSOLIDATOR, LS_THINKING_AGENT_FAST

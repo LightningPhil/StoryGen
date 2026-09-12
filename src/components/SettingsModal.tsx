@@ -3,6 +3,7 @@ import appState from '../appState';
 import { loadVocabularyLookupData, removeFromLocalStorage, LS_VOCAB_LOOKUPS } from '../localStorage';
 import { useEscapeKey } from '../useEscapeKey';
 import type { ModelConfig } from '../types';
+import type { SelectionLength } from '../readAloud';
 
 const MALE_VOICE_PATTERN = /male|man|boy|david|mark|james|george|richard|daniel|sean/i;
 const FEMALE_VOICE_PATTERN = /female|woman|girl|zira|hazel|susan|jenny|linda|aria|sara|elsa|catherine/i;
@@ -35,6 +36,7 @@ interface SettingsData {
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
+  selectionLength: SelectionLength;
   readingAgeMin: number;
   readingAgeMax: number;
 }
@@ -52,6 +54,7 @@ interface SettingsModalProps {
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
+  selectionLength: SelectionLength;
   readingAgeMin: number;
   readingAgeMax: number;
   onSave: (settings: SettingsData) => void;
@@ -71,6 +74,7 @@ export function SettingsModal(props: SettingsModalProps) {
   const [ttsSource, setTtsSource] = useState(props.ttsSource);
   const [ttsGender, setTtsGender] = useState(props.ttsGender);
   const [ttsVoice, setTtsVoice] = useState(props.ttsVoice);
+  const [selectionLength, setSelectionLength] = useState<SelectionLength>(props.selectionLength);
   const [readingAgeMin, setReadingAgeMin] = useState(props.readingAgeMin);
   const [readingAgeMax, setReadingAgeMax] = useState(props.readingAgeMax);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -109,7 +113,7 @@ export function SettingsModal(props: SettingsModalProps) {
   const handleSave = () => {
     onSave({
       apiKey, selectedModel, minApiInterval, thinkingEnabled, experimentalFastMode,
-      agentThinking, ttsSource, ttsGender, ttsVoice,
+      agentThinking, ttsSource, ttsGender, ttsVoice, selectionLength,
       readingAgeMin, readingAgeMax,
     });
   };
@@ -258,6 +262,18 @@ export function SettingsModal(props: SettingsModalProps) {
                 </div>
               </div>
             )}
+            <div className="field">
+              <label htmlFor="selectionLengthSelect">Selection length</label>
+              <select
+                id="selectionLengthSelect"
+                value={selectionLength}
+                onChange={e => setSelectionLength(e.target.value === 'long' ? 'long' : 'short')}
+              >
+                <option value="short">Short — pauses at commas and sentences</option>
+                <option value="long">Long — paragraph-sized passages</option>
+              </select>
+              <p className="field-hint">Controls how much of the story is spoken in each read-aloud breath.</p>
+            </div>
           </div>
 
           <div className="field-group">

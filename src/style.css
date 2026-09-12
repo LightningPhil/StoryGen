@@ -563,17 +563,46 @@ body {
 
 /* Read Aloud button row — always visible at top of Assist panel */
 .assist-read-aloud-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
     margin-bottom: var(--space-md);
 }
 
 .assist-read-aloud-button {
-    width: 100%;
+    flex: 1;
+    width: auto;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-xs);
     font-size: 0.95rem;
     padding: 0.55em 1em;
+}
+
+.assist-follow-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.2em 0.15em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.assist-follow-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-primary);
+    cursor: pointer;
 }
 
 .assist-stop-button {
@@ -1242,7 +1271,7 @@ input[type="range"]::-moz-range-thumb {
 .story-word {
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-normal);
 }
 
 .story-word:hover {
@@ -1251,6 +1280,25 @@ input[type="range"]::-moz-range-thumb {
 
 .story-word.is-selected {
     background-color: var(--assist-highlight);
+}
+
+.story-content.is-follow-reading {
+    --follow-ink: var(--reading-fg, var(--text-primary));
+    --follow-paper: var(--reading-bg, var(--bg-panel));
+    color: color-mix(in srgb, var(--follow-ink) 34%, var(--follow-paper));
+}
+
+.story-content.is-follow-reading .story-word {
+    color: inherit;
+}
+
+.story-content.is-follow-reading .story-word.is-speaking {
+    color: var(--follow-ink);
+}
+
+.story-content.is-follow-reading .story-chapter,
+.story-content.is-follow-reading .story-break {
+    color: color-mix(in srgb, var(--follow-ink) 34%, var(--follow-paper));
 }
 
 .story-chapter {
