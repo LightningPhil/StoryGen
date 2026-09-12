@@ -15,7 +15,7 @@ export function HelpModal({ onClose }: HelpModalProps) {
 
   return (
     <div className="modal active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal-content modal-xl">
+      <div className="modal-content modal-xl help-modal">
         <header className="modal-header">
           <h2>Help &amp; Documentation</h2>
           <button className="modal-close" aria-label="Close modal" onClick={onClose}>&times;</button>

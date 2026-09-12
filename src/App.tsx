@@ -13,6 +13,7 @@ import {
   loadFromLocalStorage,
   clearAllAppData,
   LS_THEME,
+  LS_READING_PALETTE,
   LS_CHARACTERS,
   LS_AUDIENCE,
   LS_SELECTED_FRAMEWORK,
@@ -72,6 +73,7 @@ import {
 import { saveStoryToLibrary } from './storyLibrary';
 import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
+import { parseReadingPalette, resolveReadingColors, type ReadingPaletteState } from './readingPalette';
 import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
 import { isAbortError } from './api';
 import { StoryMetadataModal } from './components/StoryMetadataModal';
@@ -133,6 +135,10 @@ export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
   });
+  const [readingPalette, setReadingPalette] = useState<ReadingPaletteState>(
+    () => parseReadingPalette(loadFromLocalStorage(LS_READING_PALETTE)),
+  );
+  const readingColors = resolveReadingColors(readingPalette);
 
   const toggleTheme = useCallback(() => {
     const next = theme === 'light' ? 'dark' : 'light';
@@ -140,6 +146,11 @@ export default function App() {
     saveToLocalStorage(LS_THEME, next);
     setTheme(next);
   }, [theme]);
+
+  const updateReadingPalette = useCallback((next: ReadingPaletteState) => {
+    setReadingPalette(next);
+    saveToLocalStorage(LS_READING_PALETTE, JSON.stringify(next));
+  }, []);
 
   // ─── Modal state ──────────────────────────────────────────────────────
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -698,6 +709,8 @@ export default function App() {
           // Header
           theme={theme}
           onToggleTheme={toggleTheme}
+          readingPalette={readingPalette}
+          onReadingPaletteChange={updateReadingPalette}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenHelp={() => setHelpModalOpen(true)}
           // Story tab
@@ -772,6 +785,8 @@ export default function App() {
           hasStory={hasStory}
           isGenerating={isGenerating}
           fontSize={storyFontSize}
+          readingBg={readingColors.bg}
+          readingFg={readingColors.fg}
           onIncreaseFontSize={increaseFont}
           onDecreaseFontSize={decreaseFont}
           onElaborate={handleElaborateStory}

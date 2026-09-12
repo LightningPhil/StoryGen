@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, forwardRef } from 'react';
+import { useRef, useCallback, useEffect, forwardRef, type CSSProperties } from 'react';
 import appState from '../appState';
 import { formatStoryAsHtml } from '../formatStory';
 import type { ToastMessage } from '../App';
@@ -11,6 +11,8 @@ interface StoryPanelProps {
   hasStory: boolean;
   isGenerating: boolean;
   fontSize: number;
+  readingBg: string | null;
+  readingFg: string | null;
   onIncreaseFontSize: () => void;
   onDecreaseFontSize: () => void;
   onElaborate: () => void;
@@ -28,7 +30,7 @@ const WELCOME_TEXT = 'Welcome to StoryGen!\n\nStoryGen was created to help child
 export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function StoryPanel(props, ref) {
   const {
     title, storyHtml, storyMarkdown, statusText, hasStory, isGenerating,
-    fontSize, onIncreaseFontSize, onDecreaseFontSize,
+    fontSize, readingBg, readingFg, onIncreaseFontSize, onDecreaseFontSize,
     onElaborate, onOpenLibrary, onOpenOnlineBrowser, onExportJson, onWordClick, onShowInfo, onFileLoaded, showToast,
   } = props;
 
@@ -235,7 +237,16 @@ export const StoryPanel = forwardRef<HTMLElement, StoryPanelProps>(function Stor
           )}
         </div>
       </header>
-      <article className="story-content" ref={setRefs} style={{ fontSize: `${fontSize}rem` }}>
+      <article
+        className="story-content"
+        ref={setRefs}
+        data-reading-palette={readingBg || readingFg ? '' : undefined}
+        style={{
+          fontSize: `${fontSize}rem`,
+          ...(readingBg ? { '--reading-bg': readingBg } as CSSProperties : {}),
+          ...(readingFg ? { '--reading-fg': readingFg } as CSSProperties : {}),
+        }}
+      >
         {isGenerating && !storyHtml ? (
           <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{statusText}</pre>
         ) : (
