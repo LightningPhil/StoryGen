@@ -1,6 +1,7 @@
 /**
  * After Vite writes dist/, prepare the files GitHub Pages actually serves.
- * Pages publishes the repo root on `main` with Jekyll unless .nojekyll is present.
+ * Pages publishes the repo root on `main`, so the homepage must be the compiled
+ * app (not a redirect). A <base> tag points relative assets at dist/.
  */
 const fs = require('fs');
 const path = require('path');
@@ -17,22 +18,12 @@ if (!fs.existsSync(distIndex)) {
 fs.writeFileSync(path.join(root, '.nojekyll'), '');
 fs.writeFileSync(path.join(distDir, '.nojekyll'), '');
 
-const entry = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=./dist/index.html">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Story Generator</title>
-    <script>
-      location.replace('./dist/index.html' + location.search + location.hash);
-    </script>
-</head>
-<body>
-    <p><a href="./dist/index.html">Open Story Generator</a></p>
-</body>
-</html>
-`;
+const distHtml = fs.readFileSync(distIndex, 'utf8');
+const withoutBase = distHtml.replace(/<base\b[^>]*>\s*/i, '');
+const rootHtml = withoutBase.replace(
+  /<head>/i,
+  '<head>\n    <base href="/StoryGen/dist/">',
+);
 
-fs.writeFileSync(path.join(root, 'index.html'), entry);
-console.log('GitHub Pages entry files written (.nojekyll, index.html).');
+fs.writeFileSync(path.join(root, 'index.html'), rootHtml);
+console.log('GitHub Pages homepage written from dist/index.html (.nojekyll, index.html).');
