@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=dist/index.html">
-    <title>Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=./dist/index.html">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Story Generator</title>
+    <script>
+      location.replace('./dist/index.html' + location.search + location.hash);
+    </script>
 </head>
 <body>
-    <p>Redirecting to <a href="dist/index.html">Story Generator</a>…</p>
+    <p><a href="./dist/index.html">Open Story Generator</a></p>
 </body>
 </html>
