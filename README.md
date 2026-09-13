@@ -61,7 +61,7 @@
       npm run dev
       ```
       Then open the local URL Vite prints (usually `http://localhost:5173`).
-   2. **Open Settings** (⚙️) → Enter your [Gemini API key](https://aistudio.google.com/app/apikey) → Save
+   2. **Open Settings** (⚙️) → Enter your [Gemini API key](https://aistudio.google.com/app/apikey) → Save. The key stays in your browser's localStorage — never commit it to git.
    3. **Configure your story** — enter characters, choose an audience age, pick a framework and style
    4. **Click Generate Story** and watch the agents work
 
