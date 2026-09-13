@@ -28,7 +28,6 @@ interface AgentThinkingState {
 
 interface SettingsData {
   apiKey: string;
-  mistralApiKey: string;
   selectedModel: string;
   minApiInterval: number;
   thinkingEnabled: boolean;
@@ -44,7 +43,6 @@ interface SettingsData {
 
 interface SettingsModalProps {
   apiKey: string;
-  mistralApiKey: string;
   selectedModel: string;
   minApiInterval: number;
   thinkingEnabled: boolean;
@@ -52,7 +50,7 @@ interface SettingsModalProps {
   agentThinking: AgentThinkingState;
   availableModels: ModelConfig[];
   modelsLoading: boolean;
-  onRefreshModels: (geminiApiKey: string, mistralApiKey: string) => void;
+  onRefreshModels: (apiKey: string) => void;
   ttsSource: string;
   ttsGender: string;
   ttsVoice: string;
@@ -68,7 +66,6 @@ export function SettingsModal(props: SettingsModalProps) {
 
   // Local state for editing
   const [apiKey, setApiKey] = useState(props.apiKey);
-  const [mistralApiKey, setMistralApiKey] = useState(props.mistralApiKey);
   const [selectedModel, setSelectedModel] = useState(props.selectedModel);
   const [minApiInterval, setMinApiInterval] = useState(props.minApiInterval);
   const [thinkingEnabled, setThinkingEnabled] = useState(props.thinkingEnabled);
@@ -115,7 +112,7 @@ export function SettingsModal(props: SettingsModalProps) {
 
   const handleSave = () => {
     onSave({
-      apiKey, mistralApiKey, selectedModel, minApiInterval, thinkingEnabled, experimentalFastMode,
+      apiKey, selectedModel, minApiInterval, thinkingEnabled, experimentalFastMode,
       agentThinking, ttsSource, ttsGender, ttsVoice, selectionLength,
       readingAgeMin, readingAgeMax,
     });
@@ -167,43 +164,25 @@ export function SettingsModal(props: SettingsModalProps) {
             <label htmlFor="modalApiKeyInput">Gemini API Key</label>
             <input type="password" id="modalApiKeyInput" placeholder="Enter your Gemini API Key" value={apiKey} onChange={e => setApiKey(e.target.value)} />
           </div>
-          <div className="field">
-            <label htmlFor="modalMistralApiKeyInput">Mistral API Key</label>
-            <input type="password" id="modalMistralApiKeyInput" placeholder="Enter your Mistral API Key" value={mistralApiKey} onChange={e => setMistralApiKey(e.target.value)} />
-            <p className="field-hint">Mistral requests always send a safety prompt and content guardrails. Both keys are saved in this browser.</p>
-          </div>
 
           <div className="modal-grid">
             <div className="field">
-              <label htmlFor="modalModelSelect">AI Model</label>
+              <label htmlFor="modalModelSelect">Gemini Model</label>
               <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', position: 'relative' }}>
                 <select id="modalModelSelect" value={selectedModel} onChange={e => setSelectedModel(e.target.value)} disabled={modelsLoading} style={{ flex: 1 }}>
                   {availableModels.length === 0 ? (
                     <option value="">No models found (check API key)</option>
                   ) : (
-                    <>
-                      {availableModels.some(m => m.provider === 'gemini') && (
-                        <optgroup label="Gemini">
-                          {availableModels.filter(m => m.provider === 'gemini').map(m => (
-                            <option key={m.name} value={m.name}>{m.name}</option>
-                          ))}
-                        </optgroup>
-                      )}
-                      {availableModels.some(m => m.provider === 'mistral') && (
-                        <optgroup label="Mistral">
-                          {availableModels.filter(m => m.provider === 'mistral').map(m => (
-                            <option key={m.name} value={m.name}>{m.name}</option>
-                          ))}
-                        </optgroup>
-                      )}
-                    </>
+                    availableModels.map(m => (
+                      <option key={m.name} value={m.name}>{m.label ? `${m.label} — ${m.name}` : m.name}</option>
+                    ))
                   )}
                 </select>
                 <button
                   type="button"
                   className="btn btn-sm"
                   title="Refresh model list"
-                  onClick={() => onRefreshModels(apiKey, mistralApiKey)}
+                  onClick={() => onRefreshModels(apiKey)}
                   disabled={modelsLoading}
                   style={{
                     padding: '0.35rem 0.55rem',
@@ -233,6 +212,7 @@ export function SettingsModal(props: SettingsModalProps) {
                   </div>
                 )}
               </div>
+              <p className="field-hint">Gemini 3.5 Flash-Lite is the recommended free-tier model for StoryGen.</p>
             </div>
             <div className="field">
               <label htmlFor="minApiIntervalInput">Min. API Interval (seconds)</label>
@@ -316,7 +296,7 @@ export function SettingsModal(props: SettingsModalProps) {
 
           <div className="field-group">
             <label className="field-group-title">Agent Thinking</label>
-            <p className="field-group-hint">Thinking models reason more deeply but are slower. Disable for faster generation. This applies to compatible Gemini models; Mistral requests do not use Gemini thinking budgets.</p>
+            <p className="field-group-hint">Thinking models reason more deeply but are slower. Disable for faster generation.</p>
             <label className="toggle-label">
               <input type="checkbox" checked={thinkingEnabled} disabled={!canThink} onChange={e => setThinkingEnabled(e.target.checked)} />
               <span>Enable Thinking</span>

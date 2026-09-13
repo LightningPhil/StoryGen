@@ -125,12 +125,10 @@ export type VocabularyLookupData = Record<string, VocabularyEntry>;
 
 // ─── Model Config ────────────────────────────────────────────────────────────
 
-export type ModelProvider = 'gemini' | 'mistral';
-
 export interface ModelConfig {
     name: string;
+    label?: string;
     supportsThinking: boolean;
-    provider: ModelProvider;
 }
 
 export interface StoryMetadata {

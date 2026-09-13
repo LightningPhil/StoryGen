@@ -3,7 +3,6 @@
 import type { VocabularyLookupData, VocabularyEntry } from './types';
 
 export const LS_API_KEY = 'geminiApiKey_storyCircle';
-export const LS_MISTRAL_API_KEY = 'mistralApiKey_storyCircle';
 export const LS_CHARACTERS = 'storyCharacters_storyCircle';
 export const LS_AUDIENCE = 'storyAudience_storyCircle';
 export const LS_AGE_GROUP = 'storyAgeGroup_storyCircle';
@@ -166,7 +165,7 @@ export function clearAllAppData(includeApiKey: boolean = false): void {
     ];
     
     if (includeApiKey) {
-        allKeys.push(LS_API_KEY, LS_MISTRAL_API_KEY);
+        allKeys.push(LS_API_KEY);
     }
     
     allKeys.forEach(key => removeFromLocalStorage(key));
