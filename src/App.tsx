@@ -30,6 +30,7 @@ import {
   LS_SENSITIVITY_SADNESS,
   LS_SENSITIVITY_COMPLEXITY,
   LS_API_KEY,
+  LS_MISTRAL_API_KEY,
   LS_SELECTED_MODEL,
   LS_MIN_API_INTERVAL,
   LS_THINKING_ENABLED,
@@ -76,7 +77,7 @@ import { formatStoryAsHtml } from './formatStory';
 import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
 import { parseReadingPalette, resolveReadingColors, type ReadingPaletteState } from './readingPalette';
 import type { SelectionLength } from './readAloud';
-import { fetchAvailableModels, DEFAULT_MODEL, DEFAULT_MODEL_CONFIG } from './modelDiscovery';
+import { fetchAvailableModels, DEFAULT_MODEL, PINNED_MODEL_CONFIGS, apiKeyForModel, getModelProvider } from './modelDiscovery';
 import { isAbortError } from './api';
 import { StoryMetadataModal } from './components/StoryMetadataModal';
 import type { StoryMetadata } from './types';
@@ -229,6 +230,7 @@ export default function App() {
 
   // ─── Settings state ───────────────────────────────────────────────────
   const [apiKey, setApiKey] = useState(() => loadFromLocalStorage(LS_API_KEY) || '');
+  const [mistralApiKey, setMistralApiKey] = useState(() => loadFromLocalStorage(LS_MISTRAL_API_KEY) || '');
   const [selectedModel, setSelectedModel] = useState(() => loadFromLocalStorage(LS_SELECTED_MODEL) || DEFAULT_MODEL);
   const [minApiInterval, setMinApiInterval] = useState(() => Math.max(0, loadNumber(LS_MIN_API_INTERVAL, 5)));
   const [thinkingEnabled, setThinkingEnabled] = useState(() => loadFromLocalStorage(LS_THINKING_ENABLED) !== 'false');
@@ -250,7 +252,7 @@ export default function App() {
   ));
 
   // ─── Dynamic model discovery ───────────────────────────────────────────
-  const [availableModels, setAvailableModels] = useState<ModelConfig[]>([DEFAULT_MODEL_CONFIG]);
+  const [availableModels, setAvailableModels] = useState<ModelConfig[]>(PINNED_MODEL_CONFIGS);
   const [modelsLoading, setModelsLoading] = useState(false);
   const selectedModelRef = useRef(selectedModel);
   selectedModelRef.current = selectedModel;
@@ -260,12 +262,12 @@ export default function App() {
     return () => abortRef.current?.abort();
   }, []);
 
-  // Fetch models when API key changes
+  // Fetch models when API keys change
   useEffect(() => {
-    if (!apiKey) { setAvailableModels([DEFAULT_MODEL_CONFIG]); return; }
+    if (!apiKey && !mistralApiKey) { setAvailableModels(PINNED_MODEL_CONFIGS); return; }
     let cancelled = false;
     setModelsLoading(true);
-    fetchAvailableModels(apiKey).then(models => {
+    fetchAvailableModels(apiKey, mistralApiKey).then(models => {
       if (cancelled) return;
       setAvailableModels(models);
       // If current selected model isn't in the list, pick the first one
@@ -279,7 +281,7 @@ export default function App() {
       if (!cancelled) setModelsLoading(false);
     });
     return () => { cancelled = true; };
-  }, [apiKey]);
+  }, [apiKey, mistralApiKey]);
 
   // ─── Story display state ──────────────────────────────────────────────
   const [storyTitle, setStoryTitle] = useState('');
@@ -451,7 +453,7 @@ export default function App() {
       : 'Strengthen thin moments with useful sensory detail, thought, or dialogue. Add at most one brief scene and only when the framework, pacing, and length target permit it. Do not add filler, a detached subplot, or length for its own sake.';
 
     return {
-      apiKey,
+      apiKey: apiKeyForModel(selectedModel, apiKey, mistralApiKey, availableModels),
       modelId: selectedModel,
       minApiIntervalMs: minApiInterval * 1000,
       audience: buildAudience(),
@@ -473,6 +475,7 @@ export default function App() {
     };
   }, [
     apiKey,
+    mistralApiKey,
     selectedModel,
     minApiInterval,
     buildAudience,
@@ -487,6 +490,7 @@ export default function App() {
     buildAdjustmentModulesText,
     getCurrentSensitivitySettings,
     buildAgentThinkingConfig,
+    availableModels,
   ]);
 
   const collectStoryFields = useCallback((title: string, markdown: string) => ({
@@ -520,7 +524,11 @@ export default function App() {
 
   // ─── Generate story ───────────────────────────────────────────────────
   const handleGenerateStory = useCallback(async () => {
-    if (!apiKey) { showToast('Please set your API key in Settings.', 'error'); return; }
+    if (!apiKeyForModel(selectedModel, apiKey, mistralApiKey, availableModels)) {
+      const provider = availableModels.find(m => m.name === selectedModel)?.provider ?? getModelProvider(selectedModel);
+      showToast(`Please set your ${provider === 'mistral' ? 'Mistral' : 'Gemini'} API key in Settings.`, 'error');
+      return;
+    }
     if (!characters.trim()) { showToast('Please enter at least one character.', 'error'); return; }
     if (!ageGroup) { showToast('Please select an age group.', 'error'); return; }
 
@@ -598,13 +606,17 @@ export default function App() {
       if (abortRef.current === controller) abortRef.current = null;
       setIsGenerating(false);
     }
-  }, [apiKey, characters, ageGroup, selectedModel, selectedFramework, availableModels, buildCommonInputs, enableConsolidator, experimentalFastMode, collectStoryFields, loadStoryIntoApp, showToast]);
+  }, [apiKey, mistralApiKey, characters, ageGroup, selectedModel, selectedFramework, availableModels, buildCommonInputs, enableConsolidator, experimentalFastMode, collectStoryFields, loadStoryIntoApp, showToast]);
 
   // ─── Elaborate story ──────────────────────────────────────────────────
   const handleElaborateStory = useCallback(async () => {
     const sourceStory = storyMarkdown || appState.latestGeneratedStoryText;
     if (!sourceStory) return;
-    if (!apiKey) { showToast('Please set your API key in Settings.', 'error'); return; }
+    if (!apiKeyForModel(selectedModel, apiKey, mistralApiKey, availableModels)) {
+      const provider = availableModels.find(m => m.name === selectedModel)?.provider ?? getModelProvider(selectedModel);
+      showToast(`Please set your ${provider === 'mistral' ? 'Mistral' : 'Gemini'} API key in Settings.`, 'error');
+      return;
+    }
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -656,7 +668,7 @@ export default function App() {
       if (abortRef.current === controller) abortRef.current = null;
       setIsGenerating(false);
     }
-  }, [storyMarkdown, apiKey, selectedModel, availableModels, buildCommonInputs, enableConsolidator, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, collectStoryFields]);
+  }, [storyMarkdown, apiKey, mistralApiKey, selectedModel, availableModels, buildCommonInputs, enableConsolidator, loadStoryIntoApp, showToast, storyTitle, loadedStoryMeta, collectStoryFields]);
 
   // ─── Font size ────────────────────────────────────────────────────────
   const increaseFont = useCallback(() => setStoryFontSize(s => Math.min(s + 0.1, 2.0)), []);
@@ -810,6 +822,7 @@ export default function App() {
       {settingsOpen && (
         <SettingsModal
           apiKey={apiKey}
+          mistralApiKey={mistralApiKey}
           selectedModel={selectedModel}
           minApiInterval={minApiInterval}
           thinkingEnabled={thinkingEnabled}
@@ -817,10 +830,10 @@ export default function App() {
           agentThinking={agentThinking}
           availableModels={availableModels}
           modelsLoading={modelsLoading}
-          onRefreshModels={(localApiKey) => {
-            if (!localApiKey) return;
+          onRefreshModels={(geminiKey, mistralKey) => {
+            if (!geminiKey && !mistralKey) return;
             setModelsLoading(true);
-            fetchAvailableModels(localApiKey).then(models => {
+            fetchAvailableModels(geminiKey, mistralKey).then(models => {
               setAvailableModels(models);
               setModelsLoading(false);
             }).catch(() => setModelsLoading(false));
@@ -836,6 +849,7 @@ export default function App() {
             const normalizedTargetReadingAge = clampNumber(targetReadingAge, normalizedRange.min, normalizedRange.max);
 
             setApiKey(settings.apiKey); saveToLocalStorage(LS_API_KEY, settings.apiKey);
+            setMistralApiKey(settings.mistralApiKey); saveToLocalStorage(LS_MISTRAL_API_KEY, settings.mistralApiKey);
             setSelectedModel(settings.selectedModel); saveToLocalStorage(LS_SELECTED_MODEL, settings.selectedModel);
             setMinApiInterval(settings.minApiInterval); saveToLocalStorage(LS_MIN_API_INTERVAL, String(settings.minApiInterval));
             setThinkingEnabled(settings.thinkingEnabled); saveToLocalStorage(LS_THINKING_ENABLED, String(settings.thinkingEnabled));

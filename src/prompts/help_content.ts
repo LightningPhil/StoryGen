@@ -35,10 +35,10 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
         title: "Getting Started",
         content: `
             <h3>Getting Started with StoryGen</h3>
-            <p>StoryGen is an AI-powered story generator that creates personalized stories using Google's Gemini AI. Follow these steps to create your first story:</p>
+            <p>StoryGen is an AI-powered story generator that creates personalized stories using Google's Gemini or Mistral AI. Follow these steps to create your first story:</p>
             
             <h4>1. Set Up Your API Key</h4>
-            <p>Click the <strong>Settings</strong> (⚙️) icon and enter your Gemini API key. You can get a free API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+            <p>Click the <strong>Settings</strong> (⚙️) icon and enter a <strong>Gemini</strong> API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a> and/or a <strong>Mistral</strong> API key from <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener">Mistral AI</a>. Both keys are saved in this browser. Choose a Gemini or Mistral model in the same Settings panel.</p>
             
             <h4>2. Enter Your Characters</h4>
             <p>In the <strong>Characters</strong> field, describe who your story is about. Be as detailed as you like - names, personalities, relationships all help create richer stories.</p>
@@ -121,6 +121,7 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
             <ol>
                 <li><strong>Pipeline-wide system guardrails</strong> — Every agent receives the same instruction hierarchy and content policy. These prohibit sexual content, graphic violence, discriminatory themes, and strong stereotypes, while preserving audience and parental settings through later edits.</li>
                 <li><strong>Gemini API safety filters</strong> — Google's own content filters are set to strict levels. Sexually explicit content is blocked at the lowest threshold. Hate speech, harassment, and dangerous content are blocked at medium-and-above thresholds.</li>
+                <li><strong>Mistral safety prompt and guardrails</strong> — Mistral requests always include a safety prompt plus content guardrails that block sexual content, self-harm, hate, violence, dangerous or criminal content, and jailbreak attempts.</li>
                 <li><strong>Sensitivity presets</strong> — The Content Sensitivity setting (Options tab) further tunes conflict, scary elements, sadness, and complexity for younger audiences.</li>
             </ol>
 
@@ -242,15 +243,17 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
             <h3>Settings Configuration</h3>
             <p>Access settings by clicking the ⚙️ icon in the header.</p>
             
-            <h4>API Key</h4>
-            <p>Your Gemini API key is required to generate stories. Get one free from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+            <h4>API Keys</h4>
+            <p>Save a Gemini key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a> and/or a Mistral key from <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener">console.mistral.ai</a>. Both are stored only in this browser. Generation uses the key that matches the selected model.</p>
             
             <h4>AI Model</h4>
-            <p>Choose which Gemini model to use:</p>
+            <p>Choose a Gemini or Mistral model:</p>
             <ul>
+                <li><strong>gemini-flash-latest</strong> / <strong>gemini-3.8-flash</strong> - Recommended Gemini options; strongest story quality</li>
                 <li><strong>Gemini 2.0 Flash</strong> - Fast, efficient, great for most stories</li>
                 <li><strong>Gemini 2.5 Flash</strong> - Latest model with improved quality</li>
                 <li><strong>Gemini 2.5 Pro</strong> - Most capable, best for complex stories</li>
+                <li><strong>mistral-small-latest</strong>, <strong>mistral-medium-latest</strong>, <strong>mistral-large-latest</strong> - Mistral chat models, always sent with safety prompt and guardrails</li>
             </ul>
             
             <h4>API Rate Limiting</h4>
@@ -260,7 +263,7 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
             <p>Set the min/max for the reading age slider in the Options tab.</p>
 
             <h4>Experimental Fast Mode</h4>
-            <p>Fast Mode generates the title and complete story with one Gemini request. It silently combines planning, drafting, selective enrichment, review, polishing, optional consolidation, cleanup, and titling while still applying every active framework, style, narrator, sensitivity, reading-age, and plot-point option.</p>
+            <p>Fast Mode generates the title and complete story with one model request. It silently combines planning, drafting, selective enrichment, review, polishing, optional consolidation, cleanup, and titling while still applying every active framework, style, narrator, sensitivity, reading-age, and plot-point option.</p>
             <p>It is faster and uses fewer API calls, but the full multi-agent pipeline may catch more subtle problems. Fast Mode applies to <strong>Generate Story</strong>; the separate <strong>Elaborate</strong> action continues to use the editor pipeline.</p>
             
             <h4>Agent Thinking Modes</h4>
@@ -454,6 +457,35 @@ export const HELP_TOPICS: Record<string, { title: string; content: string }> = {
                 <p>If you get an "Invalid API key" error, double-check that you copied the entire key with no extra spaces. You can also try creating a fresh key in AI Studio.</p>
             </div>
         `
+    },
+    mistral_api_key: {
+        title: "Getting a Mistral API Key",
+        content: `
+            <h3>How to Get a Mistral API Key</h3>
+            <p>StoryGen can generate stories with Mistral as well as Gemini. You can save both keys and pick a model from either provider in Settings.</p>
+
+            <h4>Step 1: Create a Mistral account</h4>
+            <p>Sign in at <a href="https://console.mistral.ai/" target="_blank" rel="noopener">console.mistral.ai</a>.</p>
+
+            <h4>Step 2: Create an API key</h4>
+            <p>Open <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener"><strong>console.mistral.ai/api-keys</strong></a>, create a key, and copy it.</p>
+
+            <h4>Step 3: Paste the key into StoryGen</h4>
+            <ol>
+                <li>In StoryGen, click the <strong>Settings</strong> icon (⚙️)</li>
+                <li>Paste the key into the <strong>"Mistral API Key"</strong> field</li>
+                <li>Choose a Mistral model, then click <strong>"Save &amp; Close"</strong></li>
+            </ol>
+
+            <h4>Safety</h4>
+            <p>Mistral requests always include a safety prompt and content guardrails. Those protections are on for every Mistral story — there is no Settings switch to turn them off.</p>
+
+            <h4>Keeping Your Key Safe</h4>
+            <ul>
+                <li>Your API key is stored <strong>only in your browser's local storage</strong> — it is never sent anywhere except directly to Mistral's API</li>
+                <li>Don't share your API key publicly</li>
+            </ul>
+        `
     }
 };
 
@@ -461,6 +493,7 @@ export const HELP_TOPIC_ORDER = [
     'about',
     'getting_started',
     'gemini_api_key',
+    'mistral_api_key',
     'characters',
     'audience',
     'content_safety',
