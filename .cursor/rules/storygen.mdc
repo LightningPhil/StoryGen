@@ -6,8 +6,9 @@ alwaysApply: true
 # StoryGen
 
 - Work on `dev`. Do not use or delete `Phonics`; that branch may be removed later.
+- The canonical GitHub repository is `LightningPhil/StoryGenerator`; its Pages URL is `https://lightningphil.github.io/StoryGenerator/`.
 - Launch the app on **port 8002** (`npm run dev`). Vite is configured for that port; do not pick another.
 - Do not add GitHub Actions, required checks, or a Linux `verify:dist` job. Dist hashes differ between Windows and Linux and those checks fail for no good reason.
 - Keep the compiled site in git. A pre-push hook rebuilds `dist/` and the Pages entry files (`.nojekyll`, root `index.html`); do not invent extra CI around that.
-- GitHub Pages publishes `main` from `/`. Keep `.nojekyll` so Jekyll does not rewrite the compiled site. The root `index.html` is the compiled app with a `<base href="/StoryGen/dist/">` so the Pages URL loads the site instead of a redirect stub.
+- GitHub Pages publishes `main` from `/`. Keep `.nojekyll` so Jekyll does not rewrite the compiled site. The root `index.html` is the compiled app with a `<base href="/StoryGenerator/dist/">` so the Pages URL loads the site instead of a redirect stub.
 - Never create a pull request. GitHub PRs are managed manually.

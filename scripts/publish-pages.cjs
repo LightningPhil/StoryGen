@@ -22,7 +22,7 @@ const distHtml = fs.readFileSync(distIndex, 'utf8');
 const withoutBase = distHtml.replace(/<base\b[^>]*>\s*/i, '');
 const rootHtml = withoutBase.replace(
   /<head>/i,
-  '<head>\n    <base href="/StoryGen/dist/">',
+  '<head>\n    <base href="/StoryGenerator/dist/">',
 );
 
 fs.writeFileSync(path.join(root, 'index.html'), rootHtml);
