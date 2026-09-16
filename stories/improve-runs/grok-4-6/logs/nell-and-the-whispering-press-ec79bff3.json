@@ -1,0 +1,11 @@
+{
+  "id": "nell-and-the-whispering-press-ec79bff3",
+  "title": "Nell and the Whispering Press",
+  "originalWordCount": 517,
+  "improvedWordCount": 791,
+  "notes": "Renamed Barnaby Wren to Iola Wren from the pool, kept Nell and Fitzwilliam, and let Three-Act finish on a fresh copy set beside spilled sugar.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iola"
+  },
+  "improvedAt": "2026-09-16T19:56:50.203Z"
+}

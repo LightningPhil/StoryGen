@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-surprise-marigold-67e5631d",
+  "title": "Sulien's Surprise Marigold",
+  "originalWordCount": 1209,
+  "improvedWordCount": 745,
+  "notes": "Renamed Barnaby to Sulien, kept Ivy and Leo, and let the Ginger-Glow confession earn the fable moral.",
+  "bannedNameReplacements": {
+    "Barnaby": "Sulien"
+  },
+  "improvedAt": "2026-09-16T19:33:53.308Z"
+}

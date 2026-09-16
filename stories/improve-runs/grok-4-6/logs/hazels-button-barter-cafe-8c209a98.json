@@ -1,0 +1,11 @@
+{
+  "id": "hazels-button-barter-cafe-8c209a98",
+  "title": "Hazel's Button Barter Cafe",
+  "originalWordCount": 680,
+  "improvedWordCount": 692,
+  "notes": "Kept Hazel and Bram, renamed Barnaby the badger to Gwion, cut the AMAZING closer, and let a berry-ink sign make buttons honest payment.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwion"
+  },
+  "improvedAt": "2026-09-16T10:04:48.806Z"
+}

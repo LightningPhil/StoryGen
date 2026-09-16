@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-pocket-watch-panic-30e64621",
+  "title": "Osian's Pocket Watch Panic",
+  "originalWordCount": 1152,
+  "improvedWordCount": 857,
+  "notes": "Renamed Barnaby Buttercup to Osian, kept Edie Sterling Pip and Beatrice, and let the waistcoat lining finish the Snowflake.",
+  "bannedNameReplacements": {
+    "Barnaby": "Osian"
+  },
+  "improvedAt": "2026-09-16T19:34:26.995Z"
+}

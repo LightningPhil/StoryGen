@@ -1,0 +1,11 @@
+{
+  "id": "pipkin-and-the-porthaven-trophy-58ac9c24",
+  "title": "Pipkin and the Porthaven Trophy",
+  "originalWordCount": 1269,
+  "improvedWordCount": 975,
+  "notes": "Kept Pipkin Mina Bartholomew the goose and the Lighthouse Trophy, renamed Captain Barnaby to Captain Cadfan, dropped the first-person fear labels, and left the pocket stone on the awards table.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cadfan"
+  },
+  "improvedAt": "2026-09-16T19:32:24.012Z"
+}

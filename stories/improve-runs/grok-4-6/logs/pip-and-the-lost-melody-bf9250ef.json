@@ -1,0 +1,11 @@
+{
+  "id": "pip-and-the-lost-melody-bf9250ef",
+  "title": "Pip and the Lost Melody",
+  "originalWordCount": 1660,
+  "improvedWordCount": 963,
+  "notes": "Replaced groundskeeper Barnaby with Halvard, kept Three-Act from the magpie table through Elara’s scenes to the floorboard note, and used a Donaldson listen-refrain instead of a lecture on finding yourself.",
+  "bannedNameReplacements": {
+    "Barnaby": "Halvard"
+  },
+  "improvedAt": "2026-09-15T21:13:44.008Z"
+}

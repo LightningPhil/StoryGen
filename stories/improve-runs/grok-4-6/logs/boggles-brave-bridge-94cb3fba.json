@@ -1,0 +1,11 @@
+{
+  "id": "boggles-brave-bridge-94cb3fba",
+  "title": "Boggle's Brave Bridge",
+  "originalWordCount": 1075,
+  "improvedWordCount": 1031,
+  "notes": "Kept Boggle, replaced baker Barnaby with Cerys, kept the Pixar spine from the tiptoe-away bridge through the moon-muffin to the crossing, and let them cross twice for the dandelion.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cerys"
+  },
+  "improvedAt": "2026-09-16T07:09:02.205Z"
+}

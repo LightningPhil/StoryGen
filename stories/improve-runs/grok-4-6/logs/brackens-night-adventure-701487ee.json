@@ -1,0 +1,11 @@
+{
+  "id": "brackens-night-adventure-701487ee",
+  "title": "Bracken's Night Adventure",
+  "originalWordCount": 989,
+  "improvedWordCount": 865,
+  "notes": "Kept Bracken as Bracken, replaced hedgehog Barnaby with Ianto, kept the Seven-Point from the raspberry slipper through Bartholomew's toll to the wobbly wake-up song, and cut the dear-child treasure closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ianto"
+  },
+  "improvedAt": "2026-09-16T08:19:18.315Z"
+}

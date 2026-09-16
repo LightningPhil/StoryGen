@@ -1,0 +1,11 @@
+{
+  "id": "dibble-and-the-magical-mix-up-b577b80d",
+  "title": "Dibble and the Magical Mix-Up",
+  "originalWordCount": 1761,
+  "improvedWordCount": 1359,
+  "notes": "Replaced Barnaby Bumblebrook with Peregrine, kept the But/Therefore dewdrop-moonlight mix-up without printing connectors, cut Gather-round and Here's-where-it-gets, and let the Falls stone close without an eyes-of-others lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Peregrine"
+  },
+  "improvedAt": "2026-09-16T06:56:13.844Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "coral-and-the-runaway-ribbon-a1e9a6f4",
+  "title": "Coral and the Runaway Ribbon",
+  "originalWordCount": 971,
+  "improvedWordCount": 863,
+  "notes": "Kept Coral and Drift, renamed Barnaby Button to Gwilym Button, and let Forest Path follow a bow-tying ribbon through Willow Creek to the fountain.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwilym"
+  },
+  "improvedAt": "2026-09-16T20:20:48.837Z"
+}

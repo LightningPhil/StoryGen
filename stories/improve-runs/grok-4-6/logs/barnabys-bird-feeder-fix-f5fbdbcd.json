@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-bird-feeder-fix-f5fbdbcd",
+  "title": "Gwerfyl's Bird Feeder Fix",
+  "originalWordCount": 1151,
+  "improvedWordCount": 804,
+  "notes": "Renamed Barnaby Button to Gwerfyl, kept Nell, and let the mouse lever close the Story Circle without a lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwerfyl"
+  },
+  "improvedAt": "2026-09-16T19:34:26.997Z"
+}

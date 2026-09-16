@@ -1,0 +1,11 @@
+{
+  "id": "echo-and-junipers-odd-talents-061f248c",
+  "title": "Echo and Juniper's Odd Talents",
+  "originalWordCount": 1210,
+  "improvedWordCount": 858,
+  "notes": "Replaced Barnaby Button with Fennec Button, dropped Whoooo and the forest-folk asides, and let the Pixar spine turn on the forgotten crystal lullaby instead of a talents lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fennec"
+  },
+  "improvedAt": "2026-09-15T21:50:19.934Z"
+}

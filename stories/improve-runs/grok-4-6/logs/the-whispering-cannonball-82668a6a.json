@@ -1,0 +1,11 @@
+{
+  "id": "the-whispering-cannonball-82668a6a",
+  "title": "The Whispering Cannonball",
+  "originalWordCount": 1122,
+  "improvedWordCount": 741,
+  "notes": "Replaced Barnaby the cannonball with Eamon, kept Freytag’s two hurdles and the lonely-purpose climax, and slipped out at dawn without a sermon about sharp words as keys.",
+  "bannedNameReplacements": {
+    "Barnaby": "Eamon"
+  },
+  "improvedAt": "2026-09-15T21:09:27.550Z"
+}

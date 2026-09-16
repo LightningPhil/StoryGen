@@ -1,0 +1,11 @@
+{
+  "id": "arlo-and-the-sleepy-giant-35cf10ce",
+  "title": "Arlo and the Sleepy Giant",
+  "originalWordCount": 1693,
+  "improvedWordCount": 1548,
+  "notes": "Kept Arlo and Juniper, renamed the earthy badger from Barnaby to Gethin, cut Whoooo snores, and let Freytag wake the Apple Giant with an orchard song.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gethin"
+  },
+  "improvedAt": "2026-09-16T20:17:21.674Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "orchid-and-barnabys-wobbly-stage-a74e9eff",
+  "title": "Orchid and Elen's Wobbly Stage",
+  "originalWordCount": 1139,
+  "improvedWordCount": 1124,
+  "notes": "Renamed Barnaby the crab to Elen, kept Orchid, and let the Tide Festival dance plus the quiet stage close Seven-Point.",
+  "bannedNameReplacements": {
+    "Barnaby": "Elen"
+  },
+  "improvedAt": "2026-09-16T21:05:12.512Z"
+}

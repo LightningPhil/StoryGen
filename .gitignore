@@ -12,3 +12,7 @@ secrets/
 .secrets/
 credentials.json
 **/service-account*.json
+
+# Improve-run worker scratch — previews and progress.json are the keepers
+stories/improve-runs/**/_incoming/
+stories/improve-runs/**/*.tmp

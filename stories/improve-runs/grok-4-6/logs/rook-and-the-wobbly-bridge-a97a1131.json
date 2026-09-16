@@ -1,0 +1,11 @@
+{
+  "id": "rook-and-the-wobbly-bridge-a97a1131",
+  "title": "Rook and the Wobbly Bridge",
+  "originalWordCount": 920,
+  "improvedWordCount": 643,
+  "notes": "Kept Rook and Fluffernutter, replaced baker Barnaby Buttercrust with Catriona Buttercrust, cut This-is-doubt labels and trees-remember, and let the purr on the vines finish the fable.",
+  "bannedNameReplacements": {
+    "Barnaby": "Catriona"
+  },
+  "improvedAt": "2026-09-16T07:11:17.650Z"
+}

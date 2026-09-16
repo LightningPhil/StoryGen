@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-bell-and-the-quacking-friends-5509e396",
+  "title": "Lleucu's Bell and the Quacking Friends",
+  "originalWordCount": 319,
+  "improvedWordCount": 396,
+  "notes": "Renamed Barnaby the badger to Lleucu in title prose and characters, kept filename and id, kept Lila Bertie and the BONG-quack duet, and let noon come with company.",
+  "bannedNameReplacements": {
+    "Barnaby": "Lleucu"
+  },
+  "improvedAt": "2026-09-16T10:16:29.559Z"
+}

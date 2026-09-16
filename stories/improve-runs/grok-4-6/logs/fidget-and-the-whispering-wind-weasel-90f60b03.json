@@ -1,0 +1,11 @@
+{
+  "id": "fidget-and-the-whispering-wind-weasel-90f60b03",
+  "title": "Fidget and the Whispering Wind Weasel",
+  "originalWordCount": 1082,
+  "improvedWordCount": 661,
+  "notes": "Replaced Barnaby Bumble with Hamish, kept the Fichtean hat-chasm ladder and Fluffernutter’s statue, and ended on the nap instead of a lecture about unwanted heroes.",
+  "bannedNameReplacements": {
+    "Barnaby": "Hamish"
+  },
+  "improvedAt": "2026-09-16T06:41:42.566Z"
+}

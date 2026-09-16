@@ -1,0 +1,11 @@
+{
+  "id": "daisy-teacup-and-the-flower-ffc6c39e",
+  "title": "Daisy, Teacup, and the Flower",
+  "originalWordCount": 303,
+  "improvedWordCount": 407,
+  "notes": "Kept Daisy and Teacup, renamed Barnaby to Catrin, and let the twilight walk plus the flower in the hay close the fable.",
+  "bannedNameReplacements": {
+    "Barnaby": "Catrin"
+  },
+  "improvedAt": "2026-09-16T20:44:46.138Z"
+}

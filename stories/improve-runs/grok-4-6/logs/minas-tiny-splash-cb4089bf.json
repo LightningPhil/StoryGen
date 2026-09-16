@@ -1,0 +1,11 @@
+{
+  "id": "minas-tiny-splash-cb4089bf",
+  "title": "Mina's Tiny Splash",
+  "originalWordCount": 1382,
+  "improvedWordCount": 760,
+  "notes": "Kept Mina Rowan Gran Elin and Bartholomew the Bullfrog, renamed the geyser child Barnaby to Llinos, cut the dear-explorers frame, and logged one responsible plink.",
+  "bannedNameReplacements": {
+    "Barnaby": "Llinos"
+  },
+  "improvedAt": "2026-09-16T09:43:54.119Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "hugos-happy-seats-8e757fb0",
+  "title": "Hugo's Happy Seats",
+  "originalWordCount": 587,
+  "improvedWordCount": 582,
+  "notes": "Kept Hugo Mabel Aunt Olive Pip and Flora, renamed Barnaby the bear to Efa, cut amazing and the dear-penguin address, kept cake-seat flower-seat and poppies, and put Hugo's card in the middle.",
+  "bannedNameReplacements": {
+    "Barnaby": "Efa"
+  },
+  "improvedAt": "2026-09-16T10:16:29.556Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-mud-pie-mishap-3d81e560",
+  "title": "Eirwen's Mud Pie Mishap",
+  "originalWordCount": 1035,
+  "improvedWordCount": 714,
+  "notes": "Renamed Barnaby to Eirwen in title body and characters, kept Mina, dropped the memoir frame, and let the shirt-splat become Impromptu Impact instead of a control lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Eirwen"
+  },
+  "improvedAt": "2026-09-16T19:29:44.190Z"
+}

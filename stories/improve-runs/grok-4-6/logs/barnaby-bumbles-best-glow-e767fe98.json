@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-bumbles-best-glow-e767fe98",
+  "title": "Alys Bumble's Best Glow",
+  "originalWordCount": 2078,
+  "improvedWordCount": 1334,
+  "notes": "Replaced Barnaby Bumble with Alys Bumble, cut the community-glow lecture, and let a gentle breath wake fairy lights instead of washing out the pageant.",
+  "bannedNameReplacements": {
+    "Barnaby": "Alys"
+  },
+  "improvedAt": "2026-09-16T09:38:21.638Z"
+}

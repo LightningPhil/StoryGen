@@ -1,0 +1,11 @@
+{
+  "id": "otis-the-beaver-and-the-shiny-acorn-340c0a9b",
+  "title": "Otis the Beaver and the Shiny Acorn",
+  "originalWordCount": 1580,
+  "improvedWordCount": 1057,
+  "notes": "Kept Otis and Quinn, renamed Barnaby's Bagels to Elain's Bagels, dropped the owl-yarn and Whoooo, and let Wish-Mirror invert the shiny acorn onto Quinn's functional desk.",
+  "bannedNameReplacements": {
+    "Barnaby": "Elain"
+  },
+  "improvedAt": "2026-09-16T16:23:24.682Z"
+}

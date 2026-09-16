@@ -1,0 +1,11 @@
+{
+  "id": "quinns-starry-surprise-3102d10a",
+  "title": "Quinn's Starry Surprise",
+  "originalWordCount": 748,
+  "improvedWordCount": 462,
+  "notes": "Kept Quinn and Otis, renamed the earthworm badger Barnaby to Cadell, and let phone-stars and the crooked banner close the hour.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cadell"
+  },
+  "improvedAt": "2026-09-16T16:23:10.618Z"
+}

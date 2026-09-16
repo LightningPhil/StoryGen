@@ -1,0 +1,11 @@
+{
+  "id": "otis-and-the-gloomberry-mystery-587da419",
+  "title": "Otis and the Gloomberry Mystery",
+  "originalWordCount": 1762,
+  "improvedWordCount": 1220,
+  "notes": "Kept Otis, replaced the woolly dog Barnaby with Mairi, kept Grizelda’s Gloomberries, and let hearth-thumps replace a friendship-is-the-best-magic closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Mairi"
+  },
+  "improvedAt": "2026-09-16T07:05:44.838Z"
+}

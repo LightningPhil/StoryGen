@@ -1,0 +1,11 @@
+{
+  "id": "esme-and-the-cosmic-crunch-mystery-314f36c6",
+  "title": "Esme and the Cosmic Crunch Mystery",
+  "originalWordCount": 513,
+  "improvedWordCount": 490,
+  "notes": "Kept Esme, renamed Barnaby the beetle to Caoimhe, and let sampling bias show in the dry-patch survey.",
+  "bannedNameReplacements": {
+    "Barnaby": "Caoimhe"
+  },
+  "improvedAt": "2026-09-16T09:28:22.057Z"
+}

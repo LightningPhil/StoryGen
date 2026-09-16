@@ -1,0 +1,9 @@
+{
+  "id": "rafi-and-coras-choice-adventure-c3026bab",
+  "title": "Rafi and Cora's Choice Adventure",
+  "originalWordCount": 1106,
+  "improvedWordCount": 928,
+  "notes": "Kept Rafi and Cora, and counted sequential path choices as 2×2×2 combinatorics instead of adding the splits.",
+  "bannedNameReplacements": {},
+  "improvedAt": "2026-09-16T09:25:22.556Z"
+}

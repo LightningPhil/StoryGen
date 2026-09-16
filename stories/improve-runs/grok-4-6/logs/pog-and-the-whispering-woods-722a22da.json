@@ -1,0 +1,11 @@
+{
+  "id": "pog-and-the-whispering-woods-722a22da",
+  "title": "Pog and the Whispering Woods",
+  "originalWordCount": 987,
+  "improvedWordCount": 463,
+  "notes": "Replaced Barnaby the ogre with Tansy, kept the fable’s ask-for-help test and an And so moral, and left Moonpetal tea in the satchel instead of a book-lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Tansy"
+  },
+  "improvedAt": "2026-09-16T06:55:54.891Z"
+}

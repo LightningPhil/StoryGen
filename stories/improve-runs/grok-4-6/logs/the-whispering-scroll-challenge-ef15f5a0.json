@@ -1,0 +1,11 @@
+{
+  "id": "the-whispering-scroll-challenge-ef15f5a0",
+  "title": "The Whispering Scroll Challenge",
+  "originalWordCount": 1362,
+  "improvedWordCount": 1007,
+  "notes": "Renamed Barnaby Button to Fionn, kept Bartholomew, and let the Mayor's silence turn competition into a shared still.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fionn"
+  },
+  "improvedAt": "2026-09-16T09:43:03.349Z"
+}

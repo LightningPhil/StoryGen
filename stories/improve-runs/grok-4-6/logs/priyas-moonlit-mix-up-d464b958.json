@@ -1,0 +1,11 @@
+{
+  "id": "priyas-moonlit-mix-up-d464b958",
+  "title": "Priya's Moonlit Mix-Up",
+  "originalWordCount": 1800,
+  "improvedWordCount": 1298,
+  "notes": "Kept Priya and Bea, renamed security-badger Barnaby Grumbles to Dilys Grumbles, cut the joy-needs-room sermon, and let Chekhov's tangled programs become moonlit seats.",
+  "bannedNameReplacements": {
+    "Barnaby": "Dilys"
+  },
+  "improvedAt": "2026-09-16T10:58:33.773Z"
+}

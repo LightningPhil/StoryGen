@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-midnight-thrum-62cd73f8",
+  "title": "Caius and the Midnight Thrum",
+  "originalWordCount": 1810,
+  "improvedWordCount": 1274,
+  "notes": "Replaced Barnaby with Caius, cut This-is-anxiety labeling, kept the Three-Act horn-as-wrong-tool midpoint, and echoed the opening scheme with the cracked bell instead of a heart-versus-mechanics sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Caius"
+  },
+  "improvedAt": "2026-09-15T21:01:27.551Z"
+}

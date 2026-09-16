@@ -1,0 +1,11 @@
+{
+  "id": "hesters-harvest-tea-mix-up-837244c9",
+  "title": "Hester's Harvest Tea Mix-Up",
+  "originalWordCount": 876,
+  "improvedWordCount": 730,
+  "notes": "Kept Hester and Sol, renamed Barnaby Buttercup to Eirwen Buttercup, cut the amazing closer, and let mixed seats unjam the chatter.",
+  "bannedNameReplacements": {
+    "Barnaby": "Eirwen"
+  },
+  "improvedAt": "2026-09-16T09:53:39.259Z"
+}

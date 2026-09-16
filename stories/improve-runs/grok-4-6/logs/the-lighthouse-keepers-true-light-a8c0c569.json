@@ -1,0 +1,11 @@
+{
+  "id": "the-lighthouse-keepers-true-light-a8c0c569",
+  "title": "The Lighthouse Keeper's True Light",
+  "originalWordCount": 1368,
+  "improvedWordCount": 822,
+  "notes": "Kept Ephraim Dunn and Silas Croft, renamed Silas's goat Barnaby to Nest, dropped Whooo and the fog-lecture, and let the beam close the Pixar Spine.",
+  "bannedNameReplacements": {
+    "Barnaby": "Nest"
+  },
+  "improvedAt": "2026-09-16T19:56:21.132Z"
+}

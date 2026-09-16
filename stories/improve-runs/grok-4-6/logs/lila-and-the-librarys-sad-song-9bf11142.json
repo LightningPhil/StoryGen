@@ -1,0 +1,11 @@
+{
+  "id": "lila-and-the-librarys-sad-song-9bf11142",
+  "title": "Lila and the Library's Sad Song",
+  "originalWordCount": 1848,
+  "improvedWordCount": 1085,
+  "notes": "Replaced Barnaby Buzzwing with Pargeter, kept Freytag’s Bartholomew chase and the music-box latch, paused in the lonely alcove, and stopped before the hidden-guardians closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Pargeter"
+  },
+  "improvedAt": "2026-09-15T21:50:20.240Z"
+}

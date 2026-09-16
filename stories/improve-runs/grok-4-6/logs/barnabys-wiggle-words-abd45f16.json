@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-wiggle-words-abd45f16",
+  "title": "Emyr's Wiggle Words",
+  "originalWordCount": 1481,
+  "improvedWordCount": 1341,
+  "notes": "Replaced title-pony Barnaby with Emyr in title prose and characters, kept Tess Freya Old Tom and the spaghetti-noodle invitations, cut dear-child asides, and let Three-Act send curly concert notes anyway. Id unchanged.",
+  "bannedNameReplacements": {
+    "Barnaby": "Emyr"
+  },
+  "improvedAt": "2026-09-16T10:14:20.660Z"
+}

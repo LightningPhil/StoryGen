@@ -1,0 +1,11 @@
+{
+  "id": "the-whispering-chalk-tunnels-2420cc13",
+  "title": "The Whispering Chalk Tunnels",
+  "originalWordCount": 1480,
+  "improvedWordCount": 1085,
+  "notes": "Replaced Barnaby Buttercup with Niall Buttercup, kept Kishotenketsu's unmarked bird-and-swirl turn, and let the still pool and loosened scarf close the chamber instead of a lecture about unplanned discoveries.",
+  "bannedNameReplacements": {
+    "Barnaby": "Niall"
+  },
+  "improvedAt": "2026-09-16T06:38:22.534Z"
+}

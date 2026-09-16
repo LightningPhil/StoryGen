@@ -1,0 +1,11 @@
+{
+  "id": "merry-and-puddles-wobbly-race-960362c9",
+  "title": "Merry and Puddle's Wobbly Race",
+  "originalWordCount": 2076,
+  "improvedWordCount": 1456,
+  "notes": "Kept Merry Puddle Mildred and the Hop and Paddle Challenge, renamed badger Barnaby to Tegwen, dropped the friend-narrator and winning lecture, and left hop-hop-wobble-paddle as the way home.",
+  "bannedNameReplacements": {
+    "Barnaby": "Tegwen"
+  },
+  "improvedAt": "2026-09-16T19:43:31.583Z"
+}

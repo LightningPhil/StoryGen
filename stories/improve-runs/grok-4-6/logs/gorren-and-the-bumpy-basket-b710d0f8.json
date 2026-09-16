@@ -1,0 +1,11 @@
+{
+  "id": "gorren-and-the-bumpy-basket-b710d0f8",
+  "title": "Gorren and the Bumpy Basket",
+  "originalWordCount": 1588,
+  "improvedWordCount": 805,
+  "notes": "Replaced Barnaby Grump with Halvard, kept Freytag from the missing basket through Flicker’s bumps to the shared picnic, and skipped the misunderstanding-makes-friends lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Halvard"
+  },
+  "improvedAt": "2026-09-16T06:55:33.786Z"
+}

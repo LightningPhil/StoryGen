@@ -1,0 +1,11 @@
+{
+  "id": "arlens-urgent-delivery-7a0064d6",
+  "title": "Arlen's Urgent Delivery",
+  "originalWordCount": 1209,
+  "improvedWordCount": 1147,
+  "notes": "Kept Arlen, Barnaby the bell-ringer to Branwen, kept Pixar from the moonpetal garden through Sir Reginald's wrong wind and the marmot's path to the silver bell at the falls, and dropped the self-discovery lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Branwen"
+  },
+  "improvedAt": "2026-09-16T08:02:02.747Z"
+}

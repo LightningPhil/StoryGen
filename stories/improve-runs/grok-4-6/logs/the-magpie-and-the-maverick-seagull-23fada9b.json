@@ -1,0 +1,11 @@
+{
+  "id": "the-magpie-and-the-maverick-seagull-23fada9b",
+  "title": "The Magpie and the Maverick Seagull",
+  "originalWordCount": 909,
+  "improvedWordCount": 907,
+  "notes": "Kept Leila and Kit, renamed Mayor Barnaby Bumblebee to Mayor Iorath Bumblebee, and let Bartholomew's three interruptions become the Forest Path trials with a lectern that talks back.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iorath"
+  },
+  "improvedAt": "2026-09-16T19:28:05.728Z"
+}

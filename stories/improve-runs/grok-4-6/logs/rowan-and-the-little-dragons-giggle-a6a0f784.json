@@ -1,0 +1,11 @@
+{
+  "id": "rowan-and-the-little-dragons-giggle-a6a0f784",
+  "title": "Rowan and the Little Dragon's Giggle",
+  "originalWordCount": 918,
+  "improvedWordCount": 844,
+  "notes": "Kept Rowan, replaced nap-goat Barnaby with Anwen, kept the Trickster miss of singing trees through the wheelbarrow quarrel to Puffkin's giggle, and let the giggle ride home on a shoulder.",
+  "bannedNameReplacements": {
+    "Barnaby": "Anwen"
+  },
+  "improvedAt": "2026-09-16T07:03:31.186Z"
+}

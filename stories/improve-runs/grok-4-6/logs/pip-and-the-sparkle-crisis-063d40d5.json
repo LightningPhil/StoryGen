@@ -1,0 +1,11 @@
+{
+  "id": "pip-and-the-sparkle-crisis-063d40d5",
+  "title": "Pip and the Sparkle Crisis",
+  "originalWordCount": 1733,
+  "improvedWordCount": 1337,
+  "notes": "Replaced Barnaby the Barker with Dorian, dropped the sapling-owl frame, staged Freytag’s hurdles as the jammed door then the thinning Heartstone, and let Pip’s ten seconds at the panel show waiting instead of a tunnels-and-friendship lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Dorian"
+  },
+  "improvedAt": "2026-09-15T21:06:00.087Z"
+}

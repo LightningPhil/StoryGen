@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-the-bouncing-beets-cozy-corner-595653ca",
+  "title": "Caelum the Bouncing Beet's Cozy Corner",
+  "originalWordCount": 1271,
+  "improvedWordCount": 1038,
+  "notes": "Replaced Barnaby the beet with Caelum in title prose and characters while keeping the id, kept Kishotenketsu from grand search to armchair nap, and ended on hearth bounces instead of a bravest-thing-is-rest sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Caelum"
+  },
+  "improvedAt": "2026-09-16T06:53:36.603Z"
+}

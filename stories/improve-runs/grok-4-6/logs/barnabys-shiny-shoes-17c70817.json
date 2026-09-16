@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-shiny-shoes-17c70817",
+  "title": "Llyr's Shiny Shoes",
+  "originalWordCount": 426,
+  "improvedWordCount": 424,
+  "notes": "Replaced title-bear Barnaby with Llyr in title prose and characters, kept Alfie Edie Gran Ada and each pair's own shine, cut the helpful-place sermon, and let the Pixar spine polish toward bedtime. Id unchanged.",
+  "bannedNameReplacements": {
+    "Barnaby": "Llyr"
+  },
+  "improvedAt": "2026-09-16T10:19:51.012Z"
+}

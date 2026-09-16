@@ -1,0 +1,11 @@
+{
+  "id": "sira-and-the-sapphire-bloom-666d6250",
+  "title": "Sira and the Sapphire Bloom",
+  "originalWordCount": 2318,
+  "improvedWordCount": 1510,
+  "notes": "Kept Sira, replaced Barnaby the dragon naturalist with Tudur, cut dear-listeners, and let wind chimes and a named fear finish Forest Path.",
+  "bannedNameReplacements": {
+    "Barnaby": "Tudur"
+  },
+  "improvedAt": "2026-09-16T08:00:56.151Z"
+}

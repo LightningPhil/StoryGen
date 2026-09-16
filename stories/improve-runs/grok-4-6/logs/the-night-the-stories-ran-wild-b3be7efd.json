@@ -1,0 +1,11 @@
+{
+  "id": "the-night-the-stories-ran-wild-b3be7efd",
+  "title": "The Night the Stories Ran Wild",
+  "originalWordCount": 2282,
+  "improvedWordCount": 1370,
+  "notes": "Kept Priya and Silas Owl, renamed volunteer Barnaby to Bethan, and let three guest conclaves share one moonlit festival.",
+  "bannedNameReplacements": {
+    "Barnaby": "Bethan"
+  },
+  "improvedAt": "2026-09-16T11:01:27.341Z"
+}

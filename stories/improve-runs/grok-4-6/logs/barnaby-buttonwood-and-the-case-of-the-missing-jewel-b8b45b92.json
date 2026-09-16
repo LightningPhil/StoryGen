@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-buttonwood-and-the-case-of-the-missing-jewel-b8b45b92",
+  "title": "Seren Buttonwood and the Case of the Missing Jewel",
+  "originalWordCount": 1239,
+  "improvedWordCount": 688,
+  "notes": "Replaced Barnaby Buttonwood with Seren Buttonwood, cut gather-round and the pro-tip close, and let the sleeping badger and burnt toffee finish the case without a luck lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Seren"
+  },
+  "improvedAt": "2026-09-15T21:11:31.422Z"
+}

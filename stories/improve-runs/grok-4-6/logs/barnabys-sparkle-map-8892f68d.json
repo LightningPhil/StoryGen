@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-sparkle-map-8892f68d",
+  "title": "Bledri's Sparkle Map",
+  "originalWordCount": 1329,
+  "improvedWordCount": 901,
+  "notes": "Renamed Barnaby B. Buttercup to Bledri B. Buttercup from the pool, kept Jun and Elara, cut the Cartographer-of-Kindness sermon, and let Three-Act echo on an untrimmed reed and an unexplained circle.",
+  "bannedNameReplacements": {
+    "Barnaby": "Bledri"
+  },
+  "improvedAt": "2026-09-16T19:33:05.300Z"
+}

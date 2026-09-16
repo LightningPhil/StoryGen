@@ -1,0 +1,11 @@
+{
+  "id": "the-shimmering-bench-7aac2c9d",
+  "title": "The Shimmering Bench",
+  "originalWordCount": 923,
+  "improvedWordCount": 778,
+  "notes": "Replaced Barnaby with Pascal, cut the midpoint-label and adventure-book aside, and left the empty pocket and the crab-woof as the bittersweet cost instead of a speech about rules as anchors.",
+  "bannedNameReplacements": {
+    "Barnaby": "Pascal"
+  },
+  "improvedAt": "2026-09-15T21:01:55.331Z"
+}

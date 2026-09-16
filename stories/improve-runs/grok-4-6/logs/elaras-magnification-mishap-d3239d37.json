@@ -1,0 +1,11 @@
+{
+  "id": "elaras-magnification-mishap-d3239d37",
+  "title": "Elara's Magnification Mishap",
+  "originalWordCount": 1491,
+  "improvedWordCount": 922,
+  "notes": "Replaced rival Barnaby Bumble with Godric Bumble, cut the hark-listeners frame, and let Mrs. Gable’s pause plus the dust-mote galaxy replace a grandeur-versus-elegance sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Godric"
+  },
+  "improvedAt": "2026-09-16T06:40:50.512Z"
+}

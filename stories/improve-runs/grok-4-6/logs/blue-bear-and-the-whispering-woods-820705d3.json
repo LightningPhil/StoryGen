@@ -1,0 +1,11 @@
+{
+  "id": "blue-bear-and-the-whispering-woods-820705d3",
+  "title": "Blue Bear and the Whispering Woods",
+  "originalWordCount": 1141,
+  "improvedWordCount": 942,
+  "notes": "Kept Blue Bear Moss and Mr. Digby Thistlewick, replaced sleeping child Barnaby with Dafydd, cut And wouldn't you know it, and let Three-Act find a gust instead of a ghost in the hollow.",
+  "bannedNameReplacements": {
+    "Barnaby": "Dafydd"
+  },
+  "improvedAt": "2026-09-16T07:55:26.914Z"
+}

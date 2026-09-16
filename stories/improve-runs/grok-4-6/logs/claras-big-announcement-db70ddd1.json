@@ -1,0 +1,11 @@
+{
+  "id": "claras-big-announcement-db70ddd1",
+  "title": "Clara's Big Announcement",
+  "originalWordCount": 1049,
+  "improvedWordCount": 619,
+  "notes": "Kept Clara as Clara with Yara, renamed Barnaby Badger to Berwyn from the pool, used the Donaldson refrain the plan is still excellent, and closed the fable on an And-so moral about a true word finding a microphone.",
+  "bannedNameReplacements": {
+    "Barnaby": "Berwyn"
+  },
+  "improvedAt": "2026-09-16T16:09:43.153Z"
+}

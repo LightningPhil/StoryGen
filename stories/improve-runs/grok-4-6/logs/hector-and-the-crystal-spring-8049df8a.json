@@ -1,0 +1,11 @@
+{
+  "id": "hector-and-the-crystal-spring-8049df8a",
+  "title": "Hector and the Crystal Spring",
+  "originalWordCount": 1965,
+  "improvedWordCount": 1287,
+  "notes": "Kept Hector, replaced messenger Barnaby with Gwydion, planted the hammer and fulcrum, and let a reluctant lean finish Chekhov's Sketch without a quiet-solutions lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwydion"
+  },
+  "improvedAt": "2026-09-16T08:04:45.482Z"
+}

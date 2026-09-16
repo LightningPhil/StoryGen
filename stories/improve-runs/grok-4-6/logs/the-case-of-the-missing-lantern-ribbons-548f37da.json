@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-missing-lantern-ribbons-548f37da",
+  "title": "The Case of the Missing Lantern Ribbons",
+  "originalWordCount": 1786,
+  "improvedWordCount": 1411,
+  "notes": "Replaced Barnaby Bumblefoot with Evander, kept Kishotenketsu from missing ribbons through mushroom stairs to the glow-worm nursery, and let unstacked mushrooms close instead of a wouldn't-you-know-it sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Evander"
+  },
+  "improvedAt": "2026-09-16T06:59:18.940Z"
+}

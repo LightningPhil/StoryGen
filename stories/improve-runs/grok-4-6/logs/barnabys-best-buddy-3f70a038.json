@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-best-buddy-3f70a038",
+  "title": "Sidra's Best Buddy",
+  "originalWordCount": 1608,
+  "improvedWordCount": 872,
+  "notes": "Replaced protagonist Barnaby with Sidra in title, prose, and characters, kept Save the Cat from cottage knock to garden hare, cut This-is-fear and This-is-joy, and echoed the pearl moon on two quiet friends.",
+  "bannedNameReplacements": {
+    "Barnaby": "Sidra"
+  },
+  "improvedAt": "2026-09-16T07:02:58.593Z"
+}

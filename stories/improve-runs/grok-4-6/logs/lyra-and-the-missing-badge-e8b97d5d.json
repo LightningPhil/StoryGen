@@ -1,0 +1,11 @@
+{
+  "id": "lyra-and-the-missing-badge-e8b97d5d",
+  "title": "Lyra and the Missing Badge",
+  "originalWordCount": 1506,
+  "improvedWordCount": 929,
+  "notes": "Replaced rival Barnaby with Yarrow, cut the blessing-narrator frame, kept the Pixar spine through the Locking of the Lights, and let the dandelion offering settle the Reeds instead of a speech.",
+  "bannedNameReplacements": {
+    "Barnaby": "Yarrow"
+  },
+  "improvedAt": "2026-09-15T21:15:46.544Z"
+}

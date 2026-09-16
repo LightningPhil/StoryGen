@@ -1,0 +1,11 @@
+{
+  "id": "finnian-fumble-and-the-whispering-well-1bbe9bdf",
+  "title": "Finnian Fumble and the Whispering Well",
+  "originalWordCount": 3161,
+  "improvedWordCount": 1425,
+  "notes": "Replaced Professor Barnaby Quill with Anouk Quill, kept the But/Therefore chain from puffin to sigils, and ended on moss returning instead of a forest-folk moral.",
+  "bannedNameReplacements": {
+    "Barnaby": "Anouk"
+  },
+  "improvedAt": "2026-09-15T21:11:07.939Z"
+}

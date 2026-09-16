@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-brilliant-storm-picnic-750338e8",
+  "title": "Delyth's Brilliant Storm Picnic",
+  "originalWordCount": 1463,
+  "improvedWordCount": 1074,
+  "notes": "Renamed Barnaby to Delyth in title, prose, and characters, kept Rosa and the filename/id, and let Snowflake plus Grimm/Lewis invent Diagram F-3 after the storm eats A-7.",
+  "bannedNameReplacements": {
+    "Barnaby": "Delyth"
+  },
+  "improvedAt": "2026-09-16T19:30:40.876Z"
+}

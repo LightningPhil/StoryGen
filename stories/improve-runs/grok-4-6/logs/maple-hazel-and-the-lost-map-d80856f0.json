@@ -1,0 +1,11 @@
+{
+  "id": "maple-hazel-and-the-lost-map-d80856f0",
+  "title": "Maple, Hazel, and the Lost Map",
+  "originalWordCount": 2779,
+  "improvedWordCount": 1595,
+  "notes": "Kept Maple and Hazel, replaced Barnaby Badger with Saoirse, dropped the dear-child closer, and let Three-Act turn on combining moss stream and maps.",
+  "bannedNameReplacements": {
+    "Barnaby": "Saoirse"
+  },
+  "improvedAt": "2026-09-16T07:48:25.234Z"
+}

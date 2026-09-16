@@ -1,0 +1,11 @@
+{
+  "id": "mabels-marvelous-trousers-a53df06a",
+  "title": "Mabel's Marvelous Trousers",
+  "originalWordCount": 1038,
+  "improvedWordCount": 1030,
+  "notes": "Kept Mabel as Mabel with Theo and Gran Ada, renamed Barnaby Buttonbright to Tesni Buttonbright, cut AMAZING, and let her own voice ask for the dragon kite.",
+  "bannedNameReplacements": {
+    "Barnaby": "Tesni"
+  },
+  "improvedAt": "2026-09-16T09:49:29.606Z"
+}

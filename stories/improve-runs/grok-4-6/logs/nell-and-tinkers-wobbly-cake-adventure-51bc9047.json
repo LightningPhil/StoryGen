@@ -1,0 +1,11 @@
+{
+  "id": "nell-and-tinkers-wobbly-cake-adventure-51bc9047",
+  "title": "Nell and Tinker's Wobbly Cake Adventure",
+  "originalWordCount": 1409,
+  "improvedWordCount": 950,
+  "notes": "Renamed Barnaby Bear to Bedwyr from the pool, kept Nell and Tinker, cut the come-closer frame, and let the Story Circle change beat land on intact icing and a missing tail-feather.",
+  "bannedNameReplacements": {
+    "Barnaby": "Bedwyr"
+  },
+  "improvedAt": "2026-09-16T20:04:49.276Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "the-whispering-woods-mystery-05f52510",
+  "title": "The Whispering Woods Mystery",
+  "originalWordCount": 1763,
+  "improvedWordCount": 1199,
+  "notes": "Replaced the cape-and-glass detective Barnaby with Fennec, kept Silas the shy artisan and they/them, and let the returned sparrow close the Kishōtenketsu twist without a mystery moral.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fennec"
+  },
+  "improvedAt": "2026-09-15T21:50:19.938Z"
+}

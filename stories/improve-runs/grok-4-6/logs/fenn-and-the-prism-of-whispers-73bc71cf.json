@@ -1,0 +1,11 @@
+{
+  "id": "fenn-and-the-prism-of-whispers-73bc71cf",
+  "title": "Fenn and the Prism of Whispers",
+  "originalWordCount": 2388,
+  "improvedWordCount": 1277,
+  "notes": "Kept Fenn, replaced prospector Barnaby with Fintan, dropped the hark frame, and let Snowflake expand from Gleam’s old trail to Sir Ignis naming the Prism as balance.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fintan"
+  },
+  "improvedAt": "2026-09-16T07:31:48.389Z"
+}

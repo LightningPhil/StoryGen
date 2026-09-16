@@ -15,7 +15,7 @@ BEGIN_CHARACTERS_DATA
 \${charactersList}
 END_CHARACTERS_DATA
 
-Preserve every explicit name above exactly. Give supplied characters memorable traits, and invent a pronounceable name only for a character supplied without one.
+Preserve every explicit name above exactly. Give supplied characters memorable traits, and invent a name only for a character supplied without one. Invented names must be British, distinctive, and well chosen for the audience and age; compound names or nicknames are welcome. Never invent Barnaby or Salis unless the user supplied that name.
 
 BEGIN_USER_STORY_REQUIREMENTS
 \${USER_SUGGESTIONS_TEXT}
@@ -84,7 +84,7 @@ BEGIN_CHARACTERS_DATA
 \${charactersList}
 END_CHARACTERS_DATA
 
-Preserve every explicit name above exactly. Give memorable traits to the supplied characters, and invent a whimsical but pronounceable name only when a character was supplied without one.
+Preserve every explicit name above exactly. Give memorable traits to the supplied characters, and invent a name only when a character was supplied without one. Invented names must be British, distinctive, and well chosen for the audience and age; compound names or nicknames are welcome. Never invent Barnaby or Salis unless the user supplied that name.
 
 BEGIN_USER_STORY_REQUIREMENTS
 \${USER_SUGGESTIONS_TEXT}

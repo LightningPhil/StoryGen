@@ -1,0 +1,11 @@
+{
+  "id": "theo-and-brams-sparkly-jam-hunt-672e43fa",
+  "title": "Theo and Bram's Sparkly Jam Hunt",
+  "originalWordCount": 455,
+  "improvedWordCount": 446,
+  "notes": "Kept Theo and Bram, renamed Barnaby the window-washer beagle to Maelon, and kept the thistle-jam hunt.",
+  "bannedNameReplacements": {
+    "Barnaby": "Maelon"
+  },
+  "improvedAt": "2026-09-16T10:15:12.965Z"
+}

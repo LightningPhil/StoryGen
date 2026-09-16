@@ -1,0 +1,11 @@
+{
+  "id": "the-museum-of-whispering-wonders-9246867c",
+  "title": "The Museum of Whispering Wonders",
+  "originalWordCount": 1472,
+  "improvedWordCount": 1059,
+  "notes": "Replaced Barnaby with Merrick, kept the Pixar snack-to-hum-to-phonograph spine and a Donaldson crisis-snack refrain, found Fitzwilliam listening rather than vanished, and let Silas’s ink pots close the hall instead of a forgotten-voices sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Merrick"
+  },
+  "improvedAt": "2026-09-15T21:01:27.548Z"
+}

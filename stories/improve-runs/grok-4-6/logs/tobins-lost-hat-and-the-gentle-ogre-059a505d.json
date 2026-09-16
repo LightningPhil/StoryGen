@@ -1,0 +1,11 @@
+{
+  "id": "tobins-lost-hat-and-the-gentle-ogre-059a505d",
+  "title": "Tobin's Lost Hat and the Gentle Ogre",
+  "originalWordCount": 905,
+  "improvedWordCount": 680,
+  "notes": "Kept Tobin and Scruffy, replaced the ogre Barnaby with Odette, cut gather-round and trees-remember, and let stained berry fingers stand in for a deeper-magic sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Odette"
+  },
+  "improvedAt": "2026-09-16T07:05:44.839Z"
+}

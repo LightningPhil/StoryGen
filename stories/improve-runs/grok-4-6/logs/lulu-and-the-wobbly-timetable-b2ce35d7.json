@@ -1,0 +1,11 @@
+{
+  "id": "lulu-and-the-wobbly-timetable-b2ce35d7",
+  "title": "Lulu and the Wobbly Timetable",
+  "originalWordCount": 1336,
+  "improvedWordCount": 1268,
+  "notes": "Kept Lulu and Tock, renamed Barnaby the badger to Meilir, cut the this-is-disorganization labels, and let Story Circle fetch the original timetable from the Admin Wing.",
+  "bannedNameReplacements": {
+    "Barnaby": "Meilir"
+  },
+  "improvedAt": "2026-09-16T20:15:21.838Z"
+}

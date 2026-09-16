@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-buttons-befuddled-forest-8facf26b",
+  "title": "Catrin Button's Befuddled Forest",
+  "originalWordCount": 744,
+  "improvedWordCount": 724,
+  "notes": "Replaced Barnaby Button in title prose and characters with Catrin Button, kept id, cut the whoooo and simplest-path sermon, kept Kishotenketsu from the dew queue through the courteous notes to the short lovely-night cards.",
+  "bannedNameReplacements": {
+    "Barnaby": "Catrin"
+  },
+  "improvedAt": "2026-09-16T07:47:30.490Z"
+}

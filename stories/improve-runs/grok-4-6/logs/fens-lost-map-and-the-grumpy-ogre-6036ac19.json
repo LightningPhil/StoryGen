@@ -1,0 +1,11 @@
+{
+  "id": "fens-lost-map-and-the-grumpy-ogre-6036ac19",
+  "title": "Fen's Lost Map and the Grumpy Ogre",
+  "originalWordCount": 1885,
+  "improvedWordCount": 1330,
+  "notes": "Kept Fen and Flicker, replaced Barnaby the gardener ogre with Maud, cut gather-round and the rewarding-journeys lecture, and let Seven-Point turn on the blocked stream.",
+  "bannedNameReplacements": {
+    "Barnaby": "Maud"
+  },
+  "improvedAt": "2026-09-16T07:08:23.163Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-wobbly-book-adventure-1c81f25d",
+  "title": "Mared's Wobbly Book Adventure",
+  "originalWordCount": 924,
+  "improvedWordCount": 825,
+  "notes": "Renamed Barnaby the camel to Mared in title and prose, kept Rosie Basil and Mrs. Bramble, used the Donaldson refrain a wobble a book a shelf to find, and let the Chekhov turn be friends carrying the pile.",
+  "bannedNameReplacements": {
+    "Barnaby": "Mared"
+  },
+  "improvedAt": "2026-09-16T10:16:10.713Z"
+}

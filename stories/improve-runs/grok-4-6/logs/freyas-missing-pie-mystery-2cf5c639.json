@@ -1,0 +1,11 @@
+{
+  "id": "freyas-missing-pie-mystery-2cf5c639",
+  "title": "Freya's Missing Pie Mystery",
+  "originalWordCount": 1407,
+  "improvedWordCount": 1283,
+  "notes": "Kept Freya and Biscuit, renamed Barnaby the shy cub to Iorwen, cut WHOOSH and the AMAZING sermon, and let Three-Act turn a missing pie into a secret feast.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iorwen"
+  },
+  "improvedAt": "2026-09-16T20:15:21.836Z"
+}

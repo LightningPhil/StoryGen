@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-funny-maps-and-the-lost-sea-glass-c5ac2b53",
+  "title": "Iorwerth's Funny Maps and the Lost Sea Glass",
+  "originalWordCount": 520,
+  "improvedWordCount": 505,
+  "notes": "Replaced Barnaby Buttercup with Iorwerth Buttercup, cut the friendship-treasure lecture, and let the map notes lead to The Siren's Sigh.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iorwerth"
+  },
+  "improvedAt": "2026-09-16T09:50:01.249Z"
+}

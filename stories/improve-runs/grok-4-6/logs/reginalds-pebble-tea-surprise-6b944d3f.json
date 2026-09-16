@@ -1,0 +1,11 @@
+{
+  "id": "reginalds-pebble-tea-surprise-6b944d3f",
+  "title": "Reginald's Pebble Tea Surprise",
+  "originalWordCount": 1838,
+  "improvedWordCount": 1575,
+  "notes": "Kept Reginald and Bram, renamed rival Barnaby to Bran, cut the ambition sermon, and let But/Therefore freeze the Automaton into pebble iced tea.",
+  "bannedNameReplacements": {
+    "Barnaby": "Bran"
+  },
+  "improvedAt": "2026-09-16T19:30:09.052Z"
+}

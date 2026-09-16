@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-badger-and-the-brilliant-mix-up-6a3d7ebc",
+  "title": "Rhian Badger and the Brilliant Mix-Up",
+  "originalWordCount": 1787,
+  "improvedWordCount": 1411,
+  "notes": "Renamed Barnaby Badger to Rhian Badger, kept Ivy Bartholomew Button Pipkin and Millie, dropped the hark-listeners frame, and let Millie's easel gesture turn the Chekhov sketch.",
+  "bannedNameReplacements": {
+    "Barnaby": "Rhian"
+  },
+  "improvedAt": "2026-09-16T19:28:37.275Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "the-map-that-changed-7d2cb5c0",
+  "title": "The Map That Changed",
+  "originalWordCount": 1568,
+  "improvedWordCount": 1289,
+  "notes": "Kept Sana and Milo, renamed Barnaby Buttercup to Anwen Buttercup, dropped the this-is-despair labels, and let the smudge-that-was-a-signal close the seven-point crossing.",
+  "bannedNameReplacements": {
+    "Barnaby": "Anwen"
+  },
+  "improvedAt": "2026-09-16T21:02:59.540Z"
+}

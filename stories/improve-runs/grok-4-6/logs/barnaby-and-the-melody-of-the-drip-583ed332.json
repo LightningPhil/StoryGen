@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-melody-of-the-drip-583ed332",
+  "title": "Caron and the Melody of the Drip",
+  "originalWordCount": 1644,
+  "improvedWordCount": 1013,
+  "notes": "Renamed Barnaby Buttonwood to Caron Buttonwood from the pool, kept Theo and Madame Grimshaw, cut the This-is-dread labels, and let Save the Cat close on the umbrella bow and the bucket's last plink.",
+  "bannedNameReplacements": {
+    "Barnaby": "Caron"
+  },
+  "improvedAt": "2026-09-16T19:33:05.299Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-big-busy-bell-346406c6",
+  "title": "Carwyn's Big, Busy Bell",
+  "originalWordCount": 761,
+  "improvedWordCount": 717,
+  "notes": "Renamed Barnaby Button to Carwyn Button in title prose and characters, kept filename and id, kept Bramble Lila Mayor Porth and the extra-notes dump, and stopped the bell after the news.",
+  "bannedNameReplacements": {
+    "Barnaby": "Carwyn"
+  },
+  "improvedAt": "2026-09-16T10:08:20.795Z"
+}

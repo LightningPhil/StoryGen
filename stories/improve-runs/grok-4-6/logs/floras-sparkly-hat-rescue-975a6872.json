@@ -1,0 +1,11 @@
+{
+  "id": "floras-sparkly-hat-rescue-975a6872",
+  "title": "Flora's Sparkly Hat Rescue",
+  "originalWordCount": 1036,
+  "improvedWordCount": 632,
+  "notes": "Renamed Barnaby the squirrel to Madoc from the pool, kept Flora, and let the Hero's Journey ordeal be her beak on the ribbon instead of a spectacular-day speech.",
+  "bannedNameReplacements": {
+    "Barnaby": "Madoc"
+  },
+  "improvedAt": "2026-09-16T19:43:49.981Z"
+}

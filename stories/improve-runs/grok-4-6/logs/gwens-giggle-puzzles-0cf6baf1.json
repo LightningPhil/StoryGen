@@ -1,0 +1,11 @@
+{
+  "id": "gwens-giggle-puzzles-0cf6baf1",
+  "title": "Gwen's Giggle Puzzles",
+  "originalWordCount": 413,
+  "improvedWordCount": 395,
+  "notes": "Kept Gwen Milo Headteacher Stone and all three riddles, renamed the sleepy-dream guesser Barnaby to Aled, cut the puzzle-master prize closer, and let Freytag meet under the Big Oak.",
+  "bannedNameReplacements": {
+    "Barnaby": "Aled"
+  },
+  "improvedAt": "2026-09-16T10:02:59.927Z"
+}

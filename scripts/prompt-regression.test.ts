@@ -38,6 +38,7 @@ test('system policy defines stable precedence and source-data boundaries', () =>
   assert.match(STORY_SYSTEM_INSTRUCTION, /## Instruction priority/);
   assert.match(STORY_SYSTEM_INSTRUCTION, /Parental content-sensitivity guidance/);
   assert.match(STORY_SYSTEM_INSTRUCTION, /Preserve every explicitly supplied character name exactly/);
+  assert.match(STORY_SYSTEM_INSTRUCTION, /Never invent the names Barnaby or Salis/);
   assert.match(STORY_SYSTEM_INSTRUCTION, /BEGIN\/END data markers/);
 });
 

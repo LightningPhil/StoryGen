@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-stage-mess-d5c054f8",
+  "title": "Morfudd and the Stage Mess",
+  "originalWordCount": 1237,
+  "improvedWordCount": 928,
+  "notes": "Renamed Barnaby Buttercup to Morfudd, kept Otis Lily and Mrs Higgins, and let Lily's twine close the Pixar spine.",
+  "bannedNameReplacements": {
+    "Barnaby": "Morfudd"
+  },
+  "improvedAt": "2026-09-16T19:16:38.599Z"
+}

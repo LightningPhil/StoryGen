@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-whispering-weather-vane-e7f37098",
+  "title": "Haf's Whispering Weather Vane",
+  "originalWordCount": 654,
+  "improvedWordCount": 545,
+  "notes": "Replaced Barnaby with Haf, cut the interesting-part aside, and let one wind spin three pointers without a speech about hearts.",
+  "bannedNameReplacements": {
+    "Barnaby": "Haf"
+  },
+  "improvedAt": "2026-09-16T09:38:21.636Z"
+}

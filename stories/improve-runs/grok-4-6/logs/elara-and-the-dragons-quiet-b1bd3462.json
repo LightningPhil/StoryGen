@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-dragons-quiet-b1bd3462",
+  "title": "Elara and the Dragon's Quiet",
+  "originalWordCount": 1879,
+  "improvedWordCount": 1205,
+  "notes": "Replaced groundskeeper Mr. Barnaby with Helene, kept Silas the librarian and Flicker’s wedge, cut Periwinkle’s greatest-magic closer, and let the hatchling’s snore hold the hotel.",
+  "bannedNameReplacements": {
+    "Barnaby": "Helene"
+  },
+  "improvedAt": "2026-09-15T21:50:19.726Z"
+}

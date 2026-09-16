@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-unexpected-port-blossom-adventure-f1a5bd15",
+  "title": "Wystan's Unexpected Port Blossom Adventure",
+  "originalWordCount": 1963,
+  "improvedWordCount": 1306,
+  "notes": "Replaced Barnaby Buttercup with Wystan Buttercup, cut the universe-jest closer, kept the unnamed artist and Mayor Pumble, and let the smudged scroll be the delivery.",
+  "bannedNameReplacements": {
+    "Barnaby": "Wystan"
+  },
+  "improvedAt": "2026-09-15T21:18:43.769Z"
+}

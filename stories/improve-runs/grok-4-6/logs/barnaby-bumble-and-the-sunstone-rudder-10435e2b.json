@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-bumble-and-the-sunstone-rudder-10435e2b",
+  "title": "Morwen Bumble and the Sunstone Rudder",
+  "originalWordCount": 2012,
+  "improvedWordCount": 1180,
+  "notes": "Dropped the whoooo frame, replaced Barnaby Bumble with Morwen, kept the Story Circle sculpture-for-rudder cost, and ended on the dandelion seed without a trees-remember sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Morwen"
+  },
+  "improvedAt": "2026-09-15T21:50:20.139Z"
+}

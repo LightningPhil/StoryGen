@@ -270,10 +270,10 @@ export function SettingsModal(props: SettingsModalProps) {
                 value={selectionLength}
                 onChange={e => setSelectionLength(e.target.value === 'long' ? 'long' : 'short')}
               >
-                <option value="short">Short — pauses at commas and sentences</option>
+                <option value="short">Short — commas and sentences, with a short comma pause</option>
                 <option value="long">Long — paragraph-sized passages</option>
               </select>
-              <p className="field-hint">Controls how much of the story is spoken in each read-aloud breath.</p>
+              <p className="field-hint">Short mode still follows commas for highlighting, but speaks through the sentence so comma pauses stay brief.</p>
             </div>
           </div>
 

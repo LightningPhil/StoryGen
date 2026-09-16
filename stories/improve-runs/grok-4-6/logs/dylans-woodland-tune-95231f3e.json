@@ -1,0 +1,11 @@
+{
+  "id": "dylans-woodland-tune-95231f3e",
+  "title": "Dylan's Woodland Tune",
+  "originalWordCount": 683,
+  "improvedWordCount": 665,
+  "notes": "Kept Dylan and Willa, renamed Barnaby the drummer to Teleri, kept the Pixar spine, and let rest-time humming replace stiff lines before the fair.",
+  "bannedNameReplacements": {
+    "Barnaby": "Teleri"
+  },
+  "improvedAt": "2026-09-16T10:00:40.419Z"
+}

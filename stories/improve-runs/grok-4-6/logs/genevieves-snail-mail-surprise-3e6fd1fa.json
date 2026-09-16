@@ -1,0 +1,11 @@
+{
+  "id": "genevieves-snail-mail-surprise-3e6fd1fa",
+  "title": "Genevieve's Snail Mail Surprise",
+  "originalWordCount": 1693,
+  "improvedWordCount": 1144,
+  "notes": "Kept Genevieve Ivy and Leo, renamed Barnaby Bear to Teilo, dropped Whoooo, and let the mushroom shelter inverse the snail system.",
+  "bannedNameReplacements": {
+    "Barnaby": "Teilo"
+  },
+  "improvedAt": "2026-09-16T19:16:38.600Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "pickle-and-the-wobbly-signs-73ed7aa5",
+  "title": "Pickle and the Wobbly Signs",
+  "originalWordCount": 1230,
+  "improvedWordCount": 1120,
+  "notes": "Kept Pickle, replaced rabbit Barnaby with Lowri, dropped the Professor Hoot frame and this-is-fear label, kept the Story Circle from the mixed-up stream sign through Willowisp's fireflies to the glow-worm paths, and left the dandelion where the big signs stayed.",
+  "bannedNameReplacements": {
+    "Barnaby": "Lowri"
+  },
+  "improvedAt": "2026-09-16T07:11:28.656Z"
+}

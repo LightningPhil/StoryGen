@@ -1,0 +1,11 @@
+{
+  "id": "the-teapots-happy-surprise-f7ee1e8b",
+  "title": "The Teapot's Happy Surprise",
+  "originalWordCount": 1587,
+  "improvedWordCount": 1500,
+  "notes": "Kept Mae and Elsie, renamed cousin Barnaby to Glenys, cut the triumphant-close lecture, and let rosewater biscotti, a tuba, and a caught tea-tray save the recital.",
+  "bannedNameReplacements": {
+    "Barnaby": "Glenys"
+  },
+  "improvedAt": "2026-09-16T10:58:49.504Z"
+}

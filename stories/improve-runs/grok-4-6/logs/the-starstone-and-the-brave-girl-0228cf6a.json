@@ -1,0 +1,11 @@
+{
+  "id": "the-starstone-and-the-brave-girl-0228cf6a",
+  "title": "The Starstone and the Brave Girl",
+  "originalWordCount": 2041,
+  "improvedWordCount": 1561,
+  "notes": "Replaced Barnaby Crumble with Orlaith Crumble, dropped the hark-and-gather frame and the crumbly-cookie moral, and let the Story Circle cost be the compass left on the pedestal.",
+  "bannedNameReplacements": {
+    "Barnaby": "Orlaith"
+  },
+  "improvedAt": "2026-09-15T21:17:48.799Z"
+}

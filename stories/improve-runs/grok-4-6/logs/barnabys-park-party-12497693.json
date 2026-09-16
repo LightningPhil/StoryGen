@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-park-party-12497693",
+  "title": "Wyn's Park Party",
+  "originalWordCount": 125,
+  "improvedWordCount": 243,
+  "notes": "Renamed Barnaby Goose to Wyn Goose in title and prose, kept Otis Sunny and Teacher May, and kept the Aesop meeting at noon on Monday with a splash-ball curiosity close.",
+  "bannedNameReplacements": {
+    "Barnaby": "Wyn"
+  },
+  "improvedAt": "2026-09-16T10:16:10.714Z"
+}

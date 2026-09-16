@@ -1,0 +1,11 @@
+{
+  "id": "ashas-tidy-science-mix-up-7c549b40",
+  "title": "Asha's Tidy Science Mix-Up",
+  "originalWordCount": 964,
+  "improvedWordCount": 839,
+  "notes": "Kept Asha and Nico, renamed Barnaby the badger to Elgan, cut the this-is-panic labels, and let a glitter spill send the science fair into mixed-up aisles before Millie's chime comes home.",
+  "bannedNameReplacements": {
+    "Barnaby": "Elgan"
+  },
+  "improvedAt": "2026-09-16T10:00:40.417Z"
+}

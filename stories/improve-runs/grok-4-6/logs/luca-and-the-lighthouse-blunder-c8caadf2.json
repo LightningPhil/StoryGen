@@ -1,0 +1,11 @@
+{
+  "id": "luca-and-the-lighthouse-blunder-c8caadf2",
+  "title": "Luca and the Lighthouse Blunder",
+  "originalWordCount": 1062,
+  "improvedWordCount": 1067,
+  "notes": "Kept Luca and Hazel, renamed Inspector Barnaby to Iorwen, and let lanterns in puddles close the Story Circle after the Hall of Inventions failed.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iorwen"
+  },
+  "improvedAt": "2026-09-16T19:07:34.687Z"
+}

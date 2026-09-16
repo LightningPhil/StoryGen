@@ -1,0 +1,11 @@
+{
+  "id": "the-mystery-of-the-missing-medal-89dd245c",
+  "title": "The Mystery of the Missing Medal",
+  "originalWordCount": 2134,
+  "improvedWordCount": 1696,
+  "notes": "Kept Pia and Brik, renamed dormouse Barnaby Button to Meilyr Button, dropped emotion labels and narrator asides, and let the clink-scrape trail reach the clock workshop.",
+  "bannedNameReplacements": {
+    "Barnaby": "Meilyr"
+  },
+  "improvedAt": "2026-09-16T19:47:39.797Z"
+}

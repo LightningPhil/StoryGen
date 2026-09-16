@@ -1,0 +1,11 @@
+{
+  "id": "the-monsters-snowman-problem-85c7d2ab",
+  "title": "The Monster's Snowman Problem",
+  "originalWordCount": 1596,
+  "improvedWordCount": 1146,
+  "notes": "Replaced Barnaby the Bumbling with Lior the Bumbling, kept Grolf and Zephyr and the Great White Silence, and let the blue-ribbon tribute finish the But/Therefore chain without a listening sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Lior"
+  },
+  "improvedAt": "2026-09-15T21:50:19.935Z"
+}

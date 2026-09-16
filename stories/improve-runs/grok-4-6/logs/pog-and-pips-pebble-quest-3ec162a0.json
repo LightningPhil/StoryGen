@@ -1,0 +1,11 @@
+{
+  "id": "pog-and-pips-pebble-quest-3ec162a0",
+  "title": "Pog and Pip's Pebble Quest",
+  "originalWordCount": 1580,
+  "improvedWordCount": 1336,
+  "notes": "Replaced wizard Barnaby with Taliesin, kept the Story Circle from Pip's napping pebble through the branch-flower and dandelion sweets to the owl that no longer made him flinch.",
+  "bannedNameReplacements": {
+    "Barnaby": "Taliesin"
+  },
+  "improvedAt": "2026-09-16T07:01:02.263Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-missing-ledger-page-2bf0b382",
+  "title": "The Case of the Missing Ledger Page",
+  "originalWordCount": 1111,
+  "improvedWordCount": 1111,
+  "notes": "Renamed gossip Barnaby Buttercup to Sioned Buttercup. Kept Quill Ysra Beren Silas Croft Percy and page 37. Did not rename Silas.",
+  "bannedNameReplacements": {
+    "Barnaby": "Sioned"
+  },
+  "improvedAt": "2026-09-16T22:04:08.282Z"
+}

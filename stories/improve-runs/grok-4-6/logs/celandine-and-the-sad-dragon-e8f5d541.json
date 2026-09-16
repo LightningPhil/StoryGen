@@ -1,0 +1,11 @@
+{
+  "id": "celandine-and-the-sad-dragon-e8f5d541",
+  "title": "Celandine and the Sad Dragon",
+  "originalWordCount": 774,
+  "improvedWordCount": 598,
+  "notes": "Replaced Barnaby Buttercup with Iseult Buttercup, kept the Seven-Point path from sky-sheep flop to goat trail to cloudberry tea, and let the warmed pebble close it instead of a Who-could-have-guessed lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iseult"
+  },
+  "improvedAt": "2026-09-16T06:41:36.832Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "felix-and-the-wonderful-mess-f56e4c35",
+  "title": "Felix and the Wonderful Mess",
+  "originalWordCount": 1516,
+  "improvedWordCount": 1266,
+  "notes": "Kept Felix Cleo Bartholomew Pip and Squeak, renamed the stoic badger Barnaby to Cynwrig, and let yarn teacups and the cloud label close the Three-Act.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cynwrig"
+  },
+  "improvedAt": "2026-09-16T19:07:12.632Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "penny-and-the-poofle-cbcef5f9",
+  "title": "Penny and the Poofle",
+  "originalWordCount": 819,
+  "improvedWordCount": 762,
+  "notes": "Kept Penny Gobbly and the Fluffernutter, replaced Barnaby the badger with Ceridwen, cut gather-close and trees-remember, and let the Pixar spine return the poofle to a blue scarf.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ceridwen"
+  },
+  "improvedAt": "2026-09-16T07:23:34.940Z"
+}

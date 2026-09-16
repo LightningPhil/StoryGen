@@ -1,0 +1,11 @@
+{
+  "id": "tilda-and-the-lost-mouse-dd052830",
+  "title": "Tilda and the Lost Mouse",
+  "originalWordCount": 1110,
+  "improvedWordCount": 1069,
+  "notes": "Kept Tilda, replaced map-wizard Barnaby Bumble with Enid, dropped the owl whoooo frame and kindness-guide closer, kept the Fable from the ladybug chase through the overflowing tower to the eyebrow-root burrow.",
+  "bannedNameReplacements": {
+    "Barnaby": "Enid"
+  },
+  "improvedAt": "2026-09-16T07:16:23.134Z"
+}

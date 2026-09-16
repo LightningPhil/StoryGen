@@ -1,0 +1,11 @@
+{
+  "id": "the-night-the-artifacts-danced-4b58af7a",
+  "title": "The Night the Artifacts Danced",
+  "originalWordCount": 968,
+  "improvedWordCount": 673,
+  "notes": "Replaced Barnaby Buttercup with Beatrix, added a Donaldson refrain on the pointing gauntlet, kept the Accord thread and dawn reset, and stopped before the hidden-magic sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Beatrix"
+  },
+  "improvedAt": "2026-09-15T21:10:33.556Z"
+}

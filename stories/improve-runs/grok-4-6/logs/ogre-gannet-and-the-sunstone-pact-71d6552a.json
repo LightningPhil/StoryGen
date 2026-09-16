@@ -1,0 +1,11 @@
+{
+  "id": "ogre-gannet-and-the-sunstone-pact-71d6552a",
+  "title": "Ogre Gannet and the Sunstone Pact",
+  "originalWordCount": 2300,
+  "improvedWordCount": 1352,
+  "notes": "Replaced surveyor Barnaby Cogsworth with Owain Cogsworth, kept Gannet and Rumble, cut the this-is-anxiety label and the clumsiness-melted closer, kept the Story Circle from the cottage maps through the ledge to the shared patch, and left the boy his berry.",
+  "bannedNameReplacements": {
+    "Barnaby": "Owain"
+  },
+  "improvedAt": "2026-09-16T07:58:10.837Z"
+}

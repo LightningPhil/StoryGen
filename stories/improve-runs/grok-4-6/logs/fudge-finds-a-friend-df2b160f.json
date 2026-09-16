@@ -1,0 +1,11 @@
+{
+  "id": "fudge-finds-a-friend-df2b160f",
+  "title": "Fudge Finds a Friend",
+  "originalWordCount": 1412,
+  "improvedWordCount": 849,
+  "notes": "Kept Fudge Clover and Mr Buttons, renamed Barnaby the teddy to Berwyn, dropped the honey-narrator aside, and let the wool-nest button finish the Story Circle on roll-roll.",
+  "bannedNameReplacements": {
+    "Barnaby": "Berwyn"
+  },
+  "improvedAt": "2026-09-16T20:07:08.562Z"
+}

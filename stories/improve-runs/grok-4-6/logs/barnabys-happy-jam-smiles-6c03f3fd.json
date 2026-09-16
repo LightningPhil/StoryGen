@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-happy-jam-smiles-6c03f3fd",
+  "title": "Peredur's Happy Jam Smiles",
+  "originalWordCount": 237,
+  "improvedWordCount": 243,
+  "notes": "Replaced Barnaby the baker with Peredur in title, prose, and characters; kept the jam-smile picnic and Miss Clover.",
+  "bannedNameReplacements": {
+    "Barnaby": "Peredur"
+  },
+  "improvedAt": "2026-09-16T10:15:12.961Z"
+}

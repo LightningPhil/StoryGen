@@ -1,0 +1,11 @@
+{
+  "id": "the-runaway-lanterns-lily-pad-rescue-03ad6cfb",
+  "title": "The Runaway Lantern's Lily Pad Rescue",
+  "originalWordCount": 1267,
+  "improvedWordCount": 1217,
+  "notes": "Replaced hedgehog Barnaby Bumble with Heledd Bumble, kept Saffron and Moss, cut the trees-remember courage sermon and whoooo frame, and left the lantern on the lily-pad raft.",
+  "bannedNameReplacements": {
+    "Barnaby": "Heledd"
+  },
+  "improvedAt": "2026-09-16T07:50:35.713Z"
+}

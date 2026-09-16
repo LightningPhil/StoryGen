@@ -1,0 +1,11 @@
+{
+  "id": "chip-and-the-crown-confusion-3f793ba3",
+  "title": "Chip and the Crown Confusion",
+  "originalWordCount": 1245,
+  "improvedWordCount": 1250,
+  "notes": "Kept Chip Elsie Fiona and Bartholomew, renamed Barnaby the blue jay to Iorwerth, and let the picnic stay a picnic.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iorwerth"
+  },
+  "improvedAt": "2026-09-16T20:16:30.603Z"
+}

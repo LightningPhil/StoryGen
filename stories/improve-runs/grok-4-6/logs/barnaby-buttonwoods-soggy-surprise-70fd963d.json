@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-buttonwoods-soggy-surprise-70fd963d",
+  "title": "Talfan Buttonwood's Soggy Surprise",
+  "originalWordCount": 1572,
+  "improvedWordCount": 1153,
+  "notes": "Replaced Barnaby Buttonwood with Talfan Buttonwood in title, body, and characters, dropped the travel-memoir frame, ran Seven-Point from the ignored pantry drip through the pheasant cup, and left the polishing cloth on the wet floor instead of a hospitality sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Talfan"
+  },
+  "improvedAt": "2026-09-16T19:28:24.935Z"
+}
