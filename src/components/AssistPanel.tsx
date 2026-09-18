@@ -4,13 +4,12 @@ import { buildPhonicsAssist, ensureRitaLoaded } from '../phonics';
 import { trackVocabularyLookup, loadFromLocalStorage, saveToLocalStorage, LS_READ_ALOUD_FOLLOW } from '../localStorage';
 import { normalizeVocabularyWord } from '../utils';
 import {
-  buildSpeakUnits,
+  buildReadChunks,
   clearReadAloudFollow,
-  positionAtChar,
   showReadAloudChunk,
+  wordIndexAtChar,
   type ReadChunk,
   type SelectionLength,
-  type SpeakUnit,
 } from '../readAloud';
 import type { AssistData, PhonicsAssist } from '../types';
 
@@ -32,9 +31,6 @@ const SOURCE_NAMES: Record<string, string> = {
 
 const DIALECT_LABELS: Record<string, string> = { uk: 'UK', us: 'US' };
 
-/** Typical English TTS at rate 0.92 (~150 wpm) until the session measures the real speed. */
-const DEFAULT_CHARS_PER_SECOND = 14;
-
 export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, onWordLookup, ttsSource, ttsVoice, selectionLength = 'short' }: AssistPanelProps) {
   const [assistData, setAssistData] = useState<AssistData | null>(null);
   const [phonicsData, setPhonicsData] = useState<PhonicsAssist | null>(null);
@@ -53,18 +49,13 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const sessionRef = useRef<{
     root: HTMLElement;
-    units: SpeakUnit[];
-    unitIndex: number;
+    chunks: ReadChunk[];
+    chunkIndex: number;
     /** Bumped whenever the in-flight utterance is abandoned so its late events are ignored. */
     generation: number;
     /** Where a paused read picks up again. */
     resumeWordIndex: number | null;
-    /** Set once the voice proves it reports word boundaries; until then follow-along runs on a timer. */
-    boundariesSeen: boolean;
-    /** Measured speaking speed, used to time the fallback highlight. */
-    charsPerSecond: number;
   } | null>(null);
-  const followTimersRef = useRef<number[]>([]);
   const [highlightedChunk, setHighlightedChunk] = useState<number | null>(null);
   const requestTokenRef = useRef(0);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -152,15 +143,9 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     }
   }, []);
 
-  const clearFollowTimers = useCallback(() => {
-    followTimersRef.current.forEach(id => window.clearTimeout(id));
-    followTimersRef.current = [];
-  }, []);
-
   const stopReadAloud = useCallback(() => {
     isReadingRef.current = false;
     isPausedRef.current = false;
-    clearFollowTimers();
     if (sessionRef.current) sessionRef.current.generation++;
     sessionRef.current = null;
     currentChunkRef.current = null;
@@ -169,7 +154,7 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     clearReadAloudFollow(storyContentRef.current);
     setIsPaused(false);
     setIsReading(false);
-  }, [clearFollowTimers, stopPlayback, storyContentRef]);
+  }, [stopPlayback, storyContentRef]);
 
   useEffect(() => {
     followAlongRef.current = followAlong;
@@ -215,7 +200,6 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   }, [selectedWord, assistData, speakWord, stopPlayback, stopReadAloud, ttsSource]);
 
   const finishReadAloud = useCallback((root: HTMLElement | null) => {
-    clearFollowTimers();
     sessionRef.current = null;
     currentChunkRef.current = null;
     currentWordRef.current = null;
@@ -225,31 +209,32 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     clearReadAloudFollow(root);
     setIsPaused(false);
     setIsReading(false);
-  }, [clearFollowTimers]);
+  }, []);
 
-  const speakUnitAt = useCallback((unitIndex: number) => {
+  // One chunk, one utterance, one highlight. The chunk goes dark the moment
+  // its utterance is queued, so follow-along keeps step on every voice —
+  // including the many that never report word boundaries.
+  const speakChunkAt = useCallback((chunkIndex: number) => {
     const session = sessionRef.current;
     if (!session || !isReadingRef.current || isPausedRef.current) return;
-    if (unitIndex >= session.units.length) {
+    if (chunkIndex >= session.chunks.length) {
       finishReadAloud(session.root);
       return;
     }
 
-    clearFollowTimers();
-    session.unitIndex = unitIndex;
+    session.chunkIndex = chunkIndex;
     const generation = ++session.generation;
-    const unit = session.units[unitIndex];
-    const firstChunk = unit.chunks[0] || null;
+    const chunk = session.chunks[chunkIndex];
 
     // The story was replaced under us (new story loaded mid-read).
-    if (!session.root.isConnected || !firstChunk?.wordEls[0]?.isConnected) {
+    if (!session.root.isConnected || !chunk.wordEls[0]?.isConnected) {
       finishReadAloud(session.root);
       return;
     }
 
-    currentChunkRef.current = firstChunk;
-    currentWordRef.current = firstChunk.wordEls[0] ?? null;
-    showReadAloudChunk(session.root, firstChunk, followAlongRef.current, currentWordRef.current);
+    currentChunkRef.current = chunk;
+    currentWordRef.current = null;
+    showReadAloudChunk(session.root, chunk, followAlongRef.current);
 
     // True only while this utterance is still the one the session cares about.
     // Pause, stop, and restart all bump the generation, so late onend/onerror
@@ -260,82 +245,36 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
       && isReadingRef.current
       && !isPausedRef.current;
 
-    const utterance = new SpeechSynthesisUtterance(unit.text);
+    const utterance = new SpeechSynthesisUtterance(chunk.text);
     const voice = findVoice();
     if (voice) utterance.voice = voice;
     utterance.lang = voice?.lang || 'en-GB';
     utterance.rate = 0.92;
 
-    // Many voices (Chrome's Google voices, Edge's "Natural" voices) never fire
-    // boundary events. Without them the highlight would sit on the first clause
-    // of every sentence, or the first sentence of every paragraph in Long mode,
-    // and look stuck or badly behind. Until this session sees a real boundary
-    // event, step through the chunks on a timer paced by the measured speed.
-    let startedAt = performance.now();
-    const scheduleEstimatedFollow = () => {
-      clearFollowTimers();
-      if (session.boundariesSeen || unit.chunks.length < 2) return;
-      const msPerChar = 1000 / session.charsPerSecond;
-      let offset = 0;
-      unit.chunks.forEach((chunk, i) => {
-        if (i > 0) {
-          const delay = Math.max(0, startedAt + offset * msPerChar - performance.now());
-          followTimersRef.current.push(window.setTimeout(() => {
-            if (!isLive() || session.boundariesSeen) return;
-            currentChunkRef.current = chunk;
-            currentWordRef.current = null;
-            showReadAloudChunk(session.root, chunk, followAlongRef.current, null);
-          }, delay));
-        }
-        offset += chunk.text.length + 1;
-      });
-    };
-
-    utterance.onstart = () => {
-      if (!isLive()) return;
-      // Audio actually began (remote voices can take a while to synthesise).
-      startedAt = performance.now();
-      scheduleEstimatedFollow();
-    };
-
+    // Optional extra: voices that do report word boundaries also get the
+    // exact word marked inside the dark chunk.
     utterance.onboundary = event => {
       if (!isLive()) return;
       if (event.name && event.name !== 'word') return;
-      if (!session.boundariesSeen) {
-        session.boundariesSeen = true;
-        clearFollowTimers();
-      }
-      const { chunkIndex, wordIndex } = positionAtChar(unit, event.charIndex);
-      const chunk = unit.chunks[chunkIndex];
-      currentChunkRef.current = chunk;
-      currentWordRef.current = chunk.wordEls[wordIndex] ?? null;
+      currentWordRef.current = chunk.wordEls[wordIndexAtChar(chunk, event.charIndex)] ?? null;
       showReadAloudChunk(session.root, chunk, followAlongRef.current, currentWordRef.current);
     };
 
     utterance.onend = () => {
       if (!isLive()) return;
-      clearFollowTimers();
-      // Calibrate the fallback pacing from how long this passage really took.
-      const elapsed = performance.now() - startedAt;
-      if (elapsed > 400 && unit.text.length >= 20) {
-        const measured = unit.text.length / (elapsed / 1000);
-        session.charsPerSecond = session.charsPerSecond * 0.4 + measured * 0.6;
-      }
-      speakUnitAt(unitIndex + 1);
+      speakChunkAt(chunkIndex + 1);
     };
     utterance.onerror = event => {
       if (!isLive()) return;
       // Our own cancel() reports as interrupted/canceled; anything else is a
-      // voice failure, so skip that passage rather than stall.
+      // voice failure, so skip that chunk rather than stall.
       if (event.error === 'interrupted' || event.error === 'canceled') return;
-      speakUnitAt(unitIndex + 1);
+      speakChunkAt(chunkIndex + 1);
     };
 
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-    // In case onstart never fires, pace from the moment we queued it.
-    scheduleEstimatedFollow();
-  }, [clearFollowTimers, findVoice, finishReadAloud]);
+  }, [findVoice, finishReadAloud]);
 
   const startReadAloud = useCallback(() => {
     if (!('speechSynthesis' in window)) return;
@@ -343,43 +282,34 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     if (!el) return;
 
     const startIndex = selectedWordIndex !== null && selectedWordIndex >= 0 ? selectedWordIndex : 0;
-    const units = buildSpeakUnits(el, startIndex, selectionLength);
-    if (units.length === 0) return;
+    const chunks = buildReadChunks(el, startIndex, selectionLength);
+    if (chunks.length === 0) return;
 
     stopReadAloud();
-    sessionRef.current = {
-      root: el,
-      units,
-      unitIndex: 0,
-      generation: 0,
-      resumeWordIndex: null,
-      boundariesSeen: false,
-      charsPerSecond: DEFAULT_CHARS_PER_SECOND,
-    };
+    sessionRef.current = { root: el, chunks, chunkIndex: 0, generation: 0, resumeWordIndex: null };
     isPausedRef.current = false;
     isReadingRef.current = true;
     setIsPaused(false);
     setIsReading(true);
-    speakUnitAt(0);
-  }, [selectedWordIndex, selectionLength, speakUnitAt, stopReadAloud, storyContentRef]);
+    speakChunkAt(0);
+  }, [selectedWordIndex, selectionLength, speakChunkAt, stopReadAloud, storyContentRef]);
 
   // speechSynthesis.pause()/resume() is not dependable: Chrome ignores it for
   // remote voices, drops the utterance after ~15s paused, and does nothing if
   // the pause landed between two utterances. Pausing here cancels speech and
-  // remembers the passage, and resuming re-reads from the start of that passage.
+  // remembers the chunk, and resuming re-reads from the start of that chunk.
   const pauseReadAloud = useCallback(() => {
     const session = sessionRef.current;
     if (!session || !isReadingRef.current || isPausedRef.current) return;
     isPausedRef.current = true;
     setIsPaused(true);
-    clearFollowTimers();
     session.generation++;
     session.resumeWordIndex = currentChunkRef.current?.firstWordIndex
-      ?? session.units[session.unitIndex]?.chunks[0]?.firstWordIndex
+      ?? session.chunks[session.chunkIndex]?.firstWordIndex
       ?? null;
     stopPlayback();
     // Leave the highlight in place so the reader can see where it will pick up.
-  }, [clearFollowTimers, stopPlayback]);
+  }, [stopPlayback]);
 
   const resumeReadAloud = useCallback(() => {
     const session = sessionRef.current;
@@ -390,8 +320,9 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
       return;
     }
 
-    const units = buildSpeakUnits(root, session.resumeWordIndex ?? 0, selectionLength);
-    if (units.length === 0) {
+    // Rebuild from the DOM in case the story or the chunk setting changed while paused.
+    const chunks = buildReadChunks(root, session.resumeWordIndex ?? 0, selectionLength);
+    if (chunks.length === 0) {
       finishReadAloud(root);
       return;
     }
@@ -399,11 +330,11 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
     isPausedRef.current = false;
     setIsPaused(false);
     session.root = root;
-    session.units = units;
-    session.unitIndex = 0;
+    session.chunks = chunks;
+    session.chunkIndex = 0;
     session.resumeWordIndex = null;
-    speakUnitAt(0);
-  }, [finishReadAloud, selectionLength, speakUnitAt, stopReadAloud, storyContentRef]);
+    speakChunkAt(0);
+  }, [finishReadAloud, selectionLength, speakChunkAt, stopReadAloud, storyContentRef]);
 
   useEffect(() => () => {
     stopReadAloud();
