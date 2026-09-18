@@ -87,7 +87,7 @@ export async function callAgentAPI(
         }
     }
     
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModelId}:generateContent?key=${currentApiKey}`;
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModelId}:generateContent`;
     const MAX_RETRIES = 6;
     const RETRY_DELAYS = [5000, 10000, 15000, 20000, 25000, 30000];
 
@@ -147,7 +147,10 @@ export async function callAgentAPI(
 
         const response = await fetch(API_URL, { 
             method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
+            headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': currentApiKey,
+            }, 
             body: JSON.stringify(requestBody),
             signal: abortSignal,
         });
@@ -269,4 +272,12 @@ export async function callAgentAPI(
         }
         throw error; 
     }
+}
+
+export function describeGenerationError(error: unknown): string {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (/api key not valid|api_key_invalid|invalid api key/i.test(msg)) {
+        return 'Gemini rejected this API key. Open Settings and paste a new key from Google AI Studio.';
+    }
+    return msg;
 }

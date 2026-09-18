@@ -77,7 +77,7 @@ import type { SensitivitySettings, ModelConfig, CommonInputs } from './types';
 import { parseReadingPalette, resolveReadingColors, type ReadingPaletteState } from './readingPalette';
 import type { SelectionLength } from './readAloud';
 import { fetchAvailableModels, DEFAULT_MODEL, PINNED_MODEL_CONFIGS } from './modelDiscovery';
-import { isAbortError } from './api';
+import { describeGenerationError, isAbortError } from './api';
 import { StoryMetadataModal } from './components/StoryMetadataModal';
 import type { StoryMetadata } from './types';
 import {
@@ -588,11 +588,11 @@ export default function App() {
         showToast('Story generation cancelled', 'info');
         return;
       }
-      const msg = error instanceof Error ? error.message : String(error);
+      const msg = describeGenerationError(error);
       setStoryTitle('Error Occurred');
-      setStoryHtml('<p>An error occurred. Please check the browser console for details.</p>');
+      setStoryHtml(`<p>${msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`);
       setHasStory(false);
-      showToast('Story generation failed', 'error');
+      showToast(msg, 'error');
       console.error('Pipeline error:', msg);
     } finally {
       if (abortRef.current === controller) abortRef.current = null;
@@ -649,8 +649,8 @@ export default function App() {
         showToast('Elaboration cancelled', 'info');
         return;
       }
-      const msg = error instanceof Error ? error.message : String(error);
-      showToast('Elaboration failed', 'error');
+      const msg = describeGenerationError(error);
+      showToast(msg, 'error');
       console.error('Elaboration error:', msg);
     } finally {
       if (abortRef.current === controller) abortRef.current = null;
