@@ -1285,11 +1285,14 @@ input[type="range"]::-moz-range-thumb {
 .story-content.is-follow-reading {
     --follow-ink: var(--reading-fg, var(--text-primary));
     --follow-paper: var(--reading-bg, var(--bg-panel));
-    color: color-mix(in srgb, var(--follow-ink) 34%, var(--follow-paper));
+    color: color-mix(in srgb, var(--follow-ink) 30%, var(--follow-paper));
+    /* The highlight must move the instant the voice does; a colour fade reads as lag. */
+    transition: none;
 }
 
 .story-content.is-follow-reading .story-word {
     color: inherit;
+    transition: none;
 }
 
 .story-content.is-follow-reading .story-word.is-speaking {
@@ -1304,7 +1307,7 @@ input[type="range"]::-moz-range-thumb {
 
 .story-content.is-follow-reading .story-chapter,
 .story-content.is-follow-reading .story-break {
-    color: color-mix(in srgb, var(--follow-ink) 34%, var(--follow-paper));
+    color: color-mix(in srgb, var(--follow-ink) 30%, var(--follow-paper));
 }
 
 .story-chapter {
