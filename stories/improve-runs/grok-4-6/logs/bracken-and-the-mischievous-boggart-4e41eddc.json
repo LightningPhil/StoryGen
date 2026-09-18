@@ -1,0 +1,11 @@
+{
+  "id": "bracken-and-the-mischievous-boggart-4e41eddc",
+  "title": "Bracken and the Mischievous Boggart",
+  "originalWordCount": 739,
+  "improvedWordCount": 400,
+  "notes": "Replaced Uncle Barnaby with Aunt Fenella, kept the Fichtean tea-theft ladder to the knitted mammoth, and ended on Tuesday knitting instead of happily-ever-after.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fenella"
+  },
+  "improvedAt": "2026-09-16T06:48:20.735Z"
+}

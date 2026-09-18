@@ -1,0 +1,11 @@
+{
+  "id": "the-mystery-of-the-missing-cheese-recipe-65bad4e0",
+  "title": "The Mystery of the Missing Cheese Recipe",
+  "originalWordCount": 1950,
+  "improvedWordCount": 1548,
+  "notes": "Kept Maple Juniper and Silas, replaced sleeping cat Barnaby with Rhys, cut the woodland-mysteries lecture, and let Three-Act rescue a recipe-prop instead of a fête.",
+  "bannedNameReplacements": {
+    "Barnaby": "Rhys"
+  },
+  "improvedAt": "2026-09-16T07:51:02.056Z"
+}

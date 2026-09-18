@@ -1,0 +1,11 @@
+{
+  "id": "mabel-and-the-lost-rabbit-e299eeeb",
+  "title": "Mabel and the Lost Rabbit",
+  "originalWordCount": 1263,
+  "improvedWordCount": 912,
+  "notes": "Kept Mabel, replaced the rabbit Barnaby with Alaric, cut the owl narrator and whoooo, and let the nose and stone lantern finish the Pixar spine without a tumble-leads-to-discovery lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Alaric"
+  },
+  "improvedAt": "2026-09-16T07:08:10.958Z"
+}

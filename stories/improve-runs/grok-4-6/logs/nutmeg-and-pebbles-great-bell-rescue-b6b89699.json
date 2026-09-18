@@ -1,0 +1,11 @@
+{
+  "id": "nutmeg-and-pebbles-great-bell-rescue-b6b89699",
+  "title": "Nutmeg and Pebble's Great Bell Rescue",
+  "originalWordCount": 951,
+  "improvedWordCount": 684,
+  "notes": "Renamed Barnaby the elder to Siwan from the pool, kept Nutmeg and Pebble, cut This-is-fear and the young-adventurers closer, and let Save the Cat close on the bell in Siwan's hands.",
+  "bannedNameReplacements": {
+    "Barnaby": "Siwan"
+  },
+  "improvedAt": "2026-09-16T19:43:26.514Z"
+}

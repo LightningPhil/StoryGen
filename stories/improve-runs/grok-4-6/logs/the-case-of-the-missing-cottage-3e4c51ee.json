@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-missing-cottage-3e4c51ee",
+  "title": "The Case of the Missing Cottage",
+  "originalWordCount": 2034,
+  "improvedWordCount": 1176,
+  "notes": "Dropped the I-sailed-the-seas frame, replaced Barnaby Buttercup with Kendrick, kept the tide-dance and Agnes picnic, and ended on a new square in the map margin instead of an explorer-handbook closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Kendrick"
+  },
+  "improvedAt": "2026-09-15T21:19:15.620Z"
+}

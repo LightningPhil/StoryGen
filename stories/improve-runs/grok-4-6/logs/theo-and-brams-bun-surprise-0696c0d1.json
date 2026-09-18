@@ -1,0 +1,11 @@
+{
+  "id": "theo-and-brams-bun-surprise-0696c0d1",
+  "title": "Theo and Bram's Bun Surprise",
+  "originalWordCount": 647,
+  "improvedWordCount": 584,
+  "notes": "Kept Theo Bram Old Tom and the Buttercup surname, renamed baker Barnaby Buttercup to Madog Buttercup, cut the rainy-day sermon, and let the Fable taste jam cheese and honey by their play-names.",
+  "bannedNameReplacements": {
+    "Barnaby": "Madog"
+  },
+  "improvedAt": "2026-09-16T10:11:14.546Z"
+}

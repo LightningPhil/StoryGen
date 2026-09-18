@@ -1,0 +1,11 @@
+{
+  "id": "edda-and-the-paperwork-bridge-08b8abf5",
+  "title": "Edda and the Paperwork Bridge",
+  "originalWordCount": 2057,
+  "improvedWordCount": 1306,
+  "notes": "Replaced bridge-keeper Barnaby with Bronwen, kept Edda Biscuit and Maeve, cut my-dear my-child and the good-heart sermon, and left the thumbprint stone as a receipt.",
+  "bannedNameReplacements": {
+    "Barnaby": "Bronwen"
+  },
+  "improvedAt": "2026-09-16T07:58:10.840Z"
+}

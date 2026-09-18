@@ -1,0 +1,11 @@
+{
+  "id": "noahs-perfectly-imperfect-day-f6d4b55c",
+  "title": "Noah's Perfectly Imperfect Day",
+  "originalWordCount": 1456,
+  "improvedWordCount": 1038,
+  "notes": "Kept Noah, Yara, and Mr. Filbert, renamed squirrel actor Bartholomew Barnaby to Bartholomew Fflur, cut the gather-round yarn, and let Three-Act chalk the floor instead of a dignity sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fflur"
+  },
+  "improvedAt": "2026-09-16T16:14:22.392Z"
+}

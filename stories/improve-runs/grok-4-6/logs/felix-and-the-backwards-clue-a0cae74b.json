@@ -1,0 +1,11 @@
+{
+  "id": "felix-and-the-backwards-clue-a0cae74b",
+  "title": "Felix and the Backwards Clue",
+  "originalWordCount": 738,
+  "improvedWordCount": 625,
+  "notes": "Kept Felix, renamed Barnaby the bluebird to Angharad, and dropped the dear-child lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Angharad"
+  },
+  "improvedAt": "2026-09-16T09:51:10.160Z"
+}

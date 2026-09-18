@@ -1,0 +1,11 @@
+{
+  "id": "marda-and-the-sparkle-snatchers-0805ce41",
+  "title": "Marda and the Sparkle-Snatchers",
+  "originalWordCount": 1684,
+  "improvedWordCount": 821,
+  "notes": "Replaced the rumour-goat Barnaby with Cressida, kept Save the Cat from the woods through webs and Mistlings to the mended basket, and ended at table instead of a paths-of-friendship sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cressida"
+  },
+  "improvedAt": "2026-09-16T06:55:33.788Z"
+}

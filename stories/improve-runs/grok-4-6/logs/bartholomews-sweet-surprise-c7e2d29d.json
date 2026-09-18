@@ -1,0 +1,11 @@
+{
+  "id": "bartholomews-sweet-surprise-c7e2d29d",
+  "title": "Bartholomew's Sweet Surprise",
+  "originalWordCount": 376,
+  "improvedWordCount": 344,
+  "notes": "Kept Bartholomew Bumble Hazel Benji and the sweet-shop customers, renamed sighing-wrapper Barnaby Bear to Gwynedd Bear, cut the sweetest-surprise sermon, and let the Chekhov sketch fill the jars with happy munching.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwynedd"
+  },
+  "improvedAt": "2026-09-16T10:14:20.658Z"
+}

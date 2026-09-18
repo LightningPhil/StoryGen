@@ -1,0 +1,11 @@
+{
+  "id": "the-giants-gentle-snores-80562d09",
+  "title": "The Giant's Gentle Snores",
+  "originalWordCount": 1430,
+  "improvedWordCount": 934,
+  "notes": "Renamed Barnaby the chimney giant to Maelor, kept Tilda and Crick, and let the cooling charm plus a curtain-breeze finish the Story Circle.",
+  "bannedNameReplacements": {
+    "Barnaby": "Maelor"
+  },
+  "improvedAt": "2026-09-16T19:43:11.487Z"
+}

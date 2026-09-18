@@ -1,0 +1,11 @@
+{
+  "id": "nells-quiet-day-emergency-4adcb75e",
+  "title": "Nell's Quiet Day Emergency",
+  "originalWordCount": 1796,
+  "improvedWordCount": 954,
+  "notes": "Replaced Barnaby the Goat with Quillan, kept Freytag from the Quiet Day sign through the long shortcut to the Quencher, and ended in the armchair instead of a surprise-journeys closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Quillan"
+  },
+  "improvedAt": "2026-09-16T06:44:57.173Z"
+}

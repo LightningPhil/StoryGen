@@ -1,0 +1,11 @@
+{
+  "id": "poppy-and-the-pebble-elf-ca5b93f0",
+  "title": "Poppy and the Pebble Elf",
+  "originalWordCount": 1243,
+  "improvedWordCount": 936,
+  "notes": "Kept Poppy and Glint, renamed Barnaby the badger to Cerys, cut Whoooo sermons, and let Seven-Point raise stepping-stones with kinder words.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cerys"
+  },
+  "improvedAt": "2026-09-16T20:20:48.836Z"
+}

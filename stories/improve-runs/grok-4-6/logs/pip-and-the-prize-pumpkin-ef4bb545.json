@@ -1,0 +1,11 @@
+{
+  "id": "pip-and-the-prize-pumpkin-ef4bb545",
+  "title": "Pip and the Prize Pumpkin",
+  "originalWordCount": 1020,
+  "improvedWordCount": 978,
+  "notes": "Kept Pip, Grandpa Bert, Pumpkin Pete, and Grumbles, renamed Barnaby the garden gnome to Hywel, and let Seven-Point roll Pete to the Whispering Willow dewdrop.",
+  "bannedNameReplacements": {
+    "Barnaby": "Hywel"
+  },
+  "improvedAt": "2026-09-16T21:03:52.098Z"
+}

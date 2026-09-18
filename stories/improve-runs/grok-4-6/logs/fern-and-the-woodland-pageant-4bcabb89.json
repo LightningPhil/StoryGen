@@ -1,0 +1,11 @@
+{
+  "id": "fern-and-the-woodland-pageant-4bcabb89",
+  "title": "Fern and the Woodland Pageant",
+  "originalWordCount": 891,
+  "improvedWordCount": 623,
+  "notes": "Kept Fern, replaced Owl Barnaby with Aoife, dropped This-is labels and Whoooo, and let Kishōtenketsu’s twist be competing to make the pageant together.",
+  "bannedNameReplacements": {
+    "Barnaby": "Aoife"
+  },
+  "improvedAt": "2026-09-16T07:48:25.231Z"
+}

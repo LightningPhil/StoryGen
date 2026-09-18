@@ -1,0 +1,11 @@
+{
+  "id": "the-legend-of-the-ordinary-hero-d4bc8743",
+  "title": "The Legend of the Ordinary Hero",
+  "originalWordCount": 736,
+  "improvedWordCount": 728,
+  "notes": "Kept Tobin Nell and Captain Reed, renamed the snickering classmate Barnaby to Ceri, kept a Ghibli pause in the cottage, and let The Glorious Ordinary land at assembly without a lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ceri"
+  },
+  "improvedAt": "2026-09-16T09:39:48.873Z"
+}

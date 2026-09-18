@@ -1,0 +1,11 @@
+{
+  "id": "mila-and-pips-speedy-surprise-4f01d256",
+  "title": "Mila and Pip's Speedy Surprise",
+  "originalWordCount": 516,
+  "improvedWordCount": 383,
+  "notes": "Kept Mila Pip and Dr Rowan, replaced Barnaby the badger with Caradoc, cut the what-else-can-we-move closer, kept the rope-and-crowd start of The Comet Chaser, and left Rosie twitching at the next heat.",
+  "bannedNameReplacements": {
+    "Barnaby": "Caradoc"
+  },
+  "improvedAt": "2026-09-16T08:29:46.628Z"
+}

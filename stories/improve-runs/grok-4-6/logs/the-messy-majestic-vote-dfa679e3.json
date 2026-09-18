@@ -1,0 +1,11 @@
+{
+  "id": "the-messy-majestic-vote-dfa679e3",
+  "title": "The Messy, Majestic Vote",
+  "originalWordCount": 1081,
+  "improvedWordCount": 829,
+  "notes": "Kept Elara and Finn, renamed Professor Barnaby to Professor Ceredig from the pool, dropped the Hark and dear-listeners frame, and let the Three-Act close on the uncurtained quill after Elara names the mess.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ceredig"
+  },
+  "improvedAt": "2026-09-16T16:17:16.536Z"
+}

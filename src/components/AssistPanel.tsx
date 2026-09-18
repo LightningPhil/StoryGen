@@ -3,7 +3,15 @@ import { lookupWord } from '../wiktionary';
 import { buildPhonicsAssist, ensureRitaLoaded } from '../phonics';
 import { trackVocabularyLookup, loadFromLocalStorage, saveToLocalStorage, LS_READ_ALOUD_FOLLOW } from '../localStorage';
 import { normalizeVocabularyWord } from '../utils';
-import { buildReadChunks, clearReadAloudFollow, showReadAloudChunk, type ReadChunk, type SelectionLength } from '../readAloud';
+import {
+  buildSpeakUnits,
+  clearReadAloudFollow,
+  positionAtChar,
+  showReadAloudChunk,
+  type ReadChunk,
+  type SelectionLength,
+  type SpeakUnit,
+} from '../readAloud';
 import type { AssistData, PhonicsAssist } from '../types';
 
 interface AssistPanelProps {
@@ -30,10 +38,25 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isReading, setIsReading] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const isReadingRef = useRef(false);
+  const isPausedRef = useRef(false);
   const [followAlong, setFollowAlong] = useState(() => loadFromLocalStorage(LS_READ_ALOUD_FOLLOW) !== 'false');
   const followAlongRef = useRef(followAlong);
   const currentChunkRef = useRef<ReadChunk | null>(null);
+  const currentWordRef = useRef<HTMLElement | null>(null);
+  // Chrome can garbage-collect an in-flight utterance and silently drop its
+  // events unless something keeps a reference to it.
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const sessionRef = useRef<{
+    root: HTMLElement;
+    units: SpeakUnit[];
+    unitIndex: number;
+    /** Bumped whenever the in-flight utterance is abandoned so its late events are ignored. */
+    generation: number;
+    /** Where a paused read picks up again. */
+    resumeWordIndex: number | null;
+  } | null>(null);
   const [highlightedChunk, setHighlightedChunk] = useState<number | null>(null);
   const requestTokenRef = useRef(0);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -107,7 +130,14 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   }, [ttsVoice, voices]);
 
   const stopPlayback = useCallback(() => {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if ('speechSynthesis' in window) {
+      const synth = window.speechSynthesis;
+      synth.cancel();
+      // Chrome keeps the queue paused after cancel(); anything spoken next
+      // would then sit silently until resume() is called.
+      if (synth.paused) synth.resume();
+    }
+    utteranceRef.current = null;
     if (activeAudioRef.current) {
       activeAudioRef.current.pause();
       activeAudioRef.current = null;
@@ -116,16 +146,21 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
 
   const stopReadAloud = useCallback(() => {
     isReadingRef.current = false;
+    isPausedRef.current = false;
+    if (sessionRef.current) sessionRef.current.generation++;
+    sessionRef.current = null;
     currentChunkRef.current = null;
+    currentWordRef.current = null;
     stopPlayback();
     clearReadAloudFollow(storyContentRef.current);
+    setIsPaused(false);
     setIsReading(false);
   }, [stopPlayback, storyContentRef]);
 
   useEffect(() => {
     followAlongRef.current = followAlong;
     if (isReading) {
-      showReadAloudChunk(storyContentRef.current, currentChunkRef.current, followAlong);
+      showReadAloudChunk(storyContentRef.current, currentChunkRef.current, followAlong, currentWordRef.current);
     } else {
       clearReadAloudFollow(storyContentRef.current);
     }
@@ -133,17 +168,18 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
 
   const speakWord = useCallback((word: string) => {
     if (!('speechSynthesis' in window)) return;
-    stopPlayback();
+    stopReadAloud();
     const utterance = new SpeechSynthesisUtterance(word);
     const voice = findVoice();
     if (voice) utterance.voice = voice;
     utterance.lang = voice?.lang || 'en-GB';
     utterance.rate = 0.85;
     window.speechSynthesis.speak(utterance);
-  }, [findVoice, stopPlayback]);
+  }, [findVoice, stopReadAloud]);
 
   const speakSelectedWord = useCallback(() => {
     if (!selectedWord) return;
+    stopReadAloud();
 
     // If ttsSource is "browser", always use the browser voice (skip dictionary audio)
     if (ttsSource !== 'dictionary' || !assistData?.audioUrl || !assistData.audioUrl.startsWith('http')) {
@@ -162,67 +198,146 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
       if (activeAudioRef.current === audio) activeAudioRef.current = null;
       speakWord(selectedWord);
     });
-  }, [selectedWord, assistData, speakWord, stopPlayback, ttsSource]);
+  }, [selectedWord, assistData, speakWord, stopPlayback, stopReadAloud, ttsSource]);
 
-  const handleReadAloud = useCallback(() => {
-    if (!('speechSynthesis' in window)) return;
+  const finishReadAloud = useCallback((root: HTMLElement | null) => {
+    sessionRef.current = null;
+    currentChunkRef.current = null;
+    currentWordRef.current = null;
+    utteranceRef.current = null;
+    isReadingRef.current = false;
+    isPausedRef.current = false;
+    clearReadAloudFollow(root);
+    setIsPaused(false);
+    setIsReading(false);
+  }, []);
 
-    if (isReading) {
-      stopReadAloud();
+  const speakUnitAt = useCallback((unitIndex: number) => {
+    const session = sessionRef.current;
+    if (!session || !isReadingRef.current || isPausedRef.current) return;
+    if (unitIndex >= session.units.length) {
+      finishReadAloud(session.root);
       return;
     }
 
+    session.unitIndex = unitIndex;
+    const generation = ++session.generation;
+    const unit = session.units[unitIndex];
+    const firstChunk = unit.chunks[0] || null;
+
+    // The story was replaced under us (new story loaded mid-read).
+    if (!session.root.isConnected || !firstChunk?.wordEls[0]?.isConnected) {
+      finishReadAloud(session.root);
+      return;
+    }
+
+    currentChunkRef.current = firstChunk;
+    currentWordRef.current = firstChunk.wordEls[0] ?? null;
+    showReadAloudChunk(session.root, firstChunk, followAlongRef.current, currentWordRef.current);
+
+    // True only while this utterance is still the one the session cares about.
+    // Pause, stop, and restart all bump the generation, so late onend/onerror
+    // events from a cancelled utterance can never advance or double-speak.
+    const isLive = () =>
+      sessionRef.current === session
+      && session.generation === generation
+      && isReadingRef.current
+      && !isPausedRef.current;
+
+    const utterance = new SpeechSynthesisUtterance(unit.text);
+    const voice = findVoice();
+    if (voice) utterance.voice = voice;
+    utterance.lang = voice?.lang || 'en-GB';
+    utterance.rate = 0.92;
+
+    utterance.onboundary = event => {
+      if (!isLive()) return;
+      if (event.name && event.name !== 'word') return;
+      const { chunkIndex, wordIndex } = positionAtChar(unit, event.charIndex);
+      const chunk = unit.chunks[chunkIndex];
+      currentChunkRef.current = chunk;
+      currentWordRef.current = chunk.wordEls[wordIndex] ?? null;
+      showReadAloudChunk(session.root, chunk, followAlongRef.current, currentWordRef.current);
+    };
+
+    utterance.onend = () => {
+      if (!isLive()) return;
+      speakUnitAt(unitIndex + 1);
+    };
+    utterance.onerror = event => {
+      if (!isLive()) return;
+      // Our own cancel() reports as interrupted/canceled; anything else is a
+      // voice failure, so skip that passage rather than stall.
+      if (event.error === 'interrupted' || event.error === 'canceled') return;
+      speakUnitAt(unitIndex + 1);
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, [findVoice, finishReadAloud]);
+
+  const startReadAloud = useCallback(() => {
+    if (!('speechSynthesis' in window)) return;
     const el = storyContentRef.current;
     if (!el) return;
 
     const startIndex = selectedWordIndex !== null && selectedWordIndex >= 0 ? selectedWordIndex : 0;
-    const chunks = buildReadChunks(el, startIndex, selectionLength);
-    if (chunks.length === 0) return;
+    const units = buildSpeakUnits(el, startIndex, selectionLength);
+    if (units.length === 0) return;
 
-    stopPlayback();
-    setIsReading(true);
+    stopReadAloud();
+    sessionRef.current = { root: el, units, unitIndex: 0, generation: 0, resumeWordIndex: null };
+    isPausedRef.current = false;
     isReadingRef.current = true;
-    let currentIdx = 0;
+    setIsPaused(false);
+    setIsReading(true);
+    speakUnitAt(0);
+  }, [selectedWordIndex, selectionLength, speakUnitAt, stopReadAloud, storyContentRef]);
 
-    const speakNext = () => {
-      if (currentIdx >= chunks.length || !isReadingRef.current) {
-        currentChunkRef.current = null;
-        clearReadAloudFollow(el);
-        setIsReading(false);
-        isReadingRef.current = false;
-        return;
-      }
+  // speechSynthesis.pause()/resume() is not dependable: Chrome ignores it for
+  // remote voices, drops the utterance after ~15s paused, and does nothing if
+  // the pause landed between two utterances. Pausing here cancels speech and
+  // remembers the passage, and resuming re-reads from the start of that passage.
+  const pauseReadAloud = useCallback(() => {
+    const session = sessionRef.current;
+    if (!session || !isReadingRef.current || isPausedRef.current) return;
+    isPausedRef.current = true;
+    setIsPaused(true);
+    session.generation++;
+    session.resumeWordIndex = currentChunkRef.current?.firstWordIndex
+      ?? session.units[session.unitIndex]?.chunks[0]?.firstWordIndex
+      ?? null;
+    stopPlayback();
+    // Leave the highlight in place so the reader can see where it will pick up.
+  }, [stopPlayback]);
 
-      const chunk = chunks[currentIdx];
-      currentChunkRef.current = chunk;
-      showReadAloudChunk(el, chunk, followAlongRef.current);
+  const resumeReadAloud = useCallback(() => {
+    const session = sessionRef.current;
+    const root = storyContentRef.current;
+    if (!session || !isReadingRef.current || !isPausedRef.current) return;
+    if (!root || !root.isConnected) {
+      stopReadAloud();
+      return;
+    }
 
-      const utterance = new SpeechSynthesisUtterance(chunk.text);
-      const voice = findVoice();
-      if (voice) utterance.voice = voice;
-      utterance.lang = voice?.lang || 'en-GB';
-      utterance.rate = 0.92;
+    const units = buildSpeakUnits(root, session.resumeWordIndex ?? 0, selectionLength);
+    if (units.length === 0) {
+      finishReadAloud(root);
+      return;
+    }
 
-      let advanced = false;
-      const advance = () => {
-        if (advanced) return;
-        advanced = true;
-        currentIdx++;
-        speakNext();
-      };
-      utterance.onend = advance;
-      utterance.onerror = advance;
-
-      window.speechSynthesis.speak(utterance);
-    };
-
-    speakNext();
-  }, [isReading, storyContentRef, findVoice, selectedWordIndex, selectionLength, stopPlayback, stopReadAloud]);
+    isPausedRef.current = false;
+    setIsPaused(false);
+    session.root = root;
+    session.units = units;
+    session.unitIndex = 0;
+    session.resumeWordIndex = null;
+    speakUnitAt(0);
+  }, [finishReadAloud, selectionLength, speakUnitAt, stopReadAloud, storyContentRef]);
 
   useEffect(() => () => {
-    stopPlayback();
-    clearReadAloudFollow(storyContentRef.current);
-  }, [stopPlayback, storyContentRef]);
+    stopReadAloud();
+  }, [stopReadAloud]);
 
   // Keep the audio pipeline primed with a silent oscillator so TTS doesn't
   // fade-in/ramp at the start of every sentence.
@@ -274,15 +389,39 @@ export function AssistPanel({ selectedWord, selectedWordIndex, storyContentRef, 
   return (
     <div className="assist-panel-content">
       <div className="assist-read-aloud-row">
-        <button
-          className={`btn btn-secondary assist-read-aloud-button${isReading ? ' assist-stop-button' : ''}`}
-          type="button"
-          title={isReading ? 'Stop reading' : (selectedWordIndex !== null && selectedWord ? `Read story from "${selectedWord}"` : 'Read story from start')}
-          onClick={handleReadAloud}
-        >
-          {isReading ? '\u23F9' : '\uD83D\uDD08'}{' '}
-          <span>{isReading ? 'Stop reading' : (selectedWordIndex !== null && selectedWord ? `Read story from "${selectedWord}"` : 'Read story from start')}</span>
-        </button>
+        {!isReading && (
+          <button
+            className="btn btn-secondary assist-read-aloud-button"
+            type="button"
+            title={selectedWordIndex !== null && selectedWord ? `Read story from "${selectedWord}"` : 'Read story from start'}
+            onClick={startReadAloud}
+          >
+            {'\uD83D\uDD08'}{' '}
+            <span>{selectedWordIndex !== null && selectedWord ? `Read story from "${selectedWord}"` : 'Read story from start'}</span>
+          </button>
+        )}
+        {isReading && (
+          <>
+            <button
+              className="btn btn-secondary assist-read-aloud-button"
+              type="button"
+              title={isPaused ? 'Resume reading' : 'Pause reading'}
+              onClick={isPaused ? resumeReadAloud : pauseReadAloud}
+            >
+              {isPaused ? '\u25B6' : '\u23F8'}{' '}
+              <span>{isPaused ? 'Resume' : 'Pause'}</span>
+            </button>
+            <button
+              className="btn btn-secondary assist-read-aloud-button assist-stop-button"
+              type="button"
+              title="Stop reading"
+              onClick={stopReadAloud}
+            >
+              {'\u23F9'}{' '}
+              <span>Stop</span>
+            </button>
+          </>
+        )}
         <label className="assist-follow-toggle" title="Lighten the story and darken the words being read">
           <input
             type="checkbox"

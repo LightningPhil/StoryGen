@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-sunshine-muffin-mix-up-7d64d8e0",
+  "title": "Una's Sunshine Muffin Mix-Up",
+  "originalWordCount": 876,
+  "improvedWordCount": 557,
+  "notes": "Renamed Barnaby to Una in title, prose, and characters, kept Pip and the filename/id, cut the dignity lecture, and let Ghibli plus Fable find sunshine in ordinary lemons.",
+  "bannedNameReplacements": {
+    "Barnaby": "Una"
+  },
+  "improvedAt": "2026-09-16T19:30:40.874Z"
+}

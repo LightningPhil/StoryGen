@@ -1,0 +1,11 @@
+{
+  "id": "bartholomew-and-the-lost-harvest-bb2bc656",
+  "title": "Bartholomew and the Lost Harvest",
+  "originalWordCount": 1644,
+  "improvedWordCount": 1230,
+  "notes": "Replaced snack-friend Barnaby with Nairn, dropped the first-person memoir I, kept Bartholomew the goat and Elder Maeve, and let clover-in-the-beard finish Freytag without a feed-you closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Nairn"
+  },
+  "improvedAt": "2026-09-16T06:40:50.514Z"
+}

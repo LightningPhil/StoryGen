@@ -1,0 +1,11 @@
+{
+  "id": "pipkins-wobbly-bell-eb1422fa",
+  "title": "Pipkin's Wobbly Bell",
+  "originalWordCount": 1322,
+  "improvedWordCount": 1297,
+  "notes": "Kept Pico Pipkin and Willow, replaced Barnaby Bear with Ffion Bear, cut the helping-friends sermon, and let Save-the-Cat land on returning the wobbly bell to the berry pouch.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ffion"
+  },
+  "improvedAt": "2026-09-16T07:18:20.837Z"
+}

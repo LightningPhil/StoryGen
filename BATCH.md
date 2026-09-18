@@ -4,7 +4,7 @@ Generate dozens of stories from a TSV spreadsheet without clicking a single butt
 
 ## Quick Start
 
-1. **Set your API key** (one of):
+1. **Set your API key** as an environment variable (never commit a real key; `.env` is gitignored):
    ```
    set GEMINI_API_KEY=your-key-here          # Windows CMD
    $env:GEMINI_API_KEY="your-key-here"       # PowerShell

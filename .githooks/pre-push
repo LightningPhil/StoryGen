@@ -2,12 +2,18 @@
 # Rebuild dist before every push so GitHub Pages always has the compiled app.
 # If the build changes published files, this commits them and asks you to push again.
 
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+# Never skip: a Google API key must not be pushed to GitHub.
+if ! node scripts/check-no-secrets.cjs tree; then
+  echo "Push aborted: secret detected."
+  exit 1
+fi
+
 if [ "${SKIP_DIST_HOOK-}" = "1" ]; then
   exit 0
 fi
-
-root=$(git rev-parse --show-toplevel) || exit 1
-cd "$root" || exit 1
 
 echo "Building dist so the compiled app is included in this push..."
 if ! npm run build; then
@@ -16,6 +22,12 @@ if ! npm run build; then
 fi
 
 git add -A -- dist index.html .nojekyll
+
+if ! node scripts/check-no-secrets.cjs staged; then
+  echo "Push aborted: secret detected in compiled files."
+  git restore --staged -- dist index.html .nojekyll 2>/dev/null || true
+  exit 1
+fi
 
 if git diff --cached --quiet -- dist index.html .nojekyll; then
   echo "Compiled Pages files are already up to date."

@@ -1,0 +1,11 @@
+{
+  "id": "ned-and-the-little-grumblepuff-5c5e7ae0",
+  "title": "Ned and the Little Grumblepuff",
+  "originalWordCount": 1010,
+  "improvedWordCount": 1005,
+  "notes": "Kept Ned, replaced ogre shepherd Barnaby with Myfanwy, dropped the shy-then-confident sermon, kept the Story Circle from the last crumb through the blackberry grumble to the moss bed, and left the moonlight jar glowing.",
+  "bannedNameReplacements": {
+    "Barnaby": "Myfanwy"
+  },
+  "improvedAt": "2026-09-16T07:26:48.435Z"
+}

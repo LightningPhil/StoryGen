@@ -1,0 +1,11 @@
+{
+  "id": "pipkin-and-the-whispering-melody-af65dd3e",
+  "title": "Pipkin and the Whispering Melody",
+  "originalWordCount": 2178,
+  "improvedWordCount": 1508,
+  "notes": "Replaced the seal Barnaby with Leona, kept Elder Silas, started Fichtean at the peeling door, and let the square’s shared listening replace a lecture about kindness in disguise.",
+  "bannedNameReplacements": {
+    "Barnaby": "Leona"
+  },
+  "improvedAt": "2026-09-15T21:13:17.491Z"
+}

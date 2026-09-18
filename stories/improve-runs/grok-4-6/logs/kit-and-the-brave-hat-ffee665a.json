@@ -1,0 +1,11 @@
+{
+  "id": "kit-and-the-brave-hat-ffee665a",
+  "title": "Kit and the Brave Hat",
+  "originalWordCount": 2038,
+  "improvedWordCount": 1277,
+  "notes": "Kept Kit and Della, renamed Barnaby Bristle to Beca Bristle, cut the epic-bard frame, and let the hats remind rather than enchant.",
+  "bannedNameReplacements": {
+    "Barnaby": "Beca"
+  },
+  "improvedAt": "2026-09-16T09:46:14.897Z"
+}

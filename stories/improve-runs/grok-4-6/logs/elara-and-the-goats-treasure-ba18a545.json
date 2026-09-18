@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-goats-treasure-ba18a545",
+  "title": "Elara and the Goat's Treasure",
+  "originalWordCount": 1736,
+  "improvedWordCount": 1090,
+  "notes": "Replaced Barnaby Moss with Hart Moss, cut the closing courage sermon, kept Three-Act from Bartholomew's theft through the constellation turn to the wooden birds, and left the empty pebble pocket as the change.",
+  "bannedNameReplacements": {
+    "Barnaby": "Hart"
+  },
+  "improvedAt": "2026-09-15T21:50:20.036Z"
+}

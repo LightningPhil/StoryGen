@@ -1,0 +1,11 @@
+{
+  "id": "pippin-and-the-glow-worm-concert-f859d0bb",
+  "title": "Pippin and the Glow-worm Concert",
+  "originalWordCount": 998,
+  "improvedWordCount": 902,
+  "notes": "Kept Pippin and Lady Gleam, replaced baker-badger Barnaby with Sian, cut the illuminating-nights lecture, and let Save the Cat move the concert to an oak stump the owl could share.",
+  "bannedNameReplacements": {
+    "Barnaby": "Sian"
+  },
+  "improvedAt": "2026-09-16T07:47:29.742Z"
+}

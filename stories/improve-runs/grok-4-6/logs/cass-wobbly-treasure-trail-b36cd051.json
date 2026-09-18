@@ -1,0 +1,11 @@
+{
+  "id": "cass-wobbly-treasure-trail-b36cd051",
+  "title": "Cas's Wobbly Treasure Trail",
+  "originalWordCount": 638,
+  "improvedWordCount": 640,
+  "notes": "Kept Cas and Nessa, renamed Barnaby the badger to Heulwen, cut the kindest-path lecture, and let a hollow of pebbles end the poems in time.",
+  "bannedNameReplacements": {
+    "Barnaby": "Heulwen"
+  },
+  "improvedAt": "2026-09-16T09:53:39.258Z"
+}

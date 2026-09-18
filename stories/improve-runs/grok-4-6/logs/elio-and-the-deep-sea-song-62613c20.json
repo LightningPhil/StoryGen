@@ -1,0 +1,11 @@
+{
+  "id": "elio-and-the-deep-sea-song-62613c20",
+  "title": "Elio and the Deep Sea Song",
+  "originalWordCount": 1860,
+  "improvedWordCount": 1791,
+  "notes": "Kept Elio and Chorus, renamed Barnaby Button to Cadwal Button, cut Hark and the dear-listener sermon, and let Save the Cat follow the mapping hymn to a geothermal vent.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cadwal"
+  },
+  "improvedAt": "2026-09-16T20:10:43.668Z"
+}

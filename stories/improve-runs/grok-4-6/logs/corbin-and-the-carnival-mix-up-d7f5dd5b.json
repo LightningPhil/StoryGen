@@ -1,0 +1,11 @@
+{
+  "id": "corbin-and-the-carnival-mix-up-d7f5dd5b",
+  "title": "Corbin and the Carnival Mix-Up",
+  "originalWordCount": 1816,
+  "improvedWordCount": 1230,
+  "notes": "Kept Corbin Jun and Henrietta, renamed badger Barnaby to Gwynfor from the pool, cut the competence sermon, and let the brass button start an improvised carnival instead of a postpone.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwynfor"
+  },
+  "improvedAt": "2026-09-16T19:34:29.911Z"
+}

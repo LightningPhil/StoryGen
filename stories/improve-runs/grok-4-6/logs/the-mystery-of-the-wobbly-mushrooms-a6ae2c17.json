@@ -1,0 +1,11 @@
+{
+  "id": "the-mystery-of-the-wobbly-mushrooms-a6ae2c17",
+  "title": "The Mystery of the Wobbly Mushrooms",
+  "originalWordCount": 1202,
+  "improvedWordCount": 1051,
+  "notes": "Replaced Barnaby the wizard with Isolde, dropped Whoooo and This-is-worry, kept the Three-Act ribbon clue to a steady levitation, and ended on herbs and an untangled tummy.",
+  "bannedNameReplacements": {
+    "Barnaby": "Isolde"
+  },
+  "improvedAt": "2026-09-16T06:59:18.941Z"
+}

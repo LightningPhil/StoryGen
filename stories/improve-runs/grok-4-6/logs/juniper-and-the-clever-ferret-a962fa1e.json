@@ -1,0 +1,11 @@
+{
+  "id": "juniper-and-the-clever-ferret-a962fa1e",
+  "title": "Juniper and the Clever Ferret",
+  "originalWordCount": 783,
+  "improvedWordCount": 538,
+  "notes": "Replaced Barnaby Bright with Yorick Bright, kept Juniper and Whisk, kept Kishotenketsu so the ice-shard redirect is the Ten, and dropped the explorer-memoir frame.",
+  "bannedNameReplacements": {
+    "Barnaby": "Yorick"
+  },
+  "improvedAt": "2026-09-16T07:05:03.745Z"
+}

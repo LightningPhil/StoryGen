@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-dragons-gifts-09d02cc7",
+  "title": "Elara and the Dragon's Gifts",
+  "originalWordCount": 2082,
+  "improvedWordCount": 1244,
+  "notes": "Replaced Barnaby Button with Calloway Button, kept the But/Therefore chain from weather-vane strawberry to hatchling cave, and ended on the humming shell without a speech about finding your way home.",
+  "bannedNameReplacements": {
+    "Barnaby": "Calloway"
+  },
+  "improvedAt": "2026-09-15T21:13:51.315Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "elara-spark-and-the-science-fair-jinx-0cec34bd",
+  "title": "Elara Spark and the Science Fair Jinx",
+  "originalWordCount": 2132,
+  "improvedWordCount": 1267,
+  "notes": "Replaced Barnaby Button with Fenella Button, dropped the young-explorers frame, kept Save the Cat from pigeon splat to ruined volcano to generator, and let the notebook and Marmalade's tuna purr close it instead of a lecture about jinxes as intuition.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fenella"
+  },
+  "improvedAt": "2026-09-15T21:50:19.833Z"
+}

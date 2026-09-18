@@ -1,0 +1,11 @@
+{
+  "id": "fuzzs-fluffy-stand-d209feb3",
+  "title": "Fuzz's Fluffy Stand",
+  "originalWordCount": 1663,
+  "improvedWordCount": 1004,
+  "notes": "Replaced Barnaby Boulderhand with Osric Boulderhand, kept Fuzz’s refusal to puff, and let the moonlight motes finish Three-Act without a love-finds-a-way closer.",
+  "bannedNameReplacements": {
+    "Barnaby": "Osric"
+  },
+  "improvedAt": "2026-09-16T06:43:54.631Z"
+}

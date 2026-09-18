@@ -1,0 +1,11 @@
+{
+  "id": "the-witch-and-the-whispering-mist-b4749287",
+  "title": "The Witch and the Whispering Mist",
+  "originalWordCount": 1448,
+  "improvedWordCount": 1112,
+  "notes": "Kept Elowen and Cinder, replaced committee-head Barnaby Bumble with Teagan Bumble, cut the quietest-magic lecture, and let lanterns in the mist finish the carnival.",
+  "bannedNameReplacements": {
+    "Barnaby": "Teagan"
+  },
+  "improvedAt": "2026-09-16T07:43:42.573Z"
+}

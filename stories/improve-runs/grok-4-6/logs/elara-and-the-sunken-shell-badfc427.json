@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-sunken-shell-badfc427",
+  "title": "Elara and the Sunken Shell",
+  "originalWordCount": 1343,
+  "improvedWordCount": 833,
+  "notes": "Replaced Barnaby the Boatman with Mairi the Boatman, dropped This-is-the-tale framing, and let Kishotenketsu turn on the compass-rose reflection rather than a speech about overlooked people.",
+  "bannedNameReplacements": {
+    "Barnaby": "Mairi"
+  },
+  "improvedAt": "2026-09-15T21:20:55.437Z"
+}

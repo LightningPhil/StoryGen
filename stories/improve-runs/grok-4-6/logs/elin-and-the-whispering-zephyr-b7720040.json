@@ -1,0 +1,11 @@
+{
+  "id": "elin-and-the-whispering-zephyr-b7720040",
+  "title": "Elin and the Whispering Zephyr",
+  "originalWordCount": 1011,
+  "improvedWordCount": 888,
+  "notes": "Kept Elin and Tessa, renamed the barn-owl commentator Barnaby to Aneira, and let the loose logbook page drive the But/Therefore chain.",
+  "bannedNameReplacements": {
+    "Barnaby": "Aneira"
+  },
+  "improvedAt": "2026-09-16T16:27:36.801Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "nim-and-the-dragons-picnic-5a461d71",
+  "title": "Nim and the Dragon's Picnic",
+  "originalWordCount": 1468,
+  "improvedWordCount": 1246,
+  "notes": "Replaced Barnaby the dragon with Rhiannon, opened with Gadzooks, kept the Trickster find-and-invite of the picnic, and winked at seven cakes with one invitation.",
+  "bannedNameReplacements": {
+    "Barnaby": "Rhiannon"
+  },
+  "improvedAt": "2026-09-16T06:59:18.944Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-moving-acorn-836172ae",
+  "title": "The Case of the Moving Acorn",
+  "originalWordCount": 1711,
+  "improvedWordCount": 1595,
+  "notes": "Kept Hollis, Vanta, and Elara, renamed Barnaby Buttercup to Huw Buttercup, used Trickster-Triumph, cut Whoooo, and found the fishing-rod vent.",
+  "bannedNameReplacements": {
+    "Barnaby": "Huw"
+  },
+  "improvedAt": "2026-09-16T21:27:44.801Z"
+}

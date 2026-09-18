@@ -1,0 +1,11 @@
+{
+  "id": "the-overly-kind-sports-day-6fa08a39",
+  "title": "The Overly Kind Sports Day",
+  "originalWordCount": 506,
+  "improvedWordCount": 495,
+  "notes": "Dropped the AMAZING closer, renamed Barnaby the badger to Gwenllian, and let the games run messy at last.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwenllian"
+  },
+  "improvedAt": "2026-09-16T09:47:07.833Z"
+}

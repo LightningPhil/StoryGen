@@ -1,0 +1,11 @@
+{
+  "id": "the-mixed-up-parcel-0026ff90",
+  "title": "The Mixed-Up Parcel",
+  "originalWordCount": 1286,
+  "improvedWordCount": 864,
+  "notes": "Kept Rosie and Patch, renamed Barnaby Bear to Iolo Bear, and let pond-water-and-honey sniffing bring the honey cakes to Bartholomew.",
+  "bannedNameReplacements": {
+    "Barnaby": "Iolo"
+  },
+  "improvedAt": "2026-09-16T19:44:16.432Z"
+}

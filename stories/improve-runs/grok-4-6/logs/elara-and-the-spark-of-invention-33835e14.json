@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-spark-of-invention-33835e14",
+  "title": "Elara and the Spark of Invention",
+  "originalWordCount": 2570,
+  "improvedWordCount": 1749,
+  "notes": "Replaced Barnaby Button with Fenella Button, cut the hark-dear-friends frame, kept Freytag’s two hurdles in the arguing exhibits and the plain box, and left the open lid instead of a belonging lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Fenella"
+  },
+  "improvedAt": "2026-09-15T21:15:25.226Z"
+}

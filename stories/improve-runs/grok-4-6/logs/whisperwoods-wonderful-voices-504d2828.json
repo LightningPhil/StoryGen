@@ -1,0 +1,11 @@
+{
+  "id": "whisperwoods-wonderful-voices-504d2828",
+  "title": "Whisperwood's Wonderful Voices",
+  "originalWordCount": 335,
+  "improvedWordCount": 321,
+  "notes": "Kept Rafe Pip Cora and Aunt Vi, renamed rumbling-badger Barnaby to Brychan, cut Whoooo and the true-to-yourself closer, and let the Chekhov sketch return each voice home.",
+  "bannedNameReplacements": {
+    "Barnaby": "Brychan"
+  },
+  "improvedAt": "2026-09-16T10:02:59.929Z"
+}

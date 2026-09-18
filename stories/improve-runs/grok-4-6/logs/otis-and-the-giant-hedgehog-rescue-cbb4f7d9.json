@@ -1,0 +1,11 @@
+{
+  "id": "otis-and-the-giant-hedgehog-rescue-cbb4f7d9",
+  "title": "Otis and the Giant Hedgehog Rescue",
+  "originalWordCount": 1899,
+  "improvedWordCount": 1863,
+  "notes": "Kept Otis, Quill, and Silas, renamed Daisy's rabbit Barnaby to Sioned, cut Now-you-see, and let Freytag plus Default nudge the ferry into the eddy.",
+  "bannedNameReplacements": {
+    "Barnaby": "Sioned"
+  },
+  "improvedAt": "2026-09-16T21:25:02.880Z"
+}

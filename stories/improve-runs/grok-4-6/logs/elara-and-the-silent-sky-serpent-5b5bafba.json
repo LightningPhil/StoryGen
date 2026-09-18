@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-silent-sky-serpent-5b5bafba",
+  "title": "Elara and the Silent Sky-Serpent",
+  "originalWordCount": 1549,
+  "improvedWordCount": 1071,
+  "notes": "Replaced Barnaby Buttons with Lior Buttons, dropped dear-reader and the understanding lecture, and let Kishōtenketsu turn on the lonely Sky-Serpent rather than a contest speech.",
+  "bannedNameReplacements": {
+    "Barnaby": "Lior"
+  },
+  "improvedAt": "2026-09-15T21:50:19.937Z"
+}

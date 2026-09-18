@@ -1,0 +1,11 @@
+{
+  "id": "pipkins-moonlit-journey-d3d527c9",
+  "title": "Pipkin's Moonlit Journey",
+  "originalWordCount": 1443,
+  "improvedWordCount": 999,
+  "notes": "Kept Pipkin and Bramble, replaced the crow Barnaby with Gareth, cut the kind-heart-is-the-best-guide closer, and let the empty extra cushion finish the return.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gareth"
+  },
+  "improvedAt": "2026-09-16T07:11:17.648Z"
+}

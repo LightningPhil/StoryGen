@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-bumble-and-the-jam-tastic-gadget-b9520fa2",
+  "title": "Evander Bumble and the Jam-tastic Gadget",
+  "originalWordCount": 1149,
+  "improvedWordCount": 557,
+  "notes": "Replaced Barnaby Bumble with Evander Bumble, kept Buzz and Quill, dropped the travel-memoir frame and jam-science lecture, and let the loose drone wire be the Story Circle change.",
+  "bannedNameReplacements": {
+    "Barnaby": "Evander"
+  },
+  "improvedAt": "2026-09-15T21:11:31.421Z"
+}

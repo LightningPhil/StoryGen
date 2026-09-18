@@ -1,0 +1,11 @@
+{
+  "id": "nook-and-the-dragons-whisper-d1e81ab5",
+  "title": "Nook and the Dragon's Whisper",
+  "originalWordCount": 1668,
+  "improvedWordCount": 1597,
+  "notes": "Kept Nook as Nook, replaced Barnaby the folklore-keeper with Celyn, kept the Hero's Journey from hydrology to the icicle, cut the memoir frame and good-day's-work close, and let the dragon keep its glacier.",
+  "bannedNameReplacements": {
+    "Barnaby": "Celyn"
+  },
+  "improvedAt": "2026-09-16T07:27:47.796Z"
+}

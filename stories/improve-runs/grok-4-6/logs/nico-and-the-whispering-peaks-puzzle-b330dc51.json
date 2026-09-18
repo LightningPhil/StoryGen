@@ -1,0 +1,11 @@
+{
+  "id": "nico-and-the-whispering-peaks-puzzle-b330dc51",
+  "title": "Nico and the Whispering Peaks Puzzle",
+  "originalWordCount": 2135,
+  "improvedWordCount": 1270,
+  "notes": "Kept Nico, replaced Elder Barnaby with Orlaith, dropped my-dear-child framing, and let Three-Act turn on crossing the gorge for Flint rather than for show.",
+  "bannedNameReplacements": {
+    "Barnaby": "Orlaith"
+  },
+  "improvedAt": "2026-09-16T07:36:24.518Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "bix-and-the-brilliant-mess-f46f714f",
+  "title": "Bix and the Brilliant Mess",
+  "originalWordCount": 1091,
+  "improvedWordCount": 727,
+  "notes": "Replaced Barnaby Bix with Lowen Bix, added a Donaldson refrain on mess as language, trimmed Sterling’s triumph speech, and left a purposeful blot instead of a messy-mind sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Lowen"
+  },
+  "improvedAt": "2026-09-15T21:50:20.243Z"
+}

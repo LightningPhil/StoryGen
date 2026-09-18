@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-glitter-calamity-08be9e35",
+  "title": "Joss and the Glitter Calamity",
+  "originalWordCount": 637,
+  "improvedWordCount": 328,
+  "notes": "Replaced Barnaby Button with Joss Button, kept Waffles’s yips and the crude counterweight as the Story Circle cost, and ended on the cracked bell’s one note instead of a competence lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Joss"
+  },
+  "improvedAt": "2026-09-15T20:44:10.949Z"
+}

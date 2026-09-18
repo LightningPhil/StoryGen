@@ -1,0 +1,11 @@
+{
+  "id": "milos-marvelous-seeds-f2deeb8c",
+  "title": "Milo's Marvelous Seeds",
+  "originalWordCount": 1013,
+  "improvedWordCount": 821,
+  "notes": "Kept Milo and Tansy, renamed Barnaby the badger to Cerys, cut the secret-code closer, and let inheritance probability restore the Sunbeam harvest.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cerys"
+  },
+  "improvedAt": "2026-09-16T09:19:42.203Z"
+}

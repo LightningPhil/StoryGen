@@ -1,0 +1,11 @@
+{
+  "id": "tupp-and-the-jiggling-charm-e516fb9c",
+  "title": "Tupp and the Jiggling Charm",
+  "originalWordCount": 1227,
+  "improvedWordCount": 738,
+  "notes": "Replaced Barnaby the Badger with Imogen, kept Silas and Gwendolyn, dropped the Whoooo and pine-tree lecture, and let the fable moral be two lost things jiggling into the same moss.",
+  "bannedNameReplacements": {
+    "Barnaby": "Imogen"
+  },
+  "improvedAt": "2026-09-16T07:01:38.463Z"
+}

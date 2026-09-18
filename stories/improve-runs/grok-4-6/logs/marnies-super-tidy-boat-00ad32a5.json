@@ -1,0 +1,11 @@
+{
+  "id": "marnies-super-tidy-boat-00ad32a5",
+  "title": "Marnie's Super Tidy Boat",
+  "originalWordCount": 412,
+  "improvedWordCount": 495,
+  "notes": "Kept Marnie as Marnie with Jules and Captain Ash, renamed Barnaby the owl to Heddwyn, cut Whoooo, kept the Chekhov turn from over-precise signs through the stuck mooring rope to a boat that is tidy and easy.",
+  "bannedNameReplacements": {
+    "Barnaby": "Heddwyn"
+  },
+  "improvedAt": "2026-09-16T10:10:08.101Z"
+}

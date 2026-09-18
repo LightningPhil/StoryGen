@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-missing-gnomes-a5be3c7a",
+  "title": "The Case of the Missing Gnomes",
+  "originalWordCount": 1681,
+  "improvedWordCount": 1049,
+  "notes": "Replaced Barnaby the baker with Dunstan, dropped the gather-round yarn, and let the chimes-and-tart compromise do the Kerr/Bond work instead of a speech about quiet voices.",
+  "bannedNameReplacements": {
+    "Barnaby": "Dunstan"
+  },
+  "improvedAt": "2026-09-15T21:06:55.342Z"
+}

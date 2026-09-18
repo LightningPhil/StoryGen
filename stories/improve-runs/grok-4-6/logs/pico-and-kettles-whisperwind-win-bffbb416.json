@@ -1,0 +1,11 @@
+{
+  "id": "pico-and-kettles-whisperwind-win-bffbb416",
+  "title": "Pico and Kettle's Whisperwind Win",
+  "originalWordCount": 1688,
+  "improvedWordCount": 956,
+  "notes": "Kept Pico and Kettle, replaced Barnaby Button with Kitto Button, kept Chekhov's turn as Borris pointing at the goat, used a Dahl beard-and-ice sideshow, and dropped the gather-round explorer and the quiet-victories lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Kitto"
+  },
+  "improvedAt": "2026-09-16T07:31:09.996Z"
+}

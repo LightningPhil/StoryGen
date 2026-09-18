@@ -1,0 +1,11 @@
+{
+  "id": "otis-and-the-wiggly-wonders-cf6768a9",
+  "title": "Otis and the Wiggly Wonders",
+  "originalWordCount": 1376,
+  "improvedWordCount": 1331,
+  "notes": "Kept Otis and Sunny, renamed Barnaby the pencil-sharpener to Brynmor, cut the this-is labels, and let a river-paw drawing of Sunny win the alive ribbon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Brynmor"
+  },
+  "improvedAt": "2026-09-16T10:11:08.256Z"
+}

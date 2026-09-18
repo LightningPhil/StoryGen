@@ -1,0 +1,11 @@
+{
+  "id": "kit-and-the-whispering-peaks-adventure-01f70af2",
+  "title": "Kit and the Whispering Peaks Adventure",
+  "originalWordCount": 2345,
+  "improvedWordCount": 1624,
+  "notes": "Kept Kit as Kit, replaced goblin postmaster Barnaby with Taran, kept the Story Circle from the tidy cottage through the Grotto Glide to the proper path, cut the most-potent-magic lecture, and left the extra waistcoat button undone.",
+  "bannedNameReplacements": {
+    "Barnaby": "Taran"
+  },
+  "improvedAt": "2026-09-16T07:38:20.757Z"
+}

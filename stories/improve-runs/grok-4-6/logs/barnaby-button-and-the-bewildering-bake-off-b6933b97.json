@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-button-and-the-bewildering-bake-off-b6933b97",
+  "title": "Gethin Button and the Bewildering Bake-Off",
+  "originalWordCount": 1071,
+  "improvedWordCount": 819,
+  "notes": "Replaced Barnaby Button with Gethin Button in title, body, and characters, kept Rosa and Elder Maeve, treated the unveiling as a Chekhov turn, and left the seagull on the folded diagram instead of a simplicity lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gethin"
+  },
+  "improvedAt": "2026-09-16T19:32:35.303Z"
+}

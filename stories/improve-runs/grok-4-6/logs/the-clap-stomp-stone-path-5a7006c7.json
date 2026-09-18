@@ -1,0 +1,9 @@
+{
+  "id": "the-clap-stomp-stone-path-5a7006c7",
+  "title": "The Clap-Stomp Stone Path",
+  "originalWordCount": 401,
+  "improvedWordCount": 381,
+  "notes": "Dropped the first-person forest frame, used the log as a rolling helper, and let clap-stomp-clap-stomp keep the stones moving together.",
+  "bannedNameReplacements": {},
+  "improvedAt": "2026-09-16T09:02:42.450Z"
+}

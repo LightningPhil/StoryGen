@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-dragons-warning-c04c9f0a",
+  "title": "Elara and the Dragon's Warning",
+  "originalWordCount": 788,
+  "improvedWordCount": 524,
+  "notes": "Replaced Barnaby Crumble with Paloma Crumble, cut the whiskers-This-is-it labeling and the judgement lecture, and ended on the folded red umbrella and ordinary dragon-sound.",
+  "bannedNameReplacements": {
+    "Barnaby": "Paloma"
+  },
+  "improvedAt": "2026-09-15T21:08:52.781Z"
+}

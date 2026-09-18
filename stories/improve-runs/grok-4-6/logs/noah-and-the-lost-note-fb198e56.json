@@ -1,0 +1,11 @@
+{
+  "id": "noah-and-the-lost-note-fb198e56",
+  "title": "Noah and the Lost Note",
+  "originalWordCount": 2200,
+  "improvedWordCount": 2020,
+  "notes": "Kept Noah and Yara, renamed Barnaby the bear to Mair, cut the expedition memoir, and let a cloak-snagged note teach Mair to be the knight.",
+  "bannedNameReplacements": {
+    "Barnaby": "Mair"
+  },
+  "improvedAt": "2026-09-16T10:55:02.089Z"
+}

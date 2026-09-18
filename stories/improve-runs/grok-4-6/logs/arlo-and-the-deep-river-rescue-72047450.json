@@ -1,0 +1,11 @@
+{
+  "id": "arlo-and-the-deep-river-rescue-72047450",
+  "title": "Arlo and the Deep River Rescue",
+  "originalWordCount": 779,
+  "improvedWordCount": 626,
+  "notes": "Renamed Barnaby the lock keeper to Gwyn from the pool, kept Arlo and Cressida, and let Seven-Point finish on whiskers shaken dry instead of a courage label.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwyn"
+  },
+  "improvedAt": "2026-09-16T19:51:11.544Z"
+}

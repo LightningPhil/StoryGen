@@ -1,0 +1,11 @@
+{
+  "id": "the-whispering-woods-mystery-961954c9",
+  "title": "The Whispering Woods Mystery",
+  "originalWordCount": 1408,
+  "improvedWordCount": 1122,
+  "notes": "Kept Thimble Saffron Pipkin and Lily, replaced protocol hedgehog Barnaby with Seren, and let Story Circle cost be the Sunstone Ledge climb for star-anise.",
+  "bannedNameReplacements": {
+    "Barnaby": "Seren"
+  },
+  "improvedAt": "2026-09-16T07:51:02.057Z"
+}

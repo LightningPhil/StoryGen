@@ -1,0 +1,10 @@
+#!/bin/sh
+# Block commits that introduce a Google API key.
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+if ! node scripts/check-no-secrets.cjs staged; then
+  echo "Commit aborted: secret detected."
+  exit 1
+fi

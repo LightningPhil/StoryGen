@@ -1,0 +1,11 @@
+{
+  "id": "felix-and-the-lantern-bread-bc3f245a",
+  "title": "Felix and the Lantern Bread",
+  "originalWordCount": 1714,
+  "improvedWordCount": 1477,
+  "notes": "Kept Felix Corvus Aunt Willow and Mrs Crumbles, replaced Barnaby Bumblesnuff with Cai Bumblesnuff, cut This-is-fear labeling, and let the Story Circle cost be the river-stone trade for lantern bread.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cai"
+  },
+  "improvedAt": "2026-09-16T07:11:17.394Z"
+}

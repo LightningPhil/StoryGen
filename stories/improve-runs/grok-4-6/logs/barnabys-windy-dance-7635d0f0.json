@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-windy-dance-7635d0f0",
+  "title": "Bramble's Windy Dance",
+  "originalWordCount": 1285,
+  "improvedWordCount": 819,
+  "notes": "Replaced Barnaby Bumble with Bramble Bumble, kept Mayor Bumble and Hemlock, and let the hillside ribbon finish the Kishōtenketsu turn without a dance-was-the-point lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Bramble"
+  },
+  "improvedAt": "2026-09-15T21:18:43.770Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-burrow-and-the-song-machine-d9b6821a",
+  "title": "Tegan Burrow and the Song Machine",
+  "originalWordCount": 1486,
+  "improvedWordCount": 1005,
+  "notes": "Renamed Barnaby Burrow to Tegan Burrow from the pool, kept Edie and Pip, dropped the dear-listeners frame, and let Save the Cat close on unstraightened paper hats and the Symphony Machine name.",
+  "bannedNameReplacements": {
+    "Barnaby": "Tegan"
+  },
+  "improvedAt": "2026-09-16T19:29:31.804Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-blown-apart-bird-2a6f0c84",
+  "title": "Saffron and the Blown-Apart Bird",
+  "originalWordCount": 1821,
+  "improvedWordCount": 1107,
+  "notes": "Replaced Barnaby with Saffron, cut the hark-dear-listeners frame, kept Agnes’s fan and the commendation, and let the broken wing speak instead of a stumble-and-rise lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Saffron"
+  },
+  "improvedAt": "2026-09-15T21:50:19.730Z"
+}

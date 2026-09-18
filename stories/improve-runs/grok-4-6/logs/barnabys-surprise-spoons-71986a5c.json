@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-surprise-spoons-71986a5c",
+  "title": "Cadwaladr's Surprise Spoons",
+  "originalWordCount": 356,
+  "improvedWordCount": 353,
+  "notes": "Renamed Barnaby the badger to Cadwaladr in title prose and characters, kept Nell Betsy and Miss Clover at the table, and let the Aesop tea end on a table that likes every kind of spoon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cadwaladr"
+  },
+  "improvedAt": "2026-09-16T10:51:40.134Z"
+}

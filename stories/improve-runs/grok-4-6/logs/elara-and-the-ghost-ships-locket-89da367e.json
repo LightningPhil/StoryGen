@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-ghost-ships-locket-89da367e",
+  "title": "Elara and the Ghost Ship's Locket",
+  "originalWordCount": 968,
+  "improvedWordCount": 759,
+  "notes": "Dropped the hark-feathered-friends frame, replaced Captain Barnaby with Quinlan, kept Silas’s wind-warden and the shanty-traded locket, and let Elara’s unadorned ‘We have it’ show the change instead of a compassion lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Quinlan"
+  },
+  "improvedAt": "2026-09-15T21:01:55.332Z"
+}

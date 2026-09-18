@@ -1,0 +1,11 @@
+{
+  "id": "kits-unexpected-art-b52ccb9d",
+  "title": "Kit's Unexpected Art",
+  "originalWordCount": 1265,
+  "improvedWordCount": 1003,
+  "notes": "Kept Kit, renamed the owl narrator Barnaby to Alun without dropping him, and let twig and splash print the studio.",
+  "bannedNameReplacements": {
+    "Barnaby": "Alun"
+  },
+  "improvedAt": "2026-09-16T10:56:14.725Z"
+}

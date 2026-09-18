@@ -1,0 +1,11 @@
+{
+  "id": "jemimas-famous-finds-ee108791",
+  "title": "Jemima's Famous Finds",
+  "originalWordCount": 1729,
+  "improvedWordCount": 1111,
+  "notes": "Kept Jemima Kit Aunt Rue and Mrs Higgins, renamed tunnel-badger Barnaby to Huw, cut Whoooo dear-listener and the fame sermon, and let the guidebook keep every famous wonder.",
+  "bannedNameReplacements": {
+    "Barnaby": "Huw"
+  },
+  "improvedAt": "2026-09-16T09:55:00.320Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "flicker-the-lost-dragon-45a68d05",
+  "title": "Flicker the Lost Dragon",
+  "originalWordCount": 1419,
+  "improvedWordCount": 1346,
+  "notes": "Kept Otis Pine and Flicker, replaced Barnaby Buttercup with Rhys Buttercup, cut Whoooo gather-round and the grand-magic sermon, and let Three-Act climb to the High Crags cave.",
+  "bannedNameReplacements": {
+    "Barnaby": "Rhys"
+  },
+  "improvedAt": "2026-09-16T07:18:20.843Z"
+}

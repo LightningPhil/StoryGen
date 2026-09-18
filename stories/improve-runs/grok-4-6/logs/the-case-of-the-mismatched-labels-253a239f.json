@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-mismatched-labels-253a239f",
+  "title": "The Case of the Mismatched Labels",
+  "originalWordCount": 1885,
+  "improvedWordCount": 1792,
+  "notes": "Kept Owen Elsie and Cuthbert, renamed Barnaby Buttercup to Meurig Buttercup, cut hark gather-round and dear-listeners, kept Autumnal Serenity the disgruntled badger and the swapped cards, and left the Golden Thimble unclaimed.",
+  "bannedNameReplacements": {
+    "Barnaby": "Meurig"
+  },
+  "improvedAt": "2026-09-16T10:57:54.805Z"
+}

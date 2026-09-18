@@ -1,0 +1,11 @@
+{
+  "id": "barnabys-unbreakable-cakes-2b3f4f04",
+  "title": "Siani's Unbreakable Cakes",
+  "originalWordCount": 1483,
+  "improvedWordCount": 905,
+  "notes": "Renamed Barnaby to Siani in title, prose, and characters, kept Rosa, and let the scraped sealant on Bartholomew's cake replace the dear-child lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Siani"
+  },
+  "improvedAt": "2026-09-16T19:31:47.399Z"
+}

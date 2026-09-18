@@ -1,0 +1,11 @@
+{
+  "id": "remy-and-cobbles-sunny-surprise-f72be419",
+  "title": "Remy and Cobble's Sunny Surprise",
+  "originalWordCount": 1695,
+  "improvedWordCount": 1261,
+  "notes": "Kept Remy and Cobble, renamed Barnaby the bull to Cadi, dropped the buckle-up frame, and let the crow plus the weather vane close the Save the Cat sheet.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cadi"
+  },
+  "improvedAt": "2026-09-16T20:20:47.537Z"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "nadia-and-the-debt-of-freedom-d07c0663",
+  "title": "Nadia and the Debt of Freedom",
+  "originalWordCount": 1879,
+  "improvedWordCount": 1844,
+  "notes": "Kept Nadia, renamed Barnaby Thistlewick to Rhys Thistlewick, cut the hearken frame, and let Three-Act plus Grimm/Lewis collect the storytelling debt.",
+  "bannedNameReplacements": {
+    "Barnaby": "Rhys"
+  },
+  "improvedAt": "2026-09-16T20:13:41.853Z"
+}

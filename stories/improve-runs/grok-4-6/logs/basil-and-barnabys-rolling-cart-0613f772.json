@@ -1,0 +1,11 @@
+{
+  "id": "basil-and-barnabys-rolling-cart-0613f772",
+  "title": "Basil and Llewelyn's Rolling Cart",
+  "originalWordCount": 1516,
+  "improvedWordCount": 1322,
+  "notes": "Kept Basil as Basil, replaced Barnaby the rabbit with Llewelyn in title prose and characters while keeping the id, kept Kishotenketsu from wobbling socks to the shy loose bolt, and let tomorrow's apples wait without a wonderful-place sermon.",
+  "bannedNameReplacements": {
+    "Barnaby": "Llewelyn"
+  },
+  "improvedAt": "2026-09-16T07:12:23.134Z"
+}

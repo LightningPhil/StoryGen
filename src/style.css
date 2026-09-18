@@ -1296,6 +1296,12 @@ input[type="range"]::-moz-range-thumb {
     color: var(--follow-ink);
 }
 
+/* The exact word being spoken, when the voice reports word boundaries. */
+.story-content.is-follow-reading .story-word.is-speaking-word {
+    background-color: color-mix(in srgb, var(--follow-ink) 14%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--follow-ink) 14%, transparent);
+}
+
 .story-content.is-follow-reading .story-chapter,
 .story-content.is-follow-reading .story-break {
     color: color-mix(in srgb, var(--follow-ink) 34%, var(--follow-paper));

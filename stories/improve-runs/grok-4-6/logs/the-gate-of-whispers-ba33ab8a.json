@@ -1,0 +1,11 @@
+{
+  "id": "the-gate-of-whispers-ba33ab8a",
+  "title": "The Gate of Whispers",
+  "originalWordCount": 2053,
+  "improvedWordCount": 1262,
+  "notes": "Replaced poet Barnaby Bumble with Cosimo Bumble and gravedigger Barnaby Bones Buttercup with Brannock Bones Buttercup, dropped the hark-friends frame, and let the promise close Snowflake’s gate instead of a lecture on time.",
+  "bannedNameReplacements": {
+    "Barnaby": "Cosimo"
+  },
+  "improvedAt": "2026-09-15T21:20:55.435Z"
+}

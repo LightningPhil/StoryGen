@@ -1,0 +1,11 @@
+{
+  "id": "floras-bean-bonanza-3b3282b5",
+  "title": "Flora's Bean Bonanza",
+  "originalWordCount": 1416,
+  "improvedWordCount": 1442,
+  "notes": "Kept Flora and Kit, renamed Barnaby Bear to Nest, cut the glamour lecture, and let a Saturday Bean Bonanza turn brown beans into stew-worth seeds.",
+  "bannedNameReplacements": {
+    "Barnaby": "Nest"
+  },
+  "improvedAt": "2026-09-16T10:00:40.421Z"
+}

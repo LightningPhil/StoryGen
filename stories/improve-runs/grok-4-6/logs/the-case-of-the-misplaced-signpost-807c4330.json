@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-misplaced-signpost-807c4330",
+  "title": "The Case of the Misplaced Signpost",
+  "originalWordCount": 1383,
+  "improvedWordCount": 949,
+  "notes": "Started with the missing post, replaced Barnaby Owl with Cadoc Owl, left the badger and robins unnamed, and let bunting and a chick in moss finish the Fichtean ladder.",
+  "bannedNameReplacements": {
+    "Barnaby Owl": "Cadoc Owl"
+  },
+  "improvedAt": "2026-09-16T07:49:59.164Z"
+}

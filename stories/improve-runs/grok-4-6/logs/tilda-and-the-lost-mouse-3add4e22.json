@@ -1,0 +1,11 @@
+{
+  "id": "tilda-and-the-lost-mouse-3add4e22",
+  "title": "Tilda and the Lost Mouse",
+  "originalWordCount": 1910,
+  "improvedWordCount": 1710,
+  "notes": "Kept Tilda and Pipkin, replaced Barnaby Bright with Morwenna Bright, cut Whoooo and the trees-remembered close, and let Kishotenketsu twist on hearing the Sparkle Stream instead of the breakfast map.",
+  "bannedNameReplacements": {
+    "Barnaby": "Morwenna"
+  },
+  "improvedAt": "2026-09-16T07:11:17.396Z"
+}

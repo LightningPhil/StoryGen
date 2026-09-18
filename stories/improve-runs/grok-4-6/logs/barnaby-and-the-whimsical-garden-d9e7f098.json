@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-whimsical-garden-d9e7f098",
+  "title": "Ffion and the Whimsical Garden",
+  "originalWordCount": 1660,
+  "improvedWordCount": 1069,
+  "notes": "Replaced Barnaby Buttercup with Ffion Buttercup in title, body, and characters, kept Nell, ran Snowflake through spoons pebbles and giggle-leaves, and ended watering an uncategorised marigold instead of a seeds-in-the-heart close.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ffion"
+  },
+  "improvedAt": "2026-09-16T19:32:35.304Z"
+}

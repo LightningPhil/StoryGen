@@ -1,0 +1,11 @@
+{
+  "id": "sorrel-and-the-invisible-ribbons-e17d81a2",
+  "title": "Sorrel and the Invisible Ribbons",
+  "originalWordCount": 1797,
+  "improvedWordCount": 897,
+  "notes": "Dropped the gather-round oak-memory frame, replaced Barnaby Buttonbright with Calista, kept the Pixar spine from sparkle-distraction to the invisibility poof, and let the ribbons tell the way home.",
+  "bannedNameReplacements": {
+    "Barnaby": "Calista"
+  },
+  "improvedAt": "2026-09-16T06:59:56.712Z"
+}

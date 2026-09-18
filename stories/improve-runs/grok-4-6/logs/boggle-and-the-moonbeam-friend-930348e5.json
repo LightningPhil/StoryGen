@@ -1,0 +1,11 @@
+{
+  "id": "boggle-and-the-moonbeam-friend-930348e5",
+  "title": "Boggle and the Moonbeam Friend",
+  "originalWordCount": 1900,
+  "improvedWordCount": 979,
+  "notes": "Kept Boggle, replaced Baker Barnaby with Niamh, dropped Whooo and trees-remember, and let Chekhov fade on the spare bowl of moonlight.",
+  "bannedNameReplacements": {
+    "Barnaby": "Niamh"
+  },
+  "improvedAt": "2026-09-16T07:59:05.765Z"
+}

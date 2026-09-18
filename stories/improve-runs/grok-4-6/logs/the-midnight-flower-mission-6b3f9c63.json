@@ -1,0 +1,11 @@
+{
+  "id": "the-midnight-flower-mission-6b3f9c63",
+  "title": "The Midnight Flower Mission",
+  "originalWordCount": 1435,
+  "improvedWordCount": 1324,
+  "notes": "Replaced beetle messenger Barnaby with Gethin, dropped the dear-listeners fanfare sermon, kept the Snowflake from the fading moon through Thistle's path and Quills's brambles to the Great Oak lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gethin"
+  },
+  "improvedAt": "2026-09-16T07:43:51.552Z"
+}

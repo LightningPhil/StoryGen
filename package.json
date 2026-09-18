@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "vite",
     "prepare": "node scripts/install-git-hooks.cjs",
-    "test": "npm run test:prompts",
+    "test": "tsx --test scripts/prompt-regression.test.ts scripts/read-aloud.test.ts",
     "test:prompts": "tsx --test scripts/prompt-regression.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build && node scripts/publish-pages.cjs",
     "preview": "vite preview",
     "batch": "tsx scripts/batch-generate.ts",
-    "ingest": "node scripts/ingest-stories.cjs"
+    "ingest": "node scripts/ingest-stories.cjs",
+    "improve:status": "node scripts/improve-run.mjs status --editor grok-4-6",
+    "improve:next": "node scripts/improve-run.mjs next --editor grok-4-6 --limit 10",
+    "improve:auto": "node scripts/improve-auto.mjs --editor grok-4-6"
   },
   "dependencies": {
     "react": "^18.3.1",

@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-and-the-whispering-crystal-5199705b",
+  "title": "Ridley and the Whispering Crystal",
+  "originalWordCount": 1363,
+  "improvedWordCount": 1004,
+  "notes": "Replaced Barnaby Boulder with Ridley Boulder (Silas the Smoulder kept), dropped the I-remember wind and This-is labeling, and left the crystal on its stand instead of a belonging lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ridley"
+  },
+  "improvedAt": "2026-09-15T21:20:46.151Z"
+}

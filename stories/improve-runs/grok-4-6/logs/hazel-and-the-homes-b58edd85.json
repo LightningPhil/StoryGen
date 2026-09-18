@@ -1,0 +1,11 @@
+{
+  "id": "hazel-and-the-homes-b58edd85",
+  "title": "Hazel and the Homes",
+  "originalWordCount": 808,
+  "improvedWordCount": 382,
+  "notes": "Kept Hazel Fizz and Mr Kellan, replaced Barnaby Beetle with Glyn, cut the whoooo little-ones closer, kept pond meadow and flower habitats, and left the birdhouse for someone whose home is air.",
+  "bannedNameReplacements": {
+    "Barnaby": "Glyn"
+  },
+  "improvedAt": "2026-09-16T08:42:05.488Z"
+}

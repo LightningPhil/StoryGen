@@ -1,0 +1,11 @@
+{
+  "id": "theos-elderflower-fiasco-c259ea95",
+  "title": "Theo's Elderflower Fiasco",
+  "originalWordCount": 1256,
+  "improvedWordCount": 802,
+  "notes": "Kept Theo and Tobin, renamed quizmaster Barnaby to Gwern, dropped Whoooo and the letting-go sermon, and let Three-Act guess Pineapples after the cordial splash.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwern"
+  },
+  "improvedAt": "2026-09-16T19:11:45.144Z"
+}

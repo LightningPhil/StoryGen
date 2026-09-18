@@ -1,0 +1,11 @@
+{
+  "id": "the-case-of-the-moonpetal-seed-39ddefec",
+  "title": "The Case of the Moonpetal Seed",
+  "originalWordCount": 668,
+  "improvedWordCount": 492,
+  "notes": "Replaced Barnaby Buttercup with Linus Buttercup, cut the fledgling narrator and Whoooo close, started on the bare patch, and used a Donaldson refrain so the seed’s return is shown by the flowers, not explained.",
+  "bannedNameReplacements": {
+    "Barnaby": "Linus"
+  },
+  "improvedAt": "2026-09-15T21:05:56.174Z"
+}

@@ -1,0 +1,1420 @@
+name,story_count,types
+Theo,87,otter; crow; fox; gardener; geologist; helper; mouse; builder; tortoise; badger; cat; hedgehog; mole; seal; wizard; appraiser; doctor; dog; illusionist; keeper; mapmaker; marten; pilot; raccoon; robin; stoat; student; turtle
+Pip,78,rabbit; duck; otter; fox; rook; dog; ferret; goblin; mouse; penguin; pony; sprite; wizard; badger; bear; cat; dragon; opossum; owl; puffin; puffling; robin; sparrow; squirrel; stoat; wren
+Moss,76,badger; hedgehog; squirrel; goat; elf; goblin; mouse; beetle; ferret; mole; ogre; sheep; dog; dragon; fox; giant; hare; instructor; otter; rabbit; sprite; stoat; toad; turtle; wombat; yak
+Milo,61,mole; wizard; donkey; problem-solver; squirrel; statistician; hedgehog; mouse; rabbit; bell-ringer; cat; dog; engineer; hart; hunter; marmot; mechanic; merboy; tinker
+Bram,60,mole; badger; weasel; wizard; monkey; ogre; hedgehog; rabbit; rat; bear; beaver; beekeeper; beetle; bison; broom-maker; cat; crow; diver; dog; dragon; duck; fox; gnome; goat; goblin; goose; hare; mechanic; raccoon; rook; sheep; stoat; storyteller; tortoise
+Fern,58,hedgehog; deer; fox; hamster; elf; frog; witch; mouse; charmsmith; farmer; ferret; goat; goose; horse; lark; robot; seal; squirrel
+Maple,57,bear; hare; squirrel; cat; owl; fox; marmot; rabbit; beaver; cow; deer; elf; giant; heron; mole; moose; mouse; ogre; otter; pig; raccoon; sheep; stoat; tailor
+Tansy,53,squirrel; rabbit; ferret; cat; witch; bear; fox; crow; fairy; goat; goblin; hare; hedgehog; meerkat; moth; opossum; otter; sprite; stoat; swallow; tabby; tiger; tortoise
+Mina,52,fox; badger; coder; mouse; reader; lynx; squirrel; tortoise; baker; beekeeper; cat; consultant; doctor; goat; hedgehog; koala; magician; magpie; mole; monkey; otter; ringer; sparrow; stenographer; watchmaker
+Nell,52,fox; rabbit; otter; tortoise; cat; ferret; weasel; witch; bear; beekeeper; crow; giraffe; goat; guide; hamster; hedgehog; intern; keeper; mouse; newt; nightjar; owl; pamphleteer; skater; swimmer; trapper
+Poppy,52,goose; pony; mouse; squirrel; witch; rabbit; pig; cat; dog; falconer; ferret; hedgehog; mogul; otter; panda; parrot; pickpocket; postmaster; puffin; raccoon; robin; trainspotter
+Pebble,51,tortoise; dog; crab; troll; mouse; penguin; seal; duck; gargoyle; giant; goblin; newt; ogre; pony; rat; robot; turtle
+Iris,50,rabbit; deer; finder; scout; solver; magpie; cat; fox; raven; beaver; cartographer; champion; chaser; duck; elf; falconer; gladiator; iguana; inkmaker; octopus; robin; robot; witch
+Hazel,49,squirrel; hare; hedgehog; helper; witch; owl; crow; stoat; fairy; measurer; mole; mouse; rabbit; weasel
+Bramble,48,witch; badger; hedgehog; otter; rook; seal; rabbit; pony; beagle; crow; goblin; hare; mole; ogre; squirrel; tortoise
+Rafi,47,crow; asker; experimenter; pilot; technician; raccoon; archivist; beaver; otter; apple-picker; apprentice; camel; diver; fox; reporter; seal; sheep
+Rowan,46,rook; witch; wizard; mechanic; crow; ferret; owl; beetle; bell-boat; champion; deer; fox; gardener; goose; hedgehog; miller; puffin; rabbit; sailor; squirrel; starling; surveyor; weasel; wolf
+Otis,45,otter; wizard; owl; beaver; badger; bell-ringer; dog; duck; ferret; ferry; giraffe; hedgehog; lizard; maker; osprey; rabbit; rat; tortoise; trapper
+Juniper,44,witch; deer; squirrel; fox; jackdaw; jackrabbit; jam-maker; jay; pony; robin; seal; sprite; stoat
+Yara,41,mole; yak; otter; beekeeper; courier; dancer; ecologist; giant; merchant; runner; skater; swan
+Wren,40,stoat; robin; wolf; elf; rabbit; alchemist; apothecary; cleaner; ferret; hedgehog; mole; mouse; sheep; toad
+Basil,39,wizard; badger; fox; bat; bear; rabbit; beagle; beaver; bullfrog; dragon; mouse; smug; socialist; stoat
+Clover,39,rabbit; calf; cow; witch; cat; goat; hedgehog; pony; dog; fairy; fox; llama; robin; sheep; sheepdog; sprite
+Kit,39,badger; ferret; mouse; otter; racer; apprentice; beaver; cat; fox; guide; gull; hedgehog; mechanic; mercer; messenger; owl; rabbit; sparrow; squirrel; stoat; streamer; volunteer; wizard
+Noah,39,stoat; helper; maker; note-taker; tester; crow; owl; weasel; baker; ferret; swordsman
+Felix,37,ferret; wolf; badger; wizard; crow; mole; stoat; weasel; apprentice; dealer; fox; heron; magician; orr; problem; terrier
+Mira,36,witch; engineer; fox; gull; archivist; badger; brewer; collector; goat; hedgehog; lockbreaker; marten; mirror-physicist; salvage; sprite; surgeon
+Nora,36,competitor; fox; hare; koala; narwhal; rabbit; schoolgirl; bat; bear; casino; deer; drummer; intern; mouse; otter; robin; sheep
+Priya,36,explorer; lynx; magpie; puzzle-solver; reader; apprentice; codebreaker; duck; engineer; guide; navigator; officer; paramedic; sen; taker; telegrapher
+Bea,35,goat; beaver; baker; badger; engineer; intern; nkomo; runner; tinker; watcher
+Mabel,35,fox; marmot; owl; mouse; rabbit; mole; witch; badger; clerk; goat; mermaid; monkey; mule; otter; pig
+Sana,35,cat; coder; designer; gazer; wolf; broker; cartographer; courier; falconer; fisher; fox; herbalist; idri; skateboarder; student
+Tobin,35,wizard; mole; otter; badger; goat; hedgehog; bell-ringer; broom-racing; conservator; gardener; librarian; lynx; toad
+Benji,32,bear; fox; gardener; maker; rabbit; helper; apprentice; beaver; champion; electrician; vlogger
+Lina,32,fox; inventor; code-maker; engineer; elf; forger; hacker; hand; keeper; leopard; otter; physicist; thief-catcher
+Cora,31,jackdaw; deer; squirrel; rabbit; beetle; cockatiel; duck; ghost; guide; hedgehog; keeper; miller; otter
+Esme,31,explorer; gazer; scientist; watcher; cat; sheep; elephant; mouse; navigator; pilot; repairer
+Arlo,30,builder; goat; inventor; fox; alpaca; cat; wizard; mole; otter; rabbit; raven; snail
+Elsie,30,rabbit; elephant; witch; clock; elf; hare; parrot
+Ivy,30,hedgehog; deer; witch; beaver; squirrel; ghost; giraffe; iguana; koala; lizard; monkey; mouse; otter; rabbit; seal; volunteer; wren
+Lark,30,tester; witch; sheep; lemur; botanist; carrier; clone; crow; diver; fox; goat; inventor; kingfisher; llama; ogre; sailmaker; spider
+Asha,29,alpaca; crow; helper; scientist; painter; mapmaker; miro; otter; runner; teacher; truck; witch
+Ivo,29,mechanic; tinkerer; wizard; elf; iguana; apprentice; beekeeper; cartographer; engineer; fox; hare; keane; locksmith; pilot; sheepdog
+Bracken,28,rabbit; dog; ogre; badger; dragon; fox; giant; heron; messenger; mole; pony
+Flint,28,terrier; fox; falcon; ogre; stoat; troll; dragonfly; ferret; firefly; griffin; kestrel
+Jonah,28,beaver; engineer; ferret; marten; mole; seal; stoat; archivist; fox; jellyfish; manager; pike
+Jun,28,hedgehog; mole; courier; dog; badger; carpenter; cat; coder; crow; diver; fox; goat; messenger; park; rabbit; rat; runner; thief; tortoise; weasel
+Pipkin,28,mouse; hamster; pig; sheep; ferret; fox; goblin; hare; hedgehog; phoenix; porcupine; snail; squirrel; stoat; sugar-glider
+Tumble,27,goat; tortoise; bear; fairy; goblin; monster; raccoon; robot; sheep
+Finn,26,badger; stoat; wizard; runner; ferret; fox; frog; keeper; otter; sandpiper; scout; sheep; sheepdog; stairkeeper
+Nia,26,explorer; gardener; lover; diver; gull; lizard; nightjar; rabbit; raccoon; racer; ranger; sheep; sorter; squirrel
+Wisp,26,cat; ferret; ghost; hare; sprite; weasel; will-o-the-wisp; woodmouse
+Edie,25,duck; mouse; seal; badger; marten; stoat; beaver; dragon; giraffe; hedgehog; lantern; mole; weasel
+Elin,25,otter; reader; student; archivist; beaver; seal; apprentice; owl; tailor
+Engineer,25,mara; faye; imani; saira
+Nessa,25,elf; witch; ogre; cat; courier; dragon; duck; heires; otter; pilot; racer; stoat; wizard
+Patch,25,bear; dog; robot; cat; goblin; bot; dragon; penguin; serpent; troll
+Ranger,25,elowen; mara; ranger; suri; tes
+Rory,25,raccoon; panda; hare; rook; badger; bear; chicken; otter; robin; squirrel
+Saffron,25,rat; parrot; cat; fairy; fox; giraffe; goat; hare; lynx; planner; rabbit; seal; squirrel; stagehand; swimmer
+Ada,24,cat; squirrel; lynx; rabbit; charm; climber; coder; columnist; deer; fisher; hedgehog; mechanic; owl; whisperer
+Sol,24,fox; swan; camel; deckhand; duck; firefly; guide; heron; kingfisher; memorie; mole; orb; rabbit; robot; rook; sketcher
+Sprig,24,frog; mole; squirrel; goblin; elf; fox; gnome; mouse; rabbit; stoat
+Toby,24,bear; maker; tortoise; beaver; turtle; badger; ogre; otter; raccoon; toad
+Ash,23,lizard; elf; fox; otter; apprentice; blacksmith; hand; host; jackdaw; original; scout
+Biscuit,23,dog; rabbit; bear; cat; donkey; hamster; ferret; otter; pig; stoat
+Button,23,badger; bear; chicken; rabbit; raven; bluebird; cat; mouse; owl; raccoon; sheep; wizard
+Fizz,23,ferret; fox; sprite; elf; fairy; firefly; fizzy; mouse; newt; robin; robot; salamander; soda-bot; wizard
+Sunny,23,spaniel; squirrel; dog; pony; canary; meerkat; sprite
+Tilda,23,witch; mouse; biographer; cat; digger; ghost; goat; hedgehog; maker; mayor; rabbit
+Birch,22,squirrel; elf; bear; hare; beetle; dog; rabbit; wolf
+Cleo,22,cat; camel; magpie; raven; assistant; cloud-painter; codebreaker; fox; guide; rabbit; runner; squirrel
+Hugo,22,fixer; penguin; hippo; wizard; guide; hedgehog; husky; rabbit; rival; surveyor
+Lumen,22,moth; owl; alien; cat; elf; fairy; firefly; fish; imp; lynx; robot; wizard
+Nettle,22,cat; elf; goblin; mouse; newt; otter; squirrel; dragon; goat; lantern; ogre; rabbit; snail; stoat
+Pia,22,penguin; apprentice; beaver; ferret; fox; owl; acrobat; linguist; novak; otter; parrot; rabbit; squirrel
+Quill,22,wizard; porcupine; android; crow; fox; goblin; goose; hedgehog; pigeon; quokka; rat; runner
+Dot,21,ladybird; duck; mouse; ghost; bot; cricket; drone; firefly; pig; pup; robot; swift
+Mara,21,witch; cat; goat; magpie; pilot; badger; cleaner; gardener; gull; hare; lock-picker; mapmaker; quill; timing
+Rosa,21,thinker; rat; badger; hedgehog; tortoise; cleaner; fox; lizard; mole; venn; weasel; wolf
+Sorrel,21,witch; elf; cat; painter; rune; seller; sparrow; squirrel
+Tara,21,detective; tinkerer; tortoise; gatherer; locksmith; otter; runner; schoolgirl; tiger
+Crumb,20,hamster; marmot; goblin; bot; brownie; chick; chipmunk; elf; monster; snail
+Drew,20,hedgehog; diver; polisher
+Drift,20,seal; hare; dolphin; goose; mer-pup; otter; pup; sprite; starfish; wizard
+Kian,20,fixer; master; physicist; inventor; pilot; sweeper
+Tavi,20,engineer; kestrel; apprentice; chemist; drummer; falcon; mechanic; mole; signaler; tiger; tinker; toymaker
+Teacher,20,jae; june; lin; may
+Thimble,20,rabbit; magpie; cat; badger; hedgehog; mouse; owl
+Tilly,20,cat; witch; bear; calf; duck; fox; mouse; pig; sheep; terrier; tortoise; wren
+Cinder,19,pony; stoat; mouse; cat; chimpanzee; civet; dragon; fox; raven; swift
+Luca,19,fox; raccoon; goat; hedgehog; lynx; badger; havel; lizard
+Mae,19,robin; fox; rabbit; agency; cat; deer; guide; keeper; mirror-cleaner; mouse; raven; rescuer
+Tess,19,seal; robin; apprentice; armitage; climber; courier; diver; fox; otter; turtle
+Comet,18,lurcher; squirrel; hare; unicorn; cat; comet; corgi; firefly; mole
+Daisy,18,pony; donkey; duck; alpaca; cat; deer; dolphin; rabbit; seal; sheep
+Leo,18,badger; maker; racer; improvising; magician; otter
+Mimi,18,mouse; cat; meerkat; rabbit; mole; monkey
+Plum,18,rabbit; bear; cat; elf; horse; opossum; pixie; pony; unicorn
+Suri,18,engineer; leopard; android; archaeologist; botanist; drummer; elf; guide; scout; squirrel; valez; xenobiologist
+Glow,17,cat; firefly; goldfish
+Gran Ada,17,ada
+Juno,17,detective; hedgehog; deer; jackrabbit; keeper; lynx; messenger; rabbit; schoolgirl; skater
+Lyra,17,moth; beekeeper; cat; heat-runner; judge; leopard; marmot; wizard
+Mr. Reed,17,reed
+Owen,17,builder; gardener; mole; shepherd; surveyor
+Zara,17,naturalist; zebra; pilot
+Ember,16,phoenix; dragon; salamander; crow; echidna; farmer; firefly; fox; robin
+Etta,16,explorer; baker; fox; mechanic; photographer; sheep; squirrel
+Miso,16,rat; mouse; cat
+Nadia,16,magpie; deer; hedgehog; lynx; rabbit; diver; mouse; nadia
+Tomas,16,badger; racer; accountant; cartographer; electrician; ferryman; runner; sailmaker
+Ari,15,student; antelope; climber; cobbler; dastan; diver; guide; keeper; pilot; rabbit; runner
+Arun,15,mechanic; rabbit; apprentice; courier; keeper; messenger; village
+Auntie June,15,june
+Cass,15,builder; badger; beekeeper; deer; goalkeeper; goat; librarian; officer; pilot; rook; student
+Cedric,15,wizard; chipmunk
+Dara,15,scientist; auditor; deer; forager; fox; holt; mason; mouse; nun; rabbit; skater
+Dr. Hale,15,hale
+Dr. Kellan,15,kellan
+Eli,15,hedgehog; rabbit; evacuee; mapmaker; mouse; volunteer; wedding
+Fen,15,witch; fox; bat; cat; deckhand; falconer; ibex; ogre; owl; strategist
+Greta,15,goat; goose; gardener; goblin; keeper; swimmer
+Jasper,15,jackdaw; fox; wizard; rabbit; raven; tortoise
+Lila,15,cat; llama; baker; hare; loon; mouse; sheep
+Professor Calder,15,calder
+Professor Sen,15,sen
+Rosie,15,sheep; rabbit; mouse; robin
+Cricket,14,goblin; cat; canary; witch
+Marnie,14,cat; mole; detective; ferry; ghost; goat; lighthouse; magpie; monkey; mouse; sheepdog
+Nico,14,student; wizard; boat; dog; duck; mole; mouse; newt; rabbit
+Nyx,14,raven; cat; navigator; scavenger; scout
+Rook,14,raven; goblin; fox; gargoyle; goby; jackdaw; mechanic; page; podcaster; prince; wizard
+Walnut,14,bear; hamster; squirrel
+Dottie,13,duck; dog; dolphin; mouse; pig; pup; rabbit; witch
+June,13,otter; seal; archivist; beaver; duck; gull; henchperson; inventor; scout; wren
+Ned,13,mole; duck; wizard; crow; newt; poet; rabbit
+Niko,13,camel; apprentice; fixer; ghostwriter; graffitist; mechanic; navigator; painter; serrat; sweep
+Orbit,13,dog; terrier; robot; wizard
+Pearl,13,pig; penguin; cat; opossum; pelican; seal; sparrow; sprite; swan
+Puddle,13,duck; frog; penguin; pixie; platypu
+Ripple,13,frog; newt; sprite; camel; duck; eel; mermaid; wizard
+Velvet,13,owl; bat; bear; rabbit; cat; vixen; vole; witch
+Zuri,13,coder; keeper; trainee; zebra
+Bloop,12,robot; monster
+Callum,12,experimenter; fixer; guild; reed
+Clara,12,mouse; cat; laundres
+Elio,12,wizard; elf; apprentice; badger; chaser; fox; sailor; sketcher
+Fig,12,rat; donkey; ferret; flamingo
+Mallow,12,ogre; mouse; baker; cat; manatee; marmot; moth; sheep; wizard
+Momo,12,monkey; cat; moonbird; moth; mouse
+Nib,12,goblin; crow; dragon; hamster; kingfisher; mapmaker; rabbit; robin
+Nibble,12,mouse; hamster
+Noor,12,astronomer; aziz; cadet; courier; guard; hacker; owl; rabbit; racer; seller; stoat; trader
+Ollie,12,watcher; otter; owl; gull; mouse
+Pudding,12,cat; pig; goat; hedgehog; ogre; panda; pug
+Coral,11,crab; seal; witch; canary; cat; cow; parrot; rabbit
+Gus,11,goose; hedgehog; duck; gecko; hunter; rook
+Lantern,11,rat; moth; wizard; worm
+Marmalade,11,rabbit; cat; bear; marmot
+Mila,11,builder; inventor; hobbyist
+Oren,11,maker; assistant; badger; magician; rook; shepherd; watcher
+Orla,11,witch; bee; dryad; glassmaker; meerkat; outrider; surveyor
+Willow,11,elf; hare; wolf; bat; bear; cat; rabbit; wombat
+Auntie Noor,10,noor
+Captain Elowen,10,elowen
+Caspar,10,heron; wizard; calf; drummer
+Coach Ellis,10,elli
+Dr. Rowan,10,rowan
+Dr. Sol,10,
+Eira,10,elf; fiddler; fox; hare; otter
+Flora,10,sheep; fox; deer; duck; flamingo; rabbit
+Hush,10,moth; owl; bat; bear; cat; ghost; hushbird; robot
+Ms. Lin,10,lin
+Ms. Rowan,10,rowan
+Nibbles,10,otter; hamster; pig; squirrel
+Nori,10,elf; cat; narwhal; fairy; robot; sprite
+Peregrin,10,wizard; ferryman
+Pico,10,goblin; parrot; llama; penguin; pig; pika; puffin; sparrow
+Professor Imani,10,imani
+Rhea,10,kestrel; analyst; cox; detective; pilot; sailor
+Tern,10,gull; drone; hare; marsh; rabbit; tortoise
+Tessa,10,fox; deer; rabbit; raven; wren
+Thistle,10,elf; goat; goblin; hedgehog; pony; witch
+Uncle Dev,10,dev
+Aster,9,elf; wizard; alpaca; hare; sprite
+Buttons,9,bear; rat; dog
+Freya,9,panda; deer; falcon; fox; inventor
+Hob,9,ogre; hedgehog; clerk
+Kiki,9,koala; cat; fox; kangaroo; kestrel; panda
+Lentil,9,stoat; cat; ferret; fox; goat; hare; hedgehog
+Lulu,9,sheep; duck; fox; koala; ladybird; lemur; llama; pig
+Mica,9,cat; goat; robot; troll
+Muffin,9,goat; dog; marmot; mole; mouse; pig
+Olive,9,owl; otter; hedgehog; mouse
+Pecan,9,squirrel; dog; chipmunk; imp; porcupine; raccoon
+Pippa,9,witch; kingfisher; maker; mouse; panda; penguin; pony
+Pippin,9,rat
+Rune,9,crow; ferret; hare; phoenix; wizard
+Sable,9,drone; elf; historian; north; rabbit; robot; seal; skunk; thief; witch
+Suki,9,squirrel; badger; fox; leopard; swallow
+Thorn,9,donkey; wizard; cat; hedgehog; thrush
+Tuppence,9,ogre; rabbit; cat; mouse; pig; rat; toad
+Alder,8,wizard; dragon; witch
+Bertie,8,beaver; bear; otter; rabbit
+Betsy,8,beagle; beaver; boatbuilder
+Brindle,8,witch; badger; fox; goat; monster
+Coco,8,cockapoo; cat; sheep; crocodile
+Corin,8,apprentice; cat; disguise; elf; raven; runner; surveyor; witnes
+Dapple,8,pony; deer; calf; goblin; ibex
+Dex,8,tester; courier; dachshund; historian
+Elowen,8,witch; badger; deer; hare; historian; racer
+Fenn,8,ogre; crow; deer; elf; frog; rook
+Honey,8,hamster; horse; skunk
+Jules,8,raven; chef; keeper; mouse
+Kip,8,kestrel; goat; judge; kiwi
+Miss Clover,8,clover
+Nina,8,watcher; chick; mouse; narwhal
+Otto,8,beaver; duck; golem; octopus; otter; owl; playwright; turtle
+Penny,8,elf; panda; pony; penguin; pig
+Pepper,8,cat; fox; parrot; rabbit; sheep; stoat
+Pipit,8,robin; dog; swift
+Rill,8,elf; rabbit; sprite; wizard
+Robin,8,weasel; kid; robin; smith
+Silas,8,deer; raven; wizard; fox; rabbit
+Skiff,8,kestrel; gull; owl; skunk
+Skipper,8,squirrel; cat; dog; fish; monkey; sail-cloud; seal
+Sprocket,8,robot; goblin; golem; mouse; sparrow; wheelbot
+Talia,8,biologist; diver; elf; falcon
+Teacup,8,donkey; bear; cat; dragon; glider; turtle
+Aunt June,7,june
+Barnaby,7,bear; crab; printer; rat; sheep; squirrel; wizard
+Bibi,7,bee; crane; goat; ogre; rabbit; sheep; witch
+Bloom,7,bee; bumblebee; swarm
+Calla,7,helper; falcon; fox
+Cas,7,cat; judge; squirrel
+Dash,7,dog; donkey; lizard
+Dr. Vale,7,vale; scientist
+Ewan,7,seal; mole; page
+Fable,7,ferret; dragon; firefly; raven; witch
+Fennel,7,fox; elf; ferret; frog; rabbit
+Glint,7,beetle; elf; gecko; golem; grifflet
+Imogen,7,stoat; brewer; coach
+Ink,7,cat; hedgehog; newt; octopus; otter
+Leila,7,badger; magpie; cat; goat; station
+Lena,7,hare; falconer; prophet
+Mei,7,heron; cook; intern
+Midge,7,cat; hedgehog; mouse
+Mr. Quill,7,quill; officer
+Mr. Thistle,7,thistle
+Mr. Vale,7,vale
+Nibs,7,goblin; hamster
+Nim,7,elf; firefly; mole; moth; rat
+Oona,7,alien; chocolatier; diver; frog; goblin; hedgehog; octopus
+Quinn,7,badger; cat; goat; magpie
+Rey,7,watcher; skater; surveyor
+Rin,7,calder; guide; inventor; panda; picker; seal; signaler
+Rivulet,7,cat; ferret; fox; goat; hare; hedgehog; stoat
+Ruby,7,spotter; squirrel
+Rufus,7,wizard; dog; inventor; panda; rabbit
+Rupert,7,badger; wizard
+Skye,7,dog; dragon; elf; seal; skunk; swallow; swan
+Soot,7,cat; crow; drone; imp; newt; salamander
+Spark,7,crow; elf; sprite
+Tinker,7,marmot; bear; mouse; tabby; termite; terrier
+Una,7,horse; unicorn; dancer; fox; vole
+Alfie,6,pony; alpaca; hamster
+Brim,6,bat; goblin
+Bryn,6,elf; ferryman; moose; ogre; ropewalker; skater
+Captain Wren,6,wren
+Casper,6,goat; calf; cat; crow; fox
+Celandine,6,witch; elf
+Dahlia,6,lynx; duck
+Dandelion,6,duck; donkey; mouse; sheep
+Dax,6,donkey; fishing; harbor; hobbyist; mechanic; thief
+Della,6,dog; witch
+Dr. Pine,6,pine
+Edda,6,blacksmith; elf; elk; ogre; orchard; swimmer
+Eva,6,owl; pilot
+Gorse,6,goat; boar; gnome; ogre; pig
+Gulliver,6,gull; frog; gargoyle; pelican
+Hana,6,acrobat; clockmaker; hana; lead; mayor; medic
+Hugh,6,badger; carpenter; librarian; mouse; rabbit; wizard
+Idris,6,astronomer; baker; eel; keeper; riddler; teacher
+Jax,6,mapmaker; moreno
+Jude,6,puzzle-solver; duck
+Leah,6,builder; morley
+Leena,6,inventor; farmer
+Lottie,6,duck; lizard; otter
+Marlo,6,magpie; mole; dragon; skater
+Mayor,6,enthusiast; entrepreneur; mos; porth; reed; visionary
+Mint,6,bunting; cat; elf; fairy; hedgehog; sprite
+Mizzle,6,cat; fox; hedgehog; mermaid
+Mottle,6,goblin; lizard; monster; ogre
+Mr. Finch,6,finch
+Mrs. Honey,6,honey
+Mrs. Maple,6,maple
+Mrs. Rowan,6,rowan
+Mrs. Vale,6,vale
+Nimbus,6,dragon; pony; sheep; sprite; witch
+Nurse,6,fern
+Opal,6,ghost; hare; maker; mechanic; opossum; sprite
+Posy,6,elf; pig; mouse; witch
+Saffy,6,elf; deer; hedgehog; seal; swan
+Samir,6,tinkerer; cartographer
+Sumi,6,stoat; crane
+Tamsin,6,captain; diplomat; diver; engineer; scavenger; wizard
+Uncle Pipkin,6,pipkin
+Vale,6,acrobat; diver; moth; rook; stoat; worm
+Veda,6,cartographer; conductor; rabbit; repairer; shepherd; shipwright
+Vera,6,drone; granddaughter; shepherdes; student; vixen; vole
+Vesper,6,witch; fox; historian
+Aria,5,collector
+Aunt Mara,5,mara
+Aunt Mei,5,mei
+Aunt Olive,5,olive
+Aunt Rosa,5,rosa
+Aunt Ruth,5,ruth
+Auntie Flo,5,flo
+Auntie Jo,5,auntie
+Auntie Saira,5,saira
+Aurelia,5,unicorn
+Ava,5,watcher
+Aya,5,gardener; heron; prodigy; sailor; tracker
+Bristle,5,boar; crow; fern-bot; fox; sprite
+Captain Ivo,5,ivo
+Captain Noor,5,noor
+Captain Reed,5,reed
+Cherry,5,chinchilla; hamster
+Clementine,5,deer
+Coach Dev,5,dev
+Coach Fern,5,fern
+Coach Pansy,5,pansy
+Commander,5,
+Dora,5,beaver; donkey; mouse; sheep; witch
+Dr. Ada,5,ada
+Dr. Farah,5,farah
+Dr. Fern,5,fern
+Dr. Finch,5,finch
+Dr. Quill,5,quill
+Dr. Quinn,5,quinn
+Elara,5,hedgehog
+Esra,5,intern
+Farah,5,correspondent; critic; engineer; lent; scribe
+Farmer,5,farmer
+Floss,5,sheep; fairy; flamingo
+Glim,5,goblin; alien; ghost; glowbug
+Glimmer,5,fish; goat; monster; mouse; sprite
+Gran Elin,5,elin
+Gran Mae,5,mae
+Gran Maple,5,maple
+Gran Ruth,5,ruth
+Grandad Ash,5,ash
+Grandad Sol,5,
+Grandad Tom,5,tom
+Grandma Nell,5,nell
+Grandpa Lee,5,lee
+Grandpa Moss,5,mos
+Headmistress,5,plum
+Hex,5,bot; dragon; drone; robot; sprite
+Kellan,5,blacksmith; kestrel; runner; singer; watcher
+Kettle,5,dog; goat; goblin
+Lio,5,courier; diver; gecko; scout; swamp
+Maisie,5,bear
+Mentor,5,vale
+Miri,5,astronomer; cat; meerkat; mouse; planner
+Miss Maple,5,maple
+Miss Willow,5,willow
+Mo,5,inventor; mole; moth; mummy; otter
+Mr. Alder,5,alder
+Mr. Clive,5,clive
+Mr. Hale,5,hale
+Mr. Kellan,5,kellan
+Mr. Moss,5,mos
+Mr. Stone,5,stone
+Mr. Tinker,5,tinker
+Mrs. Bramble,5,bramble
+Mrs. Plum,5,plum
+Mrs. Quinn,5,quinn
+Mrs. Thread,5,thread
+Ms. Flint,5,flint
+Ms. Imani,5,imani
+Ms. Lark,5,lark
+Nana Bea,5,bea
+Nana Tess,5,tes
+Odo,5,ogre; goldfish; orangutan; owl
+Orin,5,crow; ferryman; mapmaker; sheep; wizard
+Parker,5,thinker
+Pocket,5,bear; cricket; mouse; penguin; rabbit
+Professor Elm,5,elm
+Professor Hale,5,hale
+Professor Pine,5,pine
+Professor Suri,5,suri
+Puck,5,dragon; goblin; gull; magpie; stowaway
+Rattle,5,goblin; skeleton; starfish
+Ren,5,android; conductor; smuggler; student; watchmaker
+Rolo,5,panda; raccoon; rat
+Roo,5,kangaroo; koala; mouse; rabbit
+Sofia,5,captain; organiser
+Tal,5,bellfounder; brother; driver; eclipse; nerd
+Toto,5,bear; gecko; tabby; tiger; tortoise
+Uncle Dee,5,dee
+Uncle Hari,5,hari
+Waffle,5,dog; rabbit; wombat
+Wobble,5,ogre; robot; sprite; wombat
+Zoya,5,enthusiast
+Anya,4,hare; racer; sprite; van
+Bix,4,beaver; goblin; hedgehog; monkey
+Brother,4,monk; beekeeper; monk-engineer
+Bumble,4,bee; calf; moth
+Clink,4,beetle; goblin; golem; raccoon
+Cobble,4,donkey; ogre; wizard
+Cog,4,golem; rat; robot; squirrel
+Crumble,4,corgi; gnome; pig
+Drizzle,4,alien; dragon; fish; sprite
+Echo,4,drone; firefly; parrot; robot
+Faye,4,ferret; gardener; innkeeper; runner
+Fidget,4,goblin
+Finch,4,drone; locksmith; mouse; seahorse
+Flick,4,fox; goblin; horse
+Galen,4,gardener; archaeologist; welder
+Hal,4,caretaker; magician; rival; tortoise
+Halo,4,moth; horse; map
+Hattie,4,hamster; hedgehog
+Ines,4,captain; farmer; medic; milkmaid
+Jori,4,blacksmith; firefly; poet; tailor
+Kite,4,fox; kestrel; koala; rook
+Latch,4,ferret; computer; rat
+Leif,4,climber; ferryman; gardener; moose
+Lin,4,lantern-maker; lemur; officer; volunteer
+Ludo,4,elf; heron; ogre; otter
+Micah,4,wizard; diver; ferryman
+Miss Birch,4,birch
+Morwen,4,witch
+Moth,4,cat; drone; fairy; moth
+Ms. Vale,4,vale
+Needle,4,stoat; drone
+Nellie,4,bat; calf; newt; otter
+Nip,4,hare
+Nix,4,goblin; rat; sprite
+Nook,4,fox; narwhal; ogre; raccoon
+Nova,4,comet; dropout; mechanic; robot
+Nutmeg,4,mouse; hamster; squirrel
+Pansy,4,pony; crane; goat
+Pax,4,clerk; courier; drummer; robot
+Peep,4,chick; penguin; robot
+Peregrine,4,captain; philosopher; wizard
+Petal,4,goblin; pangolin; unicorn
+Petra,4,cadet; clockmaker; officer; restorer
+Polly,4,pony; panda; puffin
+Rafe,4,fox; grandson; locksmith; rower
+Remy,4,mechanic; chicken; cole
+Rina,4,rabbit; fox; mapmaker
+Runa,4,hedgehog; rabbit; reindeer; witch
+Tarin,4,courier; leopard; musician; skater
+Timo,4,fox; otter; postmaster; prince
+Tinsel,4,cat; fairy; hare; pixie
+Toffee,4,pony; plush; tortoise
+Tolliver,4,ogre; gargoyle
+Tor,4,elf; beaver; crow
+Tuck,4,mole; rabbit; stoat; tortoise
+Twinkle,4,fairy; bear; sprite
+Uncle Theo,4,theo
+Zadie,4,guard; horse; magpie; scavenger
+Albie,3,wizard
+Bean,3,bear; mouse; rabbit
+Bell,3,bluebird; rabbit; snail
+Bella,3,rabbit
+Blink,3,firefly; frog; robot; wizard
+Blue,3,bear; monday; rabbit
+Bluebell,3,rabbit
+Bo,3,beetle; dancer; sleeper
+Bobo,3,bat; bear; beetle
+Boggle,3,goblin
+Bolt,3,bot; lizard; robot
+Brik,3,ambassador; gargoyle; robot
+Bubbles,3,goldfish; puffin; rabbit
+Bunting,3,marmot
+Calder,3,captain; page; robot
+Chime,3,assistant; chickadee; sprite
+Clank,3,robot
+Clove,3,crow; sphinx; witch
+Crank,3,robot; mole
+Crispin,3,dragon; fool; squirrel
+Dazzle,3,bee; fairy; ghost
+Dev,3,geniu; sampler; shah
+Dock,3,donkey; seal; whippet
+Dotty,3,bear; dachshund; dog
+Drum,3,cat; goat; unicorn
+Elias,3,inspector; keeper; wizard
+Elric,3,wizard; elf
+Elsi,3,bat; rabbit; wren
+Elspeth,3,witch
+Ezra,3,carpenter; pike; sibling
+Fifi,3,chick; deer; ferret
+Finnian,3,wizard
+Fudge,3,bear; ferret; pixie
+Gideon,3,magician; marsh; trainee
+Gleam,3,newt; fish
+Hester,3,goat; puffin; rabbit
+Hollis,3,apprentice; beekeeper; groundskeeper
+Holly,3,horse; necromancer; rabbit
+Ilya,3,cartographer; elf; moth; wolf
+Imani,3,captain; drummer; ranger
+Inkpot,3,raven; crab
+Ishan,3,coder; courier; volunteer
+Leofric,3,wizard
+Luna,3,sheep; lemur
+Mabli,3,witch
+Marble,3,chicken; statue
+Marigold,3,macaw; seal; unicorn
+Marn,3,ogre; mole
+Merry,3,meerkat; mouse; rabbit
+Millie,3,mole; mouse; sheep
+Mim,3,magpie; goblin
+Minnow,3,catfish; glider; sprite
+Minty,3,pig; pony; rabbit
+Mist,3,cat; moth; owl
+Misty,3,cat; mouse; pony
+Moonbeam,3,bear; moth; pony; unicorn
+Mossbeard,3,ogre
+Ms. Quill,3,quill
+Niblet,3,beetle; hamster; vole
+Nixie,3,glider-pilot; hedgehog; nixie
+Nuzzle,3,bear; koala; nutria
+Omar,3,bear; bell; supervillain
+Opaline,3,unicorn
+Orrin,3,wizard; cat
+Percy,3,mouse; parrot; pigeon
+Perrin,3,horse; mole; otter
+Pickle,3,rat; ogre
+Plume,3,dragon; fairy; fox
+Porridge,3,camel; ogre; opossum
+Professor Inez,3,inez
+Pru,3,penguin; pig; witch
+Puff,3,dragon
+Purl,3,spider; mermaid
+Reed,3,raccoon; rabbit
+Rollo,3,badger; ogre; raccoon
+Rumble,3,ghost; giant; ogre
+Rusty,3,dog; panda; robot
+Sami,3,diplomat; rat; scholar
+Sena,3,better; forecaster; whiz
+Snowdrop,3,hare; sheep
+Soren,3,badger; diver; skater
+Sylvie,3,fox; mouse; seal
+Tika,3,bear; gecko; parrot
+Tink,3,dragon; fairy; robot
+Toma,3,engineer; rabbit; recycler
+Tomo,3,apprentice; herbalist; residence
+Truffle,3,pig; bear
+Tulip,3,deer; rabbit; terrier
+Vela,3,astronomer; botanist; robot
+Whisk,3,stoat; whale
+Whisp,3,bat; fairy; microbot
+Whisper,3,moth; sprite; wolf
+Whistle,3,elf; shrew; wisp
+Willa,3,goat; illustrator; vole
+Winnie,3,witch; mouse
+Acorn,2,squirrel
+Aeron,2,elf
+Agnes,2,apothecary; wizard
+Alba,2,gull; wizard
+Alban,2,wizard
+Alden,2,wizard
+Alia,2,ambassador; contestant
+Ambrose,2,wizard
+Anik,2,intern; shepherd
+Anwen,2,keeper; ogre
+Archie,2,alpaca
+Auntie Byte,2,byte; robot
+Becca,2,planner; witch
+Benedict,2,memoirist; wizard
+Benny,2,bat; bear
+Beren,2,ferryman; lamplighter
+Berry,2,bear; sprite
+Bonnie,2,rabbit
+Boon,2,bat; brownie
+Boots,2,dog
+Bracket,2,crow
+Bramblefoot,2,ogre
+Brass,2,goblin; robot
+Briar,2,witch
+Brin,2,archivist; badger
+Brio,2,fairy; sprite
+Brisk,2,goblin
+Brum,2,ogre
+Bruno,2,badger; mechanic
+Buttercup,2,calf; rabbit
+Caspian,2,crab; fog
+Celine,2,climber; runner
+Chip,2,chipmunk; robot
+Coal,2,raven; troll
+Cobb,2,beetle; robot
+Cosmo,2,cat; corgi
+Crick,2,pixie; sprite
+Dewdrop,2,donkey; fairy
+Dibble,2,goblin
+Dolly,2,bear; mouse
+Dorian,2,clerk; wizard
+Dusty,2,mouse; rabbit; sprite
+Dylan,2,duck; fox
+Elise,2,apprentice; saleswoman
+Elka,2,apprentice; otter
+Elliot,2,marsh; probation
+Ellis,2,collector; wizard
+Fergus,2,ogre; troll
+Fernsnout,2,ogre
+Fox,2,dog; drone
+Freckle,2,frog; squirrel
+Freddie,2,fox; froglet
+Gloss,2,raven
+Goldie,2,capybara; goldfish
+Gorren,2,ogre
+Gossamer,2,fairy; moth
+Gregor,2,hale; taker
+Grom,2,ogre
+Grub,2,goblin
+Harper,2,illusionist; seal
+Harun,2,artist; copyist
+Hector,2,hamster; wizard
+Helena,2,clerk; vos
+Hilda,2,ogre
+Ida,2,restorer; runner
+Imri,2,actor; shepherd
+Inky,2,mouse; octopus
+Jae,2,diplomat; skater
+Jem,2,otter; raccoon
+Jett,2,cyclist; squirrel
+Jo,2,baker; intern
+Jory,2,guide; wizard
+Joss,2,baker; translator
+Kade,2,courier
+Keira,2,cliff-runner; ranger
+Kez,2,free-diver; pickpocket
+Kiri,2,medic; rabbit
+Leonie,2,guide; mechanic
+Lionel,2,director; propagandist
+Lira,2,elf
+Loam,2,lemur; ogre
+Lob,2,ogre
+Lord,2,archaeologist; tyrant
+Lorien,2,elf
+Luc,2,baker; fighter
+Magnus,2,wizard
+Marda,2,ogre
+Marlow,2,caver; marmot
+Marmaduke,2,ogre
+Marzipan,2,pixie; pony
+Mateo,2,diver; historian
+Maud,2,apprentice; sheep
+Merrit,2,wizard
+Mika,2,diver; sweep
+Miko,2,monkey; sibling
+Mirael,2,elf
+Miren,2,elf; granddaughter
+Miro,2,bellmaker; minotaur
+Miss Amber,2,amber
+Mop,2,bear; goblin
+Mossy,2,frog; moose
+Mr. Pine,2,pine
+Mr. Sprig,2,snail; sprig
+Mrs. Flint,2,flint
+Muddle,2,goblin; wizard
+Murmur,2,cat; mermaid
+Nella,2,courier; mouse
+Neral,2,wizard
+Nettie,2,witch
+Niall,2,wizard
+Noir,2,raven
+Ollo,2,alien; tortoise
+Ori,2,rebelliou; yak
+Parsnip,2,goat
+Peaches,2,parrot; pony
+Peb,2,lizard
+Pella,2,fox; rat
+Petr,2,mechanic
+Pine,2,owl
+Ping,2,bot
+Pipette,2,bot
+Pippit,2,rabbit; swallow
+Plumthump,2,ogre
+Pog,2,goblin
+Pogo,2,skater
+Pollen,2,bee
+Pompom,2,poodle
+Pounce,2,stoat
+Prism,2,robot; seal
+Rascal,2,rabbit; rat
+Renzo,2,diver; geniu
+Reverend,2,impresario; reformer
+Rian,2,smuggler; thief
+Riven,2,elf; falcon
+Rumi,2,mouse; rat
+Rusk,2,ferret; goblin
+Rustle,2,panda; rat
+Ruth,2,clerk; mouse
+Sabine,2,glassblower; trader
+Sage,2,sheep; sloth
+Scoria,2,dragon
+Sedge,2,goblin; lizard
+Sef,2,poet; trainee
+Selene,2,falcon; locksmith
+Selka,2,elf; reindeer
+Selkie,2,seal; singer
+Seren,2,guide; wolf
+Skitter,2,beetle; goblin
+Skylark,2,falcon
+Snib,2,goblin
+Snip,2,pixie; troll
+Snowy,2,sheep; swanling
+Snug,2,bear; goblin
+Sora,2,bunting; coder
+Spindle,2,print-shop; spider
+Star,2,owl; unicorn
+Swoop,2,bat; sparrow
+Tala,2,elf
+Tallow,2,owl
+Tariq,2,elm; mechanic
+Tarn,2,goblin; ogre
+Tawny,2,owl
+Teddy,2,bear; tortoise
+Thaddeus,2,wizard
+Thistlefoot,2,ogre
+Tick,2,robot; sim
+Titch,2,goblin
+Tock,2,crab; robot
+Toot,2,beetle; mouse
+Torque,2,robot; hawk
+Trinket,2,fairy; lizard
+Vega,2,postman; witch
+Vex,2,imp; poltergeist
+Victor,2,barrister; landlord
+Violet,2,violinist; vole
+Yasmin,2,climber; vet
+Abigail,1,innkeeper-politician
+Ada-Again,1,
+Aelin,1,elf
+Aelwen,1,elf
+Aerin,1,elf
+Agatha,1,witch
+Ailsa,1,cadet
+Alderman,1,moderniser
+Alma,1,campaigner
+Amber,1,alpaca
+Amina,1,student
+Amos,1,fraud
+Anita,1,accountant
+Anton,1,ferry
+Arden,1,shipwright
+Ariadne,1,forger
+Arin,1,rook
+Arlen,1,elf
+Arthur,1,1890
+Ashok,1,pilot
+Astra,1,alien
+Atlas,1,robot
+Aunt Dot,1,dot
+Aunt Etta,1,etta
+Aunt Fern,1,fern
+Aunt Hazel,1,hazel
+Aunt Mabel,1,mabel
+Aunt Pearl,1,pearl
+Aunt Rue,1,rue
+Aunt Sera,1,historian
+Aunt Vi,1,aunt
+Auntie Sol,1,association
+Auri,1,mouse
+Axiom,1,robot
+Azra,1,chaser
+BANNER,1,
+Bardo,1,tortoise
+Bark,1,drone
+Baron,1,mouse
+Basilisk,1,
+Basim,1,welder
+Bear-Bear,1,bear
+Beatrice,1,bellmaker
+Beatrix,1,otter
+Becket,1,goat
+Beni,1,capybara
+Benno,1,guide
+Bernard,1,support
+Bert,1,goat
+Bess,1,rabbit
+Beta-Blue,1,robot
+Bink,1,fairy
+Bishop,1,strategist
+Bit,1,jackdaw
+Bleep,1,drone
+Blinky,1,star
+Bobby,1,bear
+Bonus,1,buddy
+Boo,1,rabbit
+Bor,1,ogre
+Boulder,1,ogre
+Boz,1,apprentice
+Brakka,1,ogre
+Bran,1,diver
+Brant,1,clerk
+Branwen,1,elf
+Brick,1,ogre
+Brie,1,puffin
+Brill,1,heron
+Brisket,1,dragon
+Brunna,1,ogre
+Bubble,1,goldfish
+Byte,1,robot
+Caden,1,frog
+Cadi,1,corgi
+Cael,1,elf
+Caelum,1,sculptor
+Cai,1,runner
+Calo,1,puffin
+Candytuft,1,fairy
+Caper,1,cat
+Captain Ash,1,ash
+Captain Bubble,1,goldfish
+Captain Crank,1,robot
+Captain Dock,1,dock
+Captain Fern,1,rabbit
+Captain Pebble,1,tortoise
+Caro,1,wolf
+Cassia,1,diver
+Cassian,1,wizard
+Cato,1,elf
+Catrin,1,apprentice
+Cedar,1,beaver
+Celeste,1,founder
+Celia,1,codebreaker
+Celin,1,hare
+Cerys,1,climber
+Chestnut,1,squirrel
+Chirp,1,chick
+Choir,1,
+Chomp,1,eel
+Chorus,1,
+Churn,1,
+Cian,1,dockhand
+Cinders,1,cat
+Cinnamon,1,cat
+Ciro,1,thief
+Clack,1,
+Clasp,1,drone
+Clatter,1,robot
+Clef,1,bat
+Click,1,beetle
+Clipboard,1,
+Cloud,1,alpaca
+Cloverpatch,1,unicorn
+Coach Alder,1,alder
+Coach Brim,1,brim
+Coach Elm,1,elm
+Coach Maple,1,maple
+Coach Pippin,1,pippin
+Coach Reed,1,reed
+Cobalt,1,golem
+Cocoa,1,bear
+Colin,1,producer
+Colonel,1,addict
+Cometmane,1,unicorn
+Constable,1,chair
+Copper,1,dog
+Cori,1,ghost
+Crag,1,ogre
+Cress,1,turtle
+Cressida,1,duck
+Crumpet,1,corgi
+Cuddles,1,cat
+Cue,1,rehearsal
+Cupcake,1,cat
+Custard,1,cat
+Dae,1,intern
+Dain,1,falconer
+Dapplefoot,1,ogre
+Datum,1,bot
+Davin,1,engineer
+Delia,1,chef
+Deniz,1,script
+Devan,1,ranger
+Dewi,1,dolphin
+Digger,1,mole
+Dmitri,1,meteorologist
+Dobby,1,donkey
+Doctor Imani,1,xenobiologist
+Domo,1,camel
+Doran,1,donkey
+Dori,1,otter
+Dory,1,duck
+Dottle,1,goblin
+Dr. Bloom,1,bloom
+Dr. Elm,1,elm
+Dr. Hatch,1,hatch
+Dr. Hollis,1,holli
+Dr. North,1,north
+Dr. Starling,1,starling
+Dr. Wren,1,wren
+Dren,1,jeweler
+Drillbit,1,probe
+Droplet,1,kelpie
+Duncan,1,republic
+Dune,1,dingo
+Eamon,1,apprentice
+Eben,1,elf
+Echoform,1,
+Edan,1,pigeon
+Eddie,1,eel
+Eden,1,pathfinder
+Edgar,1,octopus
+Edwin,1,philosopher
+Elden,1,wizard
+Eldon,1,wizard
+Eleni,1,accountant
+Elki,1,elf
+Elm,1,elf
+Elsa,1,clockmaker
+Elske,1,miller
+Emi,1,astronomer
+Emine,1,courier
+Emrik,1,engineer
+Emrys,1,runner
+Ephraim,1,keeper
+Eryndor,1,elf
+Eshan,1,diver
+Esi,1,prodigy
+Esker,1,deer
+Ester,1,translator
+Faelan,1,elf
+Fawnie,1,deer
+Fenella,1,witch
+Fenna,1,heron
+Ferno,1,yak
+Ferris,1,crab
+Fizzle,1,frog; wizard
+Fizzwhisk,1,witch
+Flicker,1,moth
+Flit,1,alien
+Fran,1,curator
+Frances,1,critic
+Gabe,1,drummer
+Gamma,1,robot
+Gannet,1,ogre
+Gasket,1,goblin
+Gear,1,robot
+Gertie,1,goblin
+Gib,1,goblin
+Gimbal,1,robot
+Ginger,1,pig
+Gingersnap,1,cat
+Glass,1,android
+Glen,1,goat
+Glister,1,
+Gloria,1,influencer
+Glowberry,1,fairy
+Glowcap,1,sprite
+Glowhorn,1,unicorn
+Gran Elsie,1,elsie
+Gran Hazel,1,hazel
+Gran Mo,1,
+Gran Willow,1,willow
+Gran Wren,1,wren
+Grax,1,monster
+Grindle,1,gnome
+Grisk,1,goblin
+Gudge,1,seal
+Gwen,1,rabbit
+Halcy,1,elf
+Hale,1,runner
+Harbor,1,seal
+Harriet,1,illustrator
+Headteacher Birch,1,birch
+Headteacher Moss,1,mos
+Headteacher Stone,1,stone
+Hearth,1,ogre
+Hedra,1,shepherd
+Herr,1,inspector
+Hettie,1,parrot
+Hexa,1,robot
+Hobb,1,goat
+HOBBES,1,
+Holl,1,ogre
+Honeybun,1,rabbit
+Honeydrop,1,unicorn
+Honeyfern,1,
+Honk,1,gosling
+Iko,1,drone
+Ilan,1,elf
+Iman,1,courier
+Imi,1,hare
+Ina,1,organiser
+Indi,1,messenger
+Indie,1,ink-maker
+Indigo,1,dragon
+Inspector,1,bungler
+Io,1,runaway
+Ion,1,robot
+Iri,1,alien
+Irra,1,alien
+Isla,1,archivist
+Isobel,1,witch
+Jade,1,jackdaw
+Jago,1,jackdaw
+Jai,1,messenger
+Jalen,1,sailor
+Jan,1,lookout
+Jemima,1,hedgehog
+Jig,1,wizard
+Jingle,1,elf
+Joan,1,seamstres
+Jon,1,guide
+Jonen,1,groundskeeper
+Jope,1,keeper
+Junebug,1,beetle
+Junie,1,otter
+Junip,1,climber
+Kaia,1,singer
+Kaito,1,janitor
+Kam,1,mechanic
+Kei,1,runner
+Keir,1,raven
+Kelp,1,
+Kepler,1,robot
+Kester,1,kangaroo
+Kestrin,1,falcon
+Kett,1,goblin
+Ketu,1,dragon
+Kilo,1,robot
+Kira,1,diver
+Kiro,1,translator
+Knurl,1,gnome
+Kora,1,fisher
+Kori,1,judge
+Koru,1,seal
+Kye,1,reporter
+Lacewing,1,fairy
+Lady Beatrice,1,archivist
+Lady Honoria,1,landlord
+Lady Isobel,1,host
+Lady Mirabel,1,theatre
+Ledger,1,
+Leela,1,climber
+Len,1,mole
+Lens,1,telescope
+Leona,1,inspector
+Leopold,1,wizard
+Levi,1,otter
+Linden,1,elf
+Linh,1,dao
+Linus,1,wizard
+Liora,1,elf
+Liya,1,mayor
+Lucia,1,hustle
+Lucius,1,engineer
+Luka,1,pathfinder
+Luma,1,glowworm
+Lumi,1,sheep
+Lux,1,robot
+Luz,1,codebreaker
+Lysa,1,tea-smuggler
+Mace,1,courier
+Madame,1,medium
+Maela,1,swimmer
+Maelin,1,elf
+Maeve,1,messenger
+Maire,1,elf
+Mako,1,meerkat
+Mal,1,brother
+Malcolm,1,ghost
+Malik,1,historian
+Marek,1,surveyor
+Maren,1,scout
+Margin,1,
+Margot,1,alchemist
+Marin,1,manatee
+Maris,1,heron
+Marker,1,robot
+Maro,1,courier
+Marta,1,investigator
+Matron,1,innkeeper
+Max,1,hero
+Mel,1,streamer
+Merek,1,ogre
+Meringue,1,swan
+Merryshins,1,ogre
+Meru,1,lemur
+Micro,1,bot
+Mik,1,diver
+Milan,1,apothecary
+Min,1,magpie
+Minta,1,witch
+Mip,1,pixie
+Miraan,1,wizard
+Mirek,1,eel
+Mirelle,1,otter
+Miriam,1,singer
+Miss Eaves,1,eave
+Miss Finch,1,finch
+Miss Grove,1,grove
+Miss Harewood,1,harewood
+Miss Lane,1,lane
+Miss Penny,1,penny
+Miss Pippin,1,pippin
+Miss Rowan,1,director
+Miss Thimble,1,thimble
+Mneme,1,
+Mnemo,1,archive
+Modem,1,saint
+Mog,1,goblin
+Mogget,1,goblin
+Mollymoss,1,witch
+Moonbean,1,unicorn
+Moonpetal,1,unicorn
+Moonribbon,1,unicorn
+Morrow,1,monster
+Moru,1,panda
+Mothball,1,cat
+Mr. Ash,1,ash
+Mr. Bell,1,bell
+Mr. Bellamy,1,bellamy
+Mr. Birch,1,birch
+Mr. Dill,1,dill
+Mr. Field,1,field
+Mr. Holloway,1,holloway
+Mr. Hugs,1,bear
+Mr. Kite,1,kite
+Mr. Larch,1,larch
+Mr. Lark,1,inventor
+Mr. Oak,1,oak
+Mr. Pebble,1,pebble
+Mr. Thorne,1,thorne
+Mrs. Bell,1,oracle
+Mrs. Bracken,1,bracken
+Mrs. Clover,1,clover
+Mrs. Dallow,1,dallow
+Mrs. Dill,1,dill
+Mrs. Fen,1,fen
+Mrs. Hatch,1,hatch
+Mrs. Hollow,1,hollow
+Mrs. Mint,1,mint
+Mrs. Porth,1,porth
+Mrs. Quill,1,quill
+Mrs. Tallow,1,tallow
+Mrs. Yarrow,1,yarrow
+Mugwort,1,ogre
+Munch,1,marmot
+Murk,1,goblin
+Muru,1,ogre
+Mx,1,critic
+Naia,1,courier
+Nara,1,mayor
+Nerin,1,elf
+Neve,1,sarin
+Nicolette,1,cat
+Nila,1,singer
+Nilo,1,gardener
+Noel,1,helper
+Noura,1,quartermaster
+Nubbin,1,hedgehog
+Nuri,1,glaciologist
+Oakley,1,owl
+Oaty,1,pony
+Octavia,1,senator
+Olek,1,miner
+Oli,1,duck
+Olly,1,ogre
+Ona,1,baker
+Orbi,1,hoverbot
+Orchid,1,octopus
+Oriel,1,raven
+Orris,1,witch
+Orryn,1,elf
+Oswin,1,wizard
+Paddington,1,bear
+Paradox,1,lab
+Parcel,1,
+Pask,1,capybara
+Patches,1,
+Patsy,1,panda
+Paula,1,trainer
+Pavel,1,optimist
+Peaseblossom,1,bat
+Pela,1,penguin
+Pell,1,goblin
+Pennycog,1,goblin
+Pepa,1,ogre
+Peppi,1,seal
+Perran,1,pony
+Perrie,1,rabbit
+Perry,1,panda
+Pesto,1,parakeet
+Petalhorn,1,unicorn
+Phoebe,1,investigator
+Pika,1,glider
+Pim,1,goblin
+Pin,1,goblin
+Pipsqueak,1,rat
+Piri,1,dragon
+Piston,1,robot
+Plek,1,alien
+Plink,1,frog
+Plover,1,hare
+Pock,1,goblin
+Poggle,1,goblin
+Pol,1,maker
+Pola,1,marmot
+Pop-Up,1,
+Poppyseed,1,pony
+Prax,1,engineer
+Prince,1,collector
+Professor Bell,1,collector
+Professor Puff,1,pufferfish
+Proxy,1,
+Qel,1,alien
+Quanta,1,robot
+Queen,1,npc
+Queenie,1,quail
+Quilt,1,med-bay
+Quince,1,goose
+Quip,1,mouse
+Rae,1,debater
+Rainey,1,reindeer
+Rana,1,captain
+Rava,1,peacock
+Ravi,1,tester
+Reef,1,whale
+Reg,1,health-
+Relay,1,bot
+Rex,1,cadet
+Rexley,1,panda
+Rho,1,fabricator
+Rhoswen,1,elf
+Rilo,1,hyena
+River,1,rabbit
+Rivet,1,robot
+Roly,1,dog
+Romi,1,badger
+Romy,1,witch
+Rooket,1,goblin
+Rosamund,1,clerk
+Ruan,1,apprentice
+Rudi,1,tinkerer
+Rue,1,dog; raccoon
+Rufin,1,ringer
+Rui,1,coder
+Ruin,1,explorer
+Rulph,1,ogre
+Sablet,1,mole
+Saffra,1,map
+Salma,1,translator
+Sam,1,cat
+Sasha,1,otter
+Saskia,1,gardener
+Satin,1,rabbit
+Scone,1,
+Scrap,1,sorting-arm
+Scribble,1,imp
+Sebastian,1,portraitist
+Sel,1,apprentice
+Selah,1,mason
+Sen,1,librarian
+Seris,1,elf
+Servo,1,robot
+Servo-Mop,1,robot
+Seth,1,champion
+Shimmer,1,snake
+Sia,1,medic
+Sigma,1,robot
+Sil,1,weather-reader
+Silverstep,1,unicorn
+Siofra,1,elf
+Sir Aubrey,1,knight
+Sir Hugo,1,legend
+Sira,1,elf
+Sister,1,record-keeper
+Skarn,1,goblin
+Skid,1,crow
+Skim,1,jackdaw
+Skip,1,frog
+Snicket,1,goblin
+Snoozy,1,sloth
+Snuzzle,1,dragon
+Socket,1,robot
+Socks,1,dog
+Song,1,skylark
+Sooty,1,mouse
+Sorin,1,elf
+Splash,1,dolphin
+Splinter,1,gull
+Spoon,1,bot
+Spoor,1,drone
+Squeak,1,gerbil
+Starbloom,1,unicorn
+Starla,1,glowworm
+Starlace,1,unicorn
+Starlet,1,fairy
+Starling,1,tern
+Starry,1,bear
+Stat,1,assistant
+Static,1,dog
+Statler,1,
+Stitch,1,bear
+Strobe,1,drone
+Sugarplum,1,unicorn
+Sunnydrop,1,sprite
+Swarmmind,1,beta
+Sylvi,1,wizard
+Tabitha,1,witch
+Tad,1,tiger
+Tadgob,1,ogre
+Talin,1,elf
+Tallis,1,seller
+Tamar,1,sheepdog
+Tamsin-Gob,1,goblin
+Tansel,1,goblin
+Tansyspoon,1,goblin
+Tao,1,courier
+Tappet,1,gnome
+Tarka,1,ogre
+Tarquin,1,wizard
+Tassel,1,fairy
+Tav,1,miner
+Teo,1,train
+Teren,1,elf
+Thalen,1,elf
+Thane,1,elf
+Thistledown,1,
+Thorne,1,jaguar
+Thornmaw,1,monster
+Thud,1,donkey
+Thumpkin,1,ogre
+Tibble,1,goblin
+Tibs,1,rat
+Ticktock,1,
+Tiki,1,umbrella
+Tikka,1,goblin
+Tiko,1,monster
+Timmy,1,bear
+Tin-Tin,1,robot
+Tinny,1,beetle
+Tint,1,mermaid
+Tip,1,dragonfly
+Tippet,1,vole
+Tippy,1,turtle
+Tizzy,1,genie
+Tobit,1,drummer
+Tocket,1,goblin
+Tolla,1,goblin
+Tomasin,1,maker
+Toots,1,pig
+Topsy,1,rabbit
+Tori,1,climber
+Torin,1,elf
+Tova,1,mechanic
+Tray,1,bot
+Treacle,1,dragon
+Tress,1,ogre
+Trixie,1,magpie
+Trundle,1,troll
+Tsarina,1,enthusiast
+Tula,1,ogre
+Tullo,1,ogre
+Tupp,1,ogre
+Twangle,1,ghost
+Twig,1,squirrel
+Twinklehoof,1,unicorn
+Twirl,1,sprite
+Twitch,1,squirrel
+Uncle Ned,1,ned
+Uncle Ray,1,ray
+Unit,1,robot
+Vanta,1,cat
+Vanya,1,elf
+Vara,1,lynx
+Vee,1,rival
+Veer,1,robot
+Velda,1,frog; witch
+Vell,1,boar
+Velvetmane,1,unicorn
+Velvy,1,bat
+Vexa,1,magpie
+Vico,1,crow
+Vik,1,geologist
+Viktor,1,scout
+Vita,1,pilot
+Vivi,1,rabbit
+Vorn,1,cook
+Voss,1,raven
+Wake,1,
+Waldo,1,walrus
+Wes,1,duck
+Whiskers,1,rat
+Wick,1,weasel
+Wicket,1,donkey
+Wilf,1,vole
+Winifred,1,witch
+Wish,1,sprite
+Wix,1,goblin
+Wob,1,goblin
+Wrenk,1,goblin
+Yarrow,1,yak
+Yasin,1,poet-guide
+Yorin,1,albatross
+Ysabel,1,day
+Ysla,1,witch
+Ysolde,1,ogre
+Ysra,1,jackdaw
+Yuri,1,watcher
+Yusuf,1,judge
+Yvette,1,smuggler
+Zane,1,runner
+Zaren,1,yak
+Zed,1,archivist
+Zelie,1,seamstres
+Zella,1,witch
+Zeph,1,wizard
+Zephra,1,messenger
+Zephyr,1,cat
+Zev,1,diver
+Zip,1,swallow

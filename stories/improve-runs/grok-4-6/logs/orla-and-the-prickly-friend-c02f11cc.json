@@ -1,0 +1,11 @@
+{
+  "id": "orla-and-the-prickly-friend-c02f11cc",
+  "title": "Orla and the Prickly Friend",
+  "originalWordCount": 1642,
+  "improvedWordCount": 1211,
+  "notes": "Kept Orla Pip and Elder Willow, replaced Barnaby Button with Eamon Button, cut the closing-mouse sermon tone, and let the Story Circle cost be the giggling-potion rescue.",
+  "bannedNameReplacements": {
+    "Barnaby": "Eamon"
+  },
+  "improvedAt": "2026-09-16T07:08:23.161Z"
+}

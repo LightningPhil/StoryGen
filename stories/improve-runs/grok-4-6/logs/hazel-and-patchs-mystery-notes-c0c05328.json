@@ -1,0 +1,11 @@
+{
+  "id": "hazel-and-patchs-mystery-notes-c0c05328",
+  "title": "Hazel and Patch's Mystery Notes",
+  "originalWordCount": 1003,
+  "improvedWordCount": 976,
+  "notes": "Replaced toad Barnaby with Myfanwy, kept Hazel and Patch, cut the gather-round explorer frame and the talk-about-worries sermon, and left the ribbon and button in one pocket.",
+  "bannedNameReplacements": {
+    "Barnaby": "Myfanwy"
+  },
+  "improvedAt": "2026-09-16T07:54:40.782Z"
+}

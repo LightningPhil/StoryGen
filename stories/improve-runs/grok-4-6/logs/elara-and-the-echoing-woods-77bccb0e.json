@@ -1,0 +1,11 @@
+{
+  "id": "elara-and-the-echoing-woods-77bccb0e",
+  "title": "Elara and the Echoing Woods",
+  "originalWordCount": 2347,
+  "improvedWordCount": 1157,
+  "notes": "Dropped the gather-round memoir, replaced Grumblepuff Barnaby with Alaric, kept the But/Therefore run from Open Day panic to sprite-and-harmonizer, and left moth-light instead of a belonging lecture.",
+  "bannedNameReplacements": {
+    "Barnaby": "Alaric"
+  },
+  "improvedAt": "2026-09-15T21:10:33.558Z"
+}

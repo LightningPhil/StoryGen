@@ -1,0 +1,11 @@
+{
+  "id": "bartholomews-wild-ride-ae9b72c8",
+  "title": "Bartholomew's Wild Ride",
+  "originalWordCount": 1425,
+  "improvedWordCount": 937,
+  "notes": "Kept Bartholomew and Pip, renamed Barnaby the goose to Beca, and let the accidental kite-boat finish the Seven-Point.",
+  "bannedNameReplacements": {
+    "Barnaby": "Beca"
+  },
+  "improvedAt": "2026-09-16T19:16:38.601Z"
+}

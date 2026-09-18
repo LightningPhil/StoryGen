@@ -1,0 +1,11 @@
+{
+  "id": "muddle-and-the-dragons-gleam-81036ec2",
+  "title": "Muddle and the Dragon's Gleam",
+  "originalWordCount": 1283,
+  "improvedWordCount": 782,
+  "notes": "Replaced Barnaby Flumph with Ailsa Flumph, kept the fable contrast of tidy net versus gentle buffing, dropped the coin-worth-more lecture, and let Ignis choose care over the cloud-mop.",
+  "bannedNameReplacements": {
+    "Barnaby": "Ailsa"
+  },
+  "improvedAt": "2026-09-16T06:53:19.278Z"
+}

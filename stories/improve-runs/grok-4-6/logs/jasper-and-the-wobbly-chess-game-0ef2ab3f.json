@@ -1,0 +1,11 @@
+{
+  "id": "jasper-and-the-wobbly-chess-game-0ef2ab3f",
+  "title": "Jasper and the Wobbly Chess Game",
+  "originalWordCount": 1695,
+  "improvedWordCount": 983,
+  "notes": "Kept Jasper, renamed Barnaby the rabbit to Gwyneth, cut the whoooo frame, and let gallops and wiggles name legal moves instead of breaking them.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwyneth"
+  },
+  "improvedAt": "2026-09-16T09:46:14.899Z"
+}

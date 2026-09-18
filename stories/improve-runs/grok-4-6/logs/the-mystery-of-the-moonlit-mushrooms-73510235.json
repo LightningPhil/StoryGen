@@ -1,0 +1,11 @@
+{
+  "id": "the-mystery-of-the-moonlit-mushrooms-73510235",
+  "title": "The Mystery of the Moonlit Mushrooms",
+  "originalWordCount": 1505,
+  "improvedWordCount": 1312,
+  "notes": "Replaced owl critic Barnaby with Gwynfor, kept Miso and Marmalade, cut the hark dear-listeners and smallest-gleam sermon, and left the mole still polishing.",
+  "bannedNameReplacements": {
+    "Barnaby": "Gwynfor"
+  },
+  "improvedAt": "2026-09-16T07:50:35.718Z"
+}

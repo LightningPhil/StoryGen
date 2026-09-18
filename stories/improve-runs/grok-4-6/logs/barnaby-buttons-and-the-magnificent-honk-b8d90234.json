@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-buttons-and-the-magnificent-honk-b8d90234",
+  "title": "Betrys Buttons and the Magnificent Honk",
+  "originalWordCount": 1120,
+  "improvedWordCount": 963,
+  "notes": "Replaced Barnaby Buttons with Betrys Buttons in title, body, and characters, dropped the dear-listeners close, kept Gertrude's three honks as the pinches, and let the off-beat waltz show the change.",
+  "bannedNameReplacements": {
+    "Barnaby": "Betrys"
+  },
+  "improvedAt": "2026-09-16T19:28:24.939Z"
+}

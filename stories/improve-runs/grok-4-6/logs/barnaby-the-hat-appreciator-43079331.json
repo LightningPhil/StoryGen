@@ -1,0 +1,11 @@
+{
+  "id": "barnaby-the-hat-appreciator-43079331",
+  "title": "Eifion the Hat Appreciator",
+  "originalWordCount": 237,
+  "improvedWordCount": 274,
+  "notes": "Renamed Barnaby the donkey to Eifion in title prose and characters, kept Nora Tilly and Captain Wren in the fair, and let the Aesop stall end on a hat that likes a kind word.",
+  "bannedNameReplacements": {
+    "Barnaby": "Eifion"
+  },
+  "improvedAt": "2026-09-16T10:19:31.626Z"
+}
